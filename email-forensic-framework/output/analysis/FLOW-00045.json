@@ -1,0 +1,89 @@
+{
+  "session_id": "FLOW-00045",
+  "protocol": {
+    "name": "IMAP",
+    "confidence": 0.9,
+    "confidence_bucket": "MEDIUM",
+    "evidence": [
+      "untagged_ok_greeting",
+      "tagged_command",
+      "untagged_capability",
+      "known_imap_port"
+    ]
+  },
+  "port_hint": "IMAP",
+  "port_protocol_conflict": false,
+  "state": "TLS_NEGOTIATION",
+  "encryption": {
+    "mode": "STARTTLS",
+    "offered": true,
+    "requested": true,
+    "accepted": true,
+    "rejected": false,
+    "tls_detected": true,
+    "boundary": {
+      "direction": "client_to_server",
+      "offset": 28,
+      "timestamp": 1790192040.5026572
+    },
+    "security_indicators": []
+  },
+  "events": [
+    {
+      "timestamp": 1790192040.4426572,
+      "direction": "server_to_client",
+      "protocol": "IMAP",
+      "event_type": "SERVER_GREETING",
+      "command": "* OK",
+      "stream_offset": 0,
+      "raw_length": 20,
+      "evidence": "* OK IMAP4rev1 Ready",
+      "metadata": {}
+    },
+    {
+      "timestamp": 1790192040.4626572,
+      "direction": "server_to_client",
+      "protocol": "IMAP",
+      "event_type": "STARTTLS_OFFER",
+      "command": "CAPABILITY",
+      "stream_offset": 22,
+      "raw_length": 42,
+      "evidence": "* CAPABILITY IMAP4rev1 STARTTLS AUTH=PLAIN",
+      "metadata": {}
+    },
+    {
+      "timestamp": 1790192040.4826572,
+      "direction": "client_to_server",
+      "protocol": "IMAP",
+      "event_type": "STARTTLS_REQUEST",
+      "command": "STARTTLS",
+      "stream_offset": 15,
+      "raw_length": 11,
+      "evidence": "X2 STARTTLS",
+      "metadata": {}
+    },
+    {
+      "timestamp": 1790192040.4926572,
+      "direction": "server_to_client",
+      "protocol": "IMAP",
+      "event_type": "STARTTLS_ACCEPT",
+      "command": "OK",
+      "stream_offset": 94,
+      "raw_length": 31,
+      "evidence": "X2 OK Begin TLS negotiation now",
+      "metadata": {}
+    },
+    {
+      "timestamp": 1790192040.5026572,
+      "direction": "client_to_server",
+      "protocol": "IMAP",
+      "event_type": "TLS_CLIENT_HELLO",
+      "command": "TLS_CLIENT_HELLO",
+      "stream_offset": 28,
+      "raw_length": 46,
+      "evidence": "<TLS ClientHello>",
+      "metadata": {}
+    }
+  ],
+  "parse_status": "COMPLETE"
+}

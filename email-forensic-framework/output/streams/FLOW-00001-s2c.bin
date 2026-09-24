@@ -1,0 +1,5 @@
+220 mail.example.com ESMTP
+250-mail.example.com
+250-STARTTLS
+250 AUTH PLAIN
+235 Authentication successful

@@ -1,0 +1,2 @@
+EHLO workstation
+AUTH PLAIN dXNlcjpwYXNzd29yZA==

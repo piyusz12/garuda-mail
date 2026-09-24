@@ -1,0 +1,75 @@
+{
+  "session_id": "FLOW-00047",
+  "protocol": {
+    "name": "SMTP",
+    "confidence": 1.0,
+    "confidence_bucket": "HIGH",
+    "evidence": [
+      "server_220_banner",
+      "client_EHLO",
+      "smtp_250_response",
+      "mail_from",
+      "rcpt_to"
+    ]
+  },
+  "port_hint": null,
+  "port_protocol_conflict": false,
+  "state": "COMMAND_PHASE",
+  "encryption": {
+    "mode": "PLAINTEXT",
+    "offered": false,
+    "requested": false,
+    "accepted": false,
+    "rejected": false,
+    "tls_detected": false,
+    "boundary": null,
+    "security_indicators": []
+  },
+  "events": [
+    {
+      "timestamp": 1790192040.4426851,
+      "direction": "server_to_client",
+      "protocol": "SMTP",
+      "event_type": "SERVER_GREETING",
+      "command": "220",
+      "stream_offset": 0,
+      "raw_length": 26,
+      "evidence": "220 mail.example.com ESMTP",
+      "metadata": {}
+    },
+    {
+      "timestamp": 1790192040.452685,
+      "direction": "client_to_server",
+      "protocol": "SMTP",
+      "event_type": "CLIENT_HELLO_APP",
+      "command": "EHLO",
+      "stream_offset": 0,
+      "raw_length": 16,
+      "evidence": "EHLO workstation",
+      "metadata": {}
+    },
+    {
+      "timestamp": 1790192040.472685,
+      "direction": "client_to_server",
+      "protocol": "SMTP",
+      "event_type": "MAIL_FROM",
+      "command": "MAIL FROM",
+      "stream_offset": 18,
+      "raw_length": 25,
+      "evidence": "MAIL FROM:<a@example.com>",
+      "metadata": {}
+    },
+    {
+      "timestamp": 1790192040.482685,
+      "direction": "client_to_server",
+      "protocol": "SMTP",
+      "event_type": "RCPT_TO",
+      "command": "RCPT TO",
+      "stream_offset": 45,
+      "raw_length": 23,
+      "evidence": "RCPT TO:<b@example.com>",
+      "metadata": {}
+    }
+  ],
+  "parse_status": "COMPLETE"
+}

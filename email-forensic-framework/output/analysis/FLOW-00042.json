@@ -1,0 +1,100 @@
+{
+  "session_id": "FLOW-00042",
+  "protocol": {
+    "name": "SMTP",
+    "confidence": 0.8,
+    "confidence_bucket": "MEDIUM",
+    "evidence": [
+      "server_220_banner",
+      "client_EHLO",
+      "smtp_250_response",
+      "known_smtp_port"
+    ]
+  },
+  "port_hint": "SMTP",
+  "port_protocol_conflict": false,
+  "state": "ENCRYPTED",
+  "encryption": {
+    "mode": "STARTTLS",
+    "offered": true,
+    "requested": true,
+    "accepted": true,
+    "rejected": false,
+    "tls_detected": true,
+    "boundary": {
+      "direction": "client_to_server",
+      "offset": 34,
+      "timestamp": 1790192040.5126183
+    },
+    "security_indicators": []
+  },
+  "events": [
+    {
+      "timestamp": 1790192040.4426184,
+      "direction": "server_to_client",
+      "protocol": "SMTP",
+      "event_type": "SERVER_GREETING",
+      "command": "220",
+      "stream_offset": 0,
+      "raw_length": 26,
+      "evidence": "220 mail.example.com ESMTP",
+      "metadata": {}
+    },
+    {
+      "timestamp": 1790192040.4526184,
+      "direction": "client_to_server",
+      "protocol": "SMTP",
+      "event_type": "CLIENT_HELLO_APP",
+      "command": "EHLO",
+      "stream_offset": 0,
+      "raw_length": 22,
+      "evidence": "EHLO workstation.local",
+      "metadata": {}
+    },
+    {
+      "timestamp": 1790192040.4726183,
+      "direction": "server_to_client",
+      "protocol": "SMTP",
+      "event_type": "STARTTLS_OFFER",
+      "command": "250-STARTTLS",
+      "stream_offset": 50,
+      "raw_length": 12,
+      "evidence": "250-STARTTLS",
+      "metadata": {}
+    },
+    {
+      "timestamp": 1790192040.4926183,
+      "direction": "client_to_server",
+      "protocol": "SMTP",
+      "event_type": "STARTTLS_REQUEST",
+      "command": "STARTTLS",
+      "stream_offset": 24,
+      "raw_length": 8,
+      "evidence": "STARTTLS",
+      "metadata": {}
+    },
+    {
+      "timestamp": 1790192040.5026183,
+      "direction": "server_to_client",
+      "protocol": "SMTP",
+      "event_type": "STARTTLS_ACCEPT",
+      "command": "220",
+      "stream_offset": 86,
+      "raw_length": 28,
+      "evidence": "220 2.0.0 Ready to start TLS",
+      "metadata": {}
+    },
+    {
+      "timestamp": 1790192040.5126183,
+      "direction": "client_to_server",
+      "protocol": "SMTP",
+      "event_type": "TLS_CLIENT_HELLO",
+      "command": "TLS_CLIENT_HELLO",
+      "stream_offset": 34,
+      "raw_length": 46,
+      "evidence": "<TLS ClientHello>",
+      "metadata": {}
+    }
+  ],
+  "parse_status": "COMPLETE"
+}

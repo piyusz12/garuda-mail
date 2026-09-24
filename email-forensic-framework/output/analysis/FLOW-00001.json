@@ -1,0 +1,90 @@
+{
+  "session_id": "FLOW-00001",
+  "protocol": {
+    "name": "SMTP",
+    "confidence": 0.8,
+    "evidence": [
+      "220 server greeting",
+      "EHLO/HELO command",
+      "250 response",
+      "Port 25 matches known SMTP port"
+    ]
+  },
+  "transport": {
+    "src_ip": "10.0.0.1",
+    "src_port": 12346,
+    "dst_ip": "10.0.0.2",
+    "dst_port": 25
+  },
+  "encryption": {
+    "mode": "PLAINTEXT",
+    "starttls_offered": true,
+    "starttls_requested": false,
+    "starttls_accepted": false,
+    "tls_detected": false,
+    "boundary": null
+  },
+  "events": [
+    {
+      "timestamp": "2026-09-24T01:09:21.625358",
+      "direction": "S2C",
+      "protocol": "SMTP",
+      "event_type": "RESPONSE",
+      "normalized_event": "SERVER_GREETING",
+      "command": "220",
+      "stream_offset": 0,
+      "raw_length": 28,
+      "evidence": "220 mail.example.com ESMTP"
+    },
+    {
+      "timestamp": "2026-09-24T01:09:21.625358",
+      "direction": "S2C",
+      "protocol": "SMTP",
+      "event_type": "RESPONSE",
+      "normalized_event": "STARTTLS_OFFER",
+      "command": "250",
+      "stream_offset": 50,
+      "raw_length": 14,
+      "evidence": "250-STARTTLS"
+    },
+    {
+      "timestamp": "2026-09-24T01:09:21.625358",
+      "direction": "C2S",
+      "protocol": "SMTP",
+      "event_type": "COMMAND",
+      "normalized_event": "EHLO",
+      "command": "EHLO",
+      "stream_offset": 0,
+      "raw_length": 18,
+      "evidence": "EHLO workstation"
+    },
+    {
+      "timestamp": "2026-09-24T01:09:21.625358",
+      "direction": "C2S",
+      "protocol": "SMTP",
+      "event_type": "COMMAND",
+      "normalized_event": "AUTH_ATTEMPT",
+      "command": "AUTH",
+      "stream_offset": 18,
+      "raw_length": 33,
+      "evidence": "AUTH PLAIN [REDACTED]"
+    }
+  ],
+  "security_indicators": [
+    {
+      "type": "STARTTLS_NOT_USED",
+      "severity_hint": "HIGH",
+      "details": null
+    },
+    {
+      "type": "PLAINTEXT_AUTHENTICATION",
+      "severity_hint": "CRITICAL",
+      "details": {
+        "before_tls": true
+      }
+    }
+  ],
+  "parse_status": "COMPLETE",
+  "port_hint": "SMTP",
+  "port_protocol_conflict": false
+}

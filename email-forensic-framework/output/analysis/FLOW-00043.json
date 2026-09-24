@@ -1,0 +1,87 @@
+{
+  "session_id": "FLOW-00043",
+  "protocol": {
+    "name": "SMTP",
+    "confidence": 0.8,
+    "confidence_bucket": "MEDIUM",
+    "evidence": [
+      "server_220_banner",
+      "client_EHLO",
+      "smtp_250_response",
+      "known_smtp_port"
+    ]
+  },
+  "port_hint": "SMTP",
+  "port_protocol_conflict": false,
+  "state": "COMMAND_PHASE",
+  "encryption": {
+    "mode": "PLAINTEXT",
+    "offered": true,
+    "requested": false,
+    "accepted": false,
+    "rejected": false,
+    "tls_detected": false,
+    "boundary": null,
+    "security_indicators": [
+      {
+        "type": "STARTTLS_NOT_USED",
+        "severity_hint": "HIGH",
+        "detail": "Server advertised STARTTLS/STLS but the client never requested it."
+      },
+      {
+        "type": "PLAINTEXT_AUTHENTICATION",
+        "severity_hint": "HIGH",
+        "detail": "Authentication observed before any TLS upgrade completed."
+      }
+    ]
+  },
+  "events": [
+    {
+      "timestamp": 1790192040.4426427,
+      "direction": "server_to_client",
+      "protocol": "SMTP",
+      "event_type": "SERVER_GREETING",
+      "command": "220",
+      "stream_offset": 0,
+      "raw_length": 20,
+      "evidence": "220 mail.example.com",
+      "metadata": {}
+    },
+    {
+      "timestamp": 1790192040.4526427,
+      "direction": "client_to_server",
+      "protocol": "SMTP",
+      "event_type": "CLIENT_HELLO_APP",
+      "command": "EHLO",
+      "stream_offset": 0,
+      "raw_length": 16,
+      "evidence": "EHLO workstation",
+      "metadata": {}
+    },
+    {
+      "timestamp": 1790192040.4626427,
+      "direction": "server_to_client",
+      "protocol": "SMTP",
+      "event_type": "STARTTLS_OFFER",
+      "command": "250-STARTTLS",
+      "stream_offset": 22,
+      "raw_length": 12,
+      "evidence": "250-STARTTLS",
+      "metadata": {}
+    },
+    {
+      "timestamp": 1790192040.4726427,
+      "direction": "client_to_server",
+      "protocol": "SMTP",
+      "event_type": "AUTH_ATTEMPT",
+      "command": "AUTH",
+      "stream_offset": 18,
+      "raw_length": 31,
+      "evidence": "AUTH [REDACTED]",
+      "metadata": {
+        "before_tls": true
+      }
+    }
+  ],
+  "parse_status": "COMPLETE"
+}
