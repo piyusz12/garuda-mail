@@ -3,87 +3,66 @@
   "protocol": {
     "name": "POP3",
     "confidence": 0.75,
-    "confidence_bucket": "MEDIUM",
     "evidence": [
       "positive_ok_greeting",
       "user_command",
       "capa_command",
       "known_pop3_port"
-    ]
+    ],
+    "confidence_bucket": "MEDIUM"
   },
-  "port_hint": "POP3",
-  "port_protocol_conflict": false,
-  "state": "TLS_NEGOTIATION",
+  "transport": {
+    "src_ip": "10.0.0.15",
+    "src_port": 53241,
+    "dst_ip": "203.0.113.20",
+    "dst_port": 110
+  },
   "encryption": {
     "mode": "STARTTLS",
-    "offered": true,
-    "requested": true,
-    "accepted": true,
-    "rejected": false,
+    "starttls_offered": true,
+    "starttls_requested": true,
+    "starttls_accepted": true,
+    "starttls_rejected": false,
     "tls_detected": true,
     "boundary": {
       "direction": "client_to_server",
       "offset": 12,
-      "timestamp": 1790192040.5276656
+      "stream_offset": 12,
+      "timestamp": 0.0
     },
-    "security_indicators": []
+    "security_indicators": [],
+    "offered": true,
+    "requested": true,
+    "accepted": true,
+    "rejected": false
   },
+  "tls_metadata": null,
   "events": [
     {
-      "timestamp": 1790192040.4426656,
-      "direction": "server_to_client",
+      "timestamp": 1.0,
+      "direction": "c2s",
       "protocol": "POP3",
-      "event_type": "SERVER_GREETING",
-      "command": "+OK",
+      "event_type": "COMMAND",
+      "normalized_event": "COMMAND",
+      "command": "CAPA",
       "stream_offset": 0,
-      "raw_length": 21,
-      "evidence": "+OK POP3 server ready",
-      "metadata": {}
-    },
-    {
-      "timestamp": 1790192040.4776657,
-      "direction": "server_to_client",
-      "protocol": "POP3",
-      "event_type": "STARTTLS_OFFER",
-      "command": "STLS",
-      "stream_offset": 28,
       "raw_length": 4,
-      "evidence": "STLS",
-      "metadata": {}
+      "evidence": "CAPA"
     },
     {
-      "timestamp": 1790192040.5076656,
-      "direction": "client_to_server",
+      "timestamp": 1.0,
+      "direction": "c2s",
       "protocol": "POP3",
       "event_type": "STARTTLS_REQUEST",
+      "normalized_event": "STARTTLS_REQUEST",
       "command": "STLS",
       "stream_offset": 6,
       "raw_length": 4,
-      "evidence": "STLS",
-      "metadata": {}
-    },
-    {
-      "timestamp": 1790192040.5176656,
-      "direction": "server_to_client",
-      "protocol": "POP3",
-      "event_type": "STARTTLS_ACCEPT",
-      "command": "+OK",
-      "stream_offset": 43,
-      "raw_length": 25,
-      "evidence": "+OK Begin TLS negotiation",
-      "metadata": {}
-    },
-    {
-      "timestamp": 1790192040.5276656,
-      "direction": "client_to_server",
-      "protocol": "POP3",
-      "event_type": "TLS_CLIENT_HELLO",
-      "command": "TLS_CLIENT_HELLO",
-      "stream_offset": 12,
-      "raw_length": 46,
-      "evidence": "<TLS ClientHello>",
-      "metadata": {}
+      "evidence": "STLS"
     }
   ],
-  "parse_status": "COMPLETE"
+  "security_indicators": [],
+  "parse_status": "COMPLETE",
+  "port_hint": "POP3",
+  "port_protocol_conflict": false
 }

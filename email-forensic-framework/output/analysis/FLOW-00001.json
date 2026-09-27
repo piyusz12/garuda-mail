@@ -1,90 +1,61 @@
 {
-  "session_id": "FLOW-00001",
+  "session_id": "FLOW-00000",
   "protocol": {
-    "name": "SMTP",
-    "confidence": 0.8,
-    "evidence": [
-      "220 server greeting",
-      "EHLO/HELO command",
-      "250 response",
-      "Port 25 matches known SMTP port"
-    ]
+    "name": "UNKNOWN",
+    "confidence": 0.0,
+    "evidence": []
   },
   "transport": {
-    "src_ip": "10.0.0.1",
-    "src_port": 12346,
-    "dst_ip": "10.0.0.2",
-    "dst_port": 25
+    "src_ip": "127.0.0.1",
+    "src_port": 0,
+    "dst_ip": "127.0.0.1",
+    "dst_port": 0
   },
   "encryption": {
-    "mode": "PLAINTEXT",
-    "starttls_offered": true,
+    "mode": "STARTTLS",
+    "starttls_offered": false,
     "starttls_requested": false,
     "starttls_accepted": false,
-    "tls_detected": false,
-    "boundary": null
+    "starttls_rejected": false,
+    "tls_detected": true,
+    "boundary": {
+      "direction": "C2S",
+      "offset": 28,
+      "stream_offset": 0,
+      "timestamp": 0.0
+    },
+    "security_indicators": []
+  },
+  "tls_metadata": {
+    "client_version": null,
+    "server_version": null,
+    "cipher_suites_offered": [],
+    "cipher_suite_selected": null,
+    "sni": null,
+    "alpn_offered": [],
+    "alpn_selected": null,
+    "extensions_offered": [],
+    "certificates": [],
+    "ja4": {
+      "ja4": null,
+      "ja4s": null
+    }
   },
   "events": [
     {
-      "timestamp": "2026-09-24T01:09:21.625358",
-      "direction": "S2C",
-      "protocol": "SMTP",
-      "event_type": "RESPONSE",
-      "normalized_event": "SERVER_GREETING",
-      "command": "220",
+      "timestamp": 1.0,
+      "direction": "c2s",
+      "protocol": "UNKNOWN",
+      "event_type": "STARTTLS_REQUEST",
+      "normalized_event": "STARTTLS_REQUEST",
+      "command": "STARTTLS",
       "stream_offset": 0,
-      "raw_length": 28,
-      "evidence": "220 mail.example.com ESMTP"
-    },
-    {
-      "timestamp": "2026-09-24T01:09:21.625358",
-      "direction": "S2C",
-      "protocol": "SMTP",
-      "event_type": "RESPONSE",
-      "normalized_event": "STARTTLS_OFFER",
-      "command": "250",
-      "stream_offset": 50,
-      "raw_length": 14,
-      "evidence": "250-STARTTLS"
-    },
-    {
-      "timestamp": "2026-09-24T01:09:21.625358",
-      "direction": "C2S",
-      "protocol": "SMTP",
-      "event_type": "COMMAND",
-      "normalized_event": "EHLO",
-      "command": "EHLO",
-      "stream_offset": 0,
-      "raw_length": 18,
-      "evidence": "EHLO workstation"
-    },
-    {
-      "timestamp": "2026-09-24T01:09:21.625358",
-      "direction": "C2S",
-      "protocol": "SMTP",
-      "event_type": "COMMAND",
-      "normalized_event": "AUTH_ATTEMPT",
-      "command": "AUTH",
-      "stream_offset": 18,
-      "raw_length": 33,
-      "evidence": "AUTH PLAIN [REDACTED]"
+      "raw_length": 8,
+      "evidence": "STARTTLS"
     }
   ],
-  "security_indicators": [
-    {
-      "type": "STARTTLS_NOT_USED",
-      "severity_hint": "HIGH",
-      "details": null
-    },
-    {
-      "type": "PLAINTEXT_AUTHENTICATION",
-      "severity_hint": "CRITICAL",
-      "details": {
-        "before_tls": true
-      }
-    }
-  ],
+  "security_indicators": [],
   "parse_status": "COMPLETE",
-  "port_hint": "SMTP",
+  "port_hint": null,
   "port_protocol_conflict": false
 }

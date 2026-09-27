@@ -3,87 +3,66 @@
   "protocol": {
     "name": "IMAP",
     "confidence": 0.9,
-    "confidence_bucket": "MEDIUM",
     "evidence": [
       "untagged_ok_greeting",
       "tagged_command",
       "untagged_capability",
       "known_imap_port"
-    ]
+    ],
+    "confidence_bucket": "HIGH"
   },
-  "port_hint": "IMAP",
-  "port_protocol_conflict": false,
-  "state": "TLS_NEGOTIATION",
+  "transport": {
+    "src_ip": "10.0.0.15",
+    "src_port": 53241,
+    "dst_ip": "203.0.113.20",
+    "dst_port": 143
+  },
   "encryption": {
     "mode": "STARTTLS",
-    "offered": true,
-    "requested": true,
-    "accepted": true,
-    "rejected": false,
+    "starttls_offered": true,
+    "starttls_requested": true,
+    "starttls_accepted": true,
+    "starttls_rejected": false,
     "tls_detected": true,
     "boundary": {
       "direction": "client_to_server",
       "offset": 28,
-      "timestamp": 1790192040.5026572
+      "stream_offset": 28,
+      "timestamp": 0.0
     },
-    "security_indicators": []
+    "security_indicators": [],
+    "offered": true,
+    "requested": true,
+    "accepted": true,
+    "rejected": false
   },
+  "tls_metadata": null,
   "events": [
     {
-      "timestamp": 1790192040.4426572,
-      "direction": "server_to_client",
+      "timestamp": 1.0,
+      "direction": "c2s",
       "protocol": "IMAP",
-      "event_type": "SERVER_GREETING",
-      "command": "* OK",
-      "stream_offset": 0,
-      "raw_length": 20,
-      "evidence": "* OK IMAP4rev1 Ready",
-      "metadata": {}
-    },
-    {
-      "timestamp": 1790192040.4626572,
-      "direction": "server_to_client",
-      "protocol": "IMAP",
-      "event_type": "STARTTLS_OFFER",
+      "event_type": "COMMAND",
+      "normalized_event": "CAPABILITY_REQUEST",
       "command": "CAPABILITY",
-      "stream_offset": 22,
-      "raw_length": 42,
-      "evidence": "* CAPABILITY IMAP4rev1 STARTTLS AUTH=PLAIN",
-      "metadata": {}
+      "stream_offset": 0,
+      "raw_length": 13,
+      "evidence": "X1 CAPABILITY"
     },
     {
-      "timestamp": 1790192040.4826572,
-      "direction": "client_to_server",
+      "timestamp": 1.0,
+      "direction": "c2s",
       "protocol": "IMAP",
       "event_type": "STARTTLS_REQUEST",
+      "normalized_event": "STARTTLS_REQUEST",
       "command": "STARTTLS",
       "stream_offset": 15,
       "raw_length": 11,
-      "evidence": "X2 STARTTLS",
-      "metadata": {}
-    },
-    {
-      "timestamp": 1790192040.4926572,
-      "direction": "server_to_client",
-      "protocol": "IMAP",
-      "event_type": "STARTTLS_ACCEPT",
-      "command": "OK",
-      "stream_offset": 94,
-      "raw_length": 31,
-      "evidence": "X2 OK Begin TLS negotiation now",
-      "metadata": {}
-    },
-    {
-      "timestamp": 1790192040.5026572,
-      "direction": "client_to_server",
-      "protocol": "IMAP",
-      "event_type": "TLS_CLIENT_HELLO",
-      "command": "TLS_CLIENT_HELLO",
-      "stream_offset": 28,
-      "raw_length": 46,
-      "evidence": "<TLS ClientHello>",
-      "metadata": {}
+      "evidence": "X2 STARTTLS"
     }
   ],
-  "parse_status": "COMPLETE"
+  "security_indicators": [],
+  "parse_status": "COMPLETE",
+  "port_hint": "IMAP",
+  "port_protocol_conflict": false
 }

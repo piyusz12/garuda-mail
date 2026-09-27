@@ -50,6 +50,27 @@ class FlowMetadata(BaseModel):
 
 class ReconstructedSession(BaseModel):
     """The fully reconstructed TCP session, passed to Phase 2"""
-    metadata: FlowMetadata
-    client_stream: bytes
-    server_stream: bytes
+    session_id: str = "FLOW-00000"
+    src_ip: str = "127.0.0.1"
+    src_port: int = 0
+    dst_ip: str = "127.0.0.1"
+    dst_port: int = 0
+    truncated: bool = False
+    metadata: Optional[FlowMetadata] = None
+    client_stream: bytes = b""
+    server_stream: bytes = b""
+    client_to_server: bytes = b""
+    server_to_client: bytes = b""
+    c2s_chunks: List[Any] = Field(default_factory=list)
+    s2c_chunks: List[Any] = Field(default_factory=list)
+
+    def add_c2s(self, data: bytes, timestamp: float = 0.0):
+        self.client_to_server += data
+        self.client_stream += data
+        self.c2s_chunks.append((data, timestamp))
+
+    def add_s2c(self, data: bytes, timestamp: float = 0.0):
+        self.server_to_client += data
+        self.server_stream += data
+        self.s2c_chunks.append((data, timestamp))
+

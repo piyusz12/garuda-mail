@@ -3,106 +3,95 @@
   "protocol": {
     "name": "SMTP",
     "confidence": 0.95,
-    "confidence_bucket": "HIGH",
     "evidence": [
       "server_220_banner",
       "client_EHLO",
       "smtp_250_response",
       "mail_from",
       "known_smtp_port"
-    ]
+    ],
+    "confidence_bucket": "HIGH"
   },
-  "port_hint": "SMTP",
-  "port_protocol_conflict": false,
-  "state": "COMMAND_PHASE",
+  "transport": {
+    "src_ip": "10.0.0.15",
+    "src_port": 53241,
+    "dst_ip": "203.0.113.20",
+    "dst_port": 25
+  },
   "encryption": {
     "mode": "PLAINTEXT",
-    "offered": true,
-    "requested": true,
-    "accepted": false,
-    "rejected": true,
+    "starttls_offered": true,
+    "starttls_requested": true,
+    "starttls_accepted": false,
+    "starttls_rejected": true,
     "tls_detected": false,
     "boundary": null,
     "security_indicators": [
       {
         "type": "STARTTLS_FAILURE",
         "severity_hint": "HIGH",
-        "detail": "Client requested STARTTLS/STLS and the server rejected it."
+        "details": null
       },
       {
         "type": "PLAINTEXT_CONTINUATION",
         "severity_hint": "HIGH",
-        "detail": "Session continued in plaintext after a failed encryption upgrade."
+        "details": null
       }
-    ]
+    ],
+    "offered": true,
+    "requested": true,
+    "accepted": false,
+    "rejected": true
   },
+  "tls_metadata": null,
   "events": [
     {
-      "timestamp": 1790192040.4426506,
-      "direction": "server_to_client",
+      "timestamp": 1.0,
+      "direction": "c2s",
       "protocol": "SMTP",
-      "event_type": "SERVER_GREETING",
-      "command": "220",
-      "stream_offset": 0,
-      "raw_length": 20,
-      "evidence": "220 mail.example.com",
-      "metadata": {}
-    },
-    {
-      "timestamp": 1790192040.4526505,
-      "direction": "client_to_server",
-      "protocol": "SMTP",
-      "event_type": "CLIENT_HELLO_APP",
+      "event_type": "COMMAND",
+      "normalized_event": "CLIENT_GREETING",
       "command": "EHLO",
       "stream_offset": 0,
       "raw_length": 16,
-      "evidence": "EHLO workstation",
-      "metadata": {}
+      "evidence": "EHLO workstation"
     },
     {
-      "timestamp": 1790192040.4626505,
-      "direction": "server_to_client",
-      "protocol": "SMTP",
-      "event_type": "STARTTLS_OFFER",
-      "command": "250-STARTTLS",
-      "stream_offset": 22,
-      "raw_length": 12,
-      "evidence": "250-STARTTLS",
-      "metadata": {}
-    },
-    {
-      "timestamp": 1790192040.4726505,
-      "direction": "client_to_server",
+      "timestamp": 1.0,
+      "direction": "c2s",
       "protocol": "SMTP",
       "event_type": "STARTTLS_REQUEST",
+      "normalized_event": "STARTTLS_REQUEST",
       "command": "STARTTLS",
       "stream_offset": 18,
       "raw_length": 8,
-      "evidence": "STARTTLS",
-      "metadata": {}
+      "evidence": "STARTTLS"
     },
     {
-      "timestamp": 1790192040.4826505,
-      "direction": "server_to_client",
+      "timestamp": 1.0,
+      "direction": "c2s",
       "protocol": "SMTP",
-      "event_type": "STARTTLS_REJECT",
-      "command": "454",
-      "stream_offset": 36,
-      "raw_length": 21,
-      "evidence": "454 TLS not available",
-      "metadata": {}
-    },
-    {
-      "timestamp": 1790192040.4926505,
-      "direction": "client_to_server",
-      "protocol": "SMTP",
-      "event_type": "MAIL_FROM",
-      "command": "MAIL FROM",
+      "event_type": "COMMAND",
+      "normalized_event": "MAIL_TRANSACTION",
+      "command": "MAIL",
       "stream_offset": 28,
       "raw_length": 28,
-      "evidence": "MAIL FROM:<user@example.com>",
-      "metadata": {}
+      "evidence": "MAIL FROM:<user@example.com>"
     }
   ],
-  "parse_status": "COMPLETE"
+  "security_indicators": [
+    {
+      "type": "STARTTLS_FAILURE",
+      "severity_hint": "HIGH",
+      "details": null
+    },
+    {
+      "type": "PLAINTEXT_CONTINUATION",
+      "severity_hint": "HIGH",
+      "details": null
+    }
+  ],
+  "parse_status": "COMPLETE",
+  "port_hint": "SMTP",
+  "port_protocol_conflict": false
 }
