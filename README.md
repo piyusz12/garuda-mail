@@ -2,11 +2,11 @@
 
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/)
 [![Vite 6](https://img.shields.io/badge/Vite-6.0+-646CFF.svg)](https://vite.dev/)
-[![Tests](https://img.shields.io/badge/Tests-167%2F167%20Passing-brightgreen.svg)](tests/)
-[![SOAR Control Plane](https://img.shields.io/badge/Remediation-Canary%20%2B%20Four--Eyes-cyan.svg)](phase_24_autonomous_incident_response.py)
+[![Tests](https://img.shields.io/badge/Tests-189%2F189%20Passing-brightgreen.svg)](tests/)
+[![Closed-Loop Defense](https://img.shields.io/badge/Closed--Loop%20Defense-Phase%2025%20SOC-cyan.svg)](phase_25_autonomous_security_operations.py)
 [![License: Proprietary](https://img.shields.io/badge/License-Enterprise-red.svg)](#)
 
-> **Enterprise Cryptographic Security Assessment, Passive Telemetry Analysis, Autonomous Threat Hunting, SOAR Orchestration, and Continuous Remediation for Enterprise Email Infrastructures.**
+> **Enterprise Cryptographic Security Assessment, Passive Telemetry Analysis, Autonomous Threat Hunting, SOAR Orchestration, and Closed-Loop Defensive Operations for Enterprise Email Infrastructures.**
 
 ---
 
@@ -61,7 +61,8 @@ The platform merges:
 | **Phase 21** | Cryptographic Agility & Post-Quantum Cryptography (PQC) | `phase_21_cryptographic_agility_pqc.py` (Kyber/Dilithium readiness) |
 | **Phase 22** | Forensic Data Lakehouse & Multi-Year Memory | `phase_22_forensic_data_lakehouse.py` (Parquet, Sessions, Lineage) |
 | **Phase 23** | Autonomous Threat Hunting & Detection Engineering | `phase_23_autonomous_threat_hunting.py` + 8 modular packages |
-| **Phase 24** | **Autonomous Incident Response & SOAR Orchestration** | **`phase_24_autonomous_incident_response.py` + 7 modular packages** |
+| **Phase 24** | Autonomous Incident Response & SOAR Orchestration | `phase_24_autonomous_incident_response.py` + 9 modular packages |
+| **Phase 25** | **Autonomous Security Operations & Closed-Loop Defense** | **`phase_25_autonomous_security_operations.py` + `security_operations/` + `detection_engineering/`** |
 
 ---
 
@@ -295,43 +296,62 @@ python phase_24_autonomous_incident_response.py simulate --assets "MTA-07,MTA-04
 python phase_24_autonomous_incident_response.py serve --port 8024
 ```
 
+### 5.5 Phase 25 Autonomous Security Operations & Closed-Loop Defense CLI
+
+```bash
+# Run complete Phase 25 demonstration (full closed-loop workflow)
+python phase_25_autonomous_security_operations.py demo
+
+# Launch Phase 25 SOC & SOAR REST API microservice (port 8025)
+python phase_25_autonomous_security_operations.py serve --port 8025
+```
+
 ---
 
 ## 6. Verification & Test Suite
 
-The test suite validates forensic reassembly contracts, Phase 23 threat hunting, and the complete Phase 24 SOAR orchestration control plane:
+The test suite validates forensic reassembly contracts, Phase 23 threat hunting, Phase 24 SOAR incident response, and the complete Phase 25 autonomous security operations control plane:
 
 ```bash
 $ pytest tests/
 ============================= test session starts =============================
 platform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0
 rootdir: C:\Users\Thalendra\Desktop\garuda mail\garuda-mail\email-forensic-framework
-collected 167 items
+collected 189 items
 
 tests\coverage\test_coverage_and_feedback.py .....                       [  2%]
-tests\detection\test_detection.py .......                                [  7%]
-tests\encryption\test_tls_boundary.py ..                                 [  8%]
-tests\hunting\test_hunting.py .....                                      [ 11%]
-tests\hypothesis\test_hypothesis.py ...                                  [ 13%]
-tests\incident\test_incident_management.py ....                          [ 15%]
-tests\investigation\test_investigation.py ....                           [ 17%]
-tests\playbooks\test_playbooks.py ...                                    [ 19%]
-tests\protocol\test_imap.py ....                                         [ 22%]
-tests\protocol\test_pop3.py ...                                          [ 23%]
-tests\protocol\test_smtp.py ........                                     [ 28%]
-tests\replay\test_replay.py .                                            [ 29%]
-tests\response\test_response_orchestration.py .....                      [ 32%]
-tests\simulation\test_simulation_blast_radius.py ...                     [ 34%]
-tests\test_phase23_e2e.py ..                                             [ 35%]
-tests\test_phase24_e2e.py ..                                             [ 36%]
-tests\test_phase6_sessions.py ....................................       [ 58%]
-tests\test_phase7_transition.py ........................................ [ 82%]
-...................                                                      [ 93%]
-tests\test_tls_parsing.py ..                                             [ 94%]
+tests\detection\test_detection.py .......                                [  6%]
+tests\encryption\test_tls_boundary.py ..                                 [  7%]
+tests\hunting\test_hunting.py .....                                      [ 10%]
+tests\hypothesis\test_hypothesis.py ...                                  [ 11%]
+tests\incident\test_incident_management.py ....                          [ 13%]
+tests\investigation\test_investigation.py ....                           [ 15%]
+tests\phase25\actions\test_actions.py ...                                [ 17%]
+tests\phase25\alerts\test_alerts.py ...                                  [ 19%]
+tests\phase25\automation\test_automation.py ..                           [ 20%]
+tests\phase25\detection_feedback\test_detection_feedback.py ...          [ 21%]
+tests\phase25\orchestration\test_orchestration.py ....                   [ 23%]
+tests\phase25\playbooks\test_playbooks.py ..                             [ 24%]
+tests\phase25\rollback\test_rollback.py .                                [ 25%]
+tests\phase25\test_phase25_e2e.py ..                                     [ 26%]
+tests\phase25\verification\test_verification.py ..                       [ 27%]
+tests\playbooks\test_playbooks.py ...                                    [ 29%]
+tests\protocol\test_imap.py ....                                         [ 31%]
+tests\protocol\test_pop3.py ...                                          [ 32%]
+tests\protocol\test_smtp.py ........                                     [ 37%]
+tests\replay\test_replay.py .                                            [ 37%]
+tests\response\test_response_orchestration.py .....                      [ 40%]
+tests\simulation\test_simulation_blast_radius.py ...                     [ 41%]
+tests\test_phase23_e2e.py ..                                             [ 42%]
+tests\test_phase24_e2e.py ..                                             [ 43%]
+tests\test_phase6_sessions.py ....................................       [ 62%]
+tests\test_phase7_transition.py ........................................ [ 84%]
+...................                                                      [ 94%]
+tests\test_tls_parsing.py ..                                             [ 95%]
 tests\validation\test_validation.py ....                                 [ 97%]
 tests\verification\test_remediation_verification.py .....                [100%]
 
-======================= 167 passed, 1 warning in 1.60s ========================
+======================= 189 passed, 1 warning in 2.29s ========================
 ```
 
 ---

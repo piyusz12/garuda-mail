@@ -61,6 +61,7 @@ function initApp() {
         <button class="tab" data-tab="sessions">Forensic Sessions (${state.data.sessions.length})</button>
         <button class="tab" data-tab="hunting">Autonomous Threat Hunting</button>
         <button class="tab" data-tab="soar">Incident Response & SOAR (Phase 24)</button>
+        <button class="tab" data-tab="soc">Autonomous SecOps & Closed-Loop Defense (Phase 25)</button>
         <button class="tab" data-tab="cve">Vulnerabilities & CVEs</button>
         <button class="tab" data-tab="ja4">JA4 Intelligence</button>
       </nav>
@@ -179,6 +180,9 @@ function renderCurrentView() {
       break;
     case 'soar':
       renderSOAR(container);
+      break;
+    case 'soc':
+      renderSOC(container);
       break;
     case 'cve':
       renderCVE(container);
@@ -1217,6 +1221,393 @@ function openIncidentModal(incidentId) {
   });
 
   overlay.style.display = 'flex';
+}
+
+// ─────────────────────────────────────────────────────────────
+// VIEW 7: AUTONOMOUS SECURITY OPERATIONS & CLOSED-LOOP DEFENSE (PHASE 25)
+// ─────────────────────────────────────────────────────────────
+const MOCK_CASES = [
+  {
+    id: 'CASE-1022',
+    title: 'Certificate Anomaly & Untrusted Intermediate Ingress',
+    severity: 'High',
+    priority: 'HIGH',
+    status: 'INVESTIGATING',
+    asset: 'MTA-07',
+    riskScore: 78.4,
+    decision: 'REQUEST_APPROVAL',
+    recommendedAction: 'ROTATE_CERTIFICATE',
+    playbook: 'PLAYBOOK-002',
+    autonomyLevel: 'Level 2 (Prepare)',
+    cluster: 'CLUSTER-8821 (3 alerts correlated)',
+    events: ['cert_change', 'new_ja4', 'tls_downgrade'],
+    factors: [
+      { name: 'Asset Criticality', weight: '25%', contribution: '21.3' },
+      { name: 'Severity', weight: '20%', contribution: '16.0' },
+      { name: 'Recurrence', weight: '15%', contribution: '12.6' },
+      { name: 'Confidence', weight: '15%', contribution: '14.1' },
+      { name: 'Threat Intel', weight: '10%', contribution: '8.5' },
+      { name: 'Blast Radius', weight: '10%', contribution: '5.9' }
+    ],
+    uncertainty: { detection: 0.95, context: 0.90, attribution: 0.70, response: 0.85, verification: 0.98 },
+    rootCauses: [
+      { candidate: 'Unapproved Service / Crypto Deployment Change', confidence: 0.88, strength: 'STRONG' },
+      { candidate: 'Automated Certificate Renewal Configuration Drift', confidence: 0.65, strength: 'MODERATE' },
+      { candidate: 'Adversarial Ingress or Protocol Downgrade Attack', confidence: 0.40, strength: 'WEAK' }
+    ]
+  },
+  {
+    id: 'CASE-1031',
+    title: 'Rare JA4+ Fingerprint with STARTTLS Stripping Pattern',
+    severity: 'Critical',
+    priority: 'CRITICAL',
+    status: 'AWAITING_DECISION',
+    asset: 'MTA-01',
+    riskScore: 92.1,
+    decision: 'REQUEST_APPROVAL',
+    recommendedAction: 'QUARANTINE_JA4_PROFILE',
+    playbook: 'PLAYBOOK-003',
+    autonomyLevel: 'Level 3 (Low-Impact Execute)',
+    cluster: 'CLUSTER-8840 (5 alerts correlated)',
+    events: ['new_ja4', 'cleartext_auth', 'strip_attempt'],
+    factors: [
+      { name: 'Asset Criticality', weight: '25%', contribution: '25.0' },
+      { name: 'Severity', weight: '20%', contribution: '20.0' },
+      { name: 'Recurrence', weight: '15%', contribution: '15.0' },
+      { name: 'Confidence', weight: '15%', contribution: '14.5' },
+      { name: 'Threat Intel', weight: '10%', contribution: '9.2' },
+      { name: 'Blast Radius', weight: '10%', contribution: '8.4' }
+    ],
+    uncertainty: { detection: 0.98, context: 0.95, attribution: 0.85, response: 0.75, verification: 0.96 },
+    rootCauses: [
+      { candidate: 'Active Adversarial Man-in-the-Middle Ingress', confidence: 0.91, strength: 'STRONG' },
+      { candidate: 'Misconfigured Inbound Gateway Proxy', confidence: 0.35, strength: 'WEAK' }
+    ]
+  },
+  {
+    id: 'CASE-1042',
+    title: 'Repeated Legacy TLS1.0 Cryptographic Regression',
+    severity: 'High',
+    priority: 'HIGH',
+    status: 'RESPONDING',
+    asset: 'MTA-04',
+    riskScore: 71.0,
+    decision: 'EXECUTE_AUTOMATICALLY',
+    recommendedAction: 'DISABLE_LEGACY_TLS_CANARY',
+    playbook: 'PLAYBOOK-001',
+    autonomyLevel: 'Level 4 (Autonomous SOAR)',
+    cluster: 'CLUSTER-8891 (2 alerts correlated)',
+    events: ['tls_downgrade', 'legacy_cipher'],
+    factors: [
+      { name: 'Asset Criticality', weight: '25%', contribution: '18.0' },
+      { name: 'Severity', weight: '20%', contribution: '16.0' },
+      { name: 'Recurrence', weight: '15%', contribution: '15.0' },
+      { name: 'Confidence', weight: '15%', contribution: '12.0' },
+      { name: 'Threat Intel', weight: '10%', contribution: '5.0' },
+      { name: 'Blast Radius', weight: '10%', contribution: '5.0' }
+    ],
+    uncertainty: { detection: 0.96, context: 0.92, attribution: 0.65, response: 0.90, verification: 0.95 },
+    rootCauses: [
+      { candidate: 'Operator Rollback to Legacy Golden Image', confidence: 0.84, strength: 'STRONG' },
+      { candidate: 'Legacy Client Compatibility Exemption Expired', confidence: 0.62, strength: 'MODERATE' }
+    ]
+  }
+];
+
+function renderSOC(container) {
+  container.innerHTML = `
+    <div style="padding:var(--space-6) var(--space-8); display:flex; flex-direction:column; gap:var(--space-6);">
+      <!-- Top Title Banner -->
+      <div class="glass-card" style="background:linear-gradient(135deg, rgba(0,240,255,0.08) 0%, rgba(123,97,255,0.08) 100%);">
+        <div class="glass-card-body" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:var(--space-4);">
+          <div>
+            <div style="font-size:var(--text-xs); color:var(--accent-cyan); font-weight:700; letter-spacing:1px; margin-bottom:var(--space-1);">PHASE 25 CLOSED-LOOP DEFENSE</div>
+            <h2 style="margin-bottom:var(--space-1);">Autonomous Security Operations Center (SOC)</h2>
+            <p style="color:var(--text-secondary); max-width:850px;">
+              Closed-Loop Defensive Control Plane: Multi-sensor intake & deduplication, 7-task investigation DAG, transparent dynamic risk scoring, Policy-as-Code approval gates, canary rollouts, multi-layer verification, and automated continuous detection engineering.
+            </p>
+          </div>
+          <div style="display:flex; gap:var(--space-3); flex-wrap:wrap;">
+            <button class="btn btn-outline" id="btn-soc-replay-lakehouse">Replay 90d Telemetry</button>
+            <button class="btn btn-outline" id="btn-soc-promote-hunt">Promote Threat Hunt</button>
+            <button class="btn btn-primary" id="btn-soc-trigger-alert">+ Ingest Alert Stream</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SOC Command Center Metrics -->
+      <div class="dashboard-stats">
+        <div class="stat-card critical">
+          <div class="stat-label">Active Cases</div>
+          <div class="stat-value magenta">28</div>
+          <div class="stat-detail">3 Critical / 14 High / 11 Med</div>
+        </div>
+        <div class="stat-card warning">
+          <div class="stat-label">Investigation DAGs</div>
+          <div class="stat-value amber">11</div>
+          <div class="stat-detail">Parallel Context Enrichment</div>
+        </div>
+        <div class="stat-card info">
+          <div class="stat-label">Awaiting Signoff</div>
+          <div class="stat-value cyan">4</div>
+          <div class="stat-detail">Four-Eyes Verification Gate</div>
+        </div>
+        <div class="stat-card success">
+          <div class="stat-label">Automated Actions</div>
+          <div class="stat-value emerald">17</div>
+          <div class="stat-detail">16 Verified (94.1% Success)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Mean Time to Triage / MTTR</div>
+          <div class="stat-value purple" style="color:var(--accent-purple);">4m / 29m</div>
+          <div class="stat-detail">SLA Compliance: 99.2%</div>
+        </div>
+      </div>
+
+      <!-- Central Grid: Case Operations & Live Investigation DAG -->
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-6);">
+        <!-- Active Cases Queue -->
+        <div class="glass-card">
+          <div class="glass-card-header">
+            <h3>Active Operational Cases Queue</h3>
+            <span class="badge badge-info">${MOCK_CASES.length} Active Incidents</span>
+          </div>
+          <div class="glass-card-body" style="padding:0;">
+            <div class="table-scroll">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Case ID</th>
+                    <th>Target Asset</th>
+                    <th>Risk Score</th>
+                    <th>Decision Gate</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${MOCK_CASES.map(c => `
+                    <tr>
+                      <td class="mono" style="color:var(--accent-cyan); font-weight:700;">${c.id}</td>
+                      <td class="mono"><strong>${c.asset}</strong></td>
+                      <td>
+                        <span class="badge ${c.riskScore >= 80 ? 'badge-critical' : c.riskScore >= 60 ? 'badge-high' : 'badge-medium'}">
+                          ${c.riskScore} / 100
+                        </span>
+                      </td>
+                      <td><span class="badge badge-neutral">${c.decision}</span></td>
+                      <td><span class="badge badge-info">${c.status}</span></td>
+                      <td>
+                        <button class="btn btn-outline btn-sm btn-inspect-case" data-id="${c.id}">Investigate</button>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Investigation DAG & Explainability Inspector -->
+        <div class="glass-card" id="soc-dag-panel">
+          <div class="glass-card-header">
+            <h3 id="dag-panel-title">Investigation DAG: CASE-1022 (MTA-07)</h3>
+            <span class="badge badge-success">Topological Order Verified</span>
+          </div>
+          <div class="glass-card-body" style="display:flex; flex-direction:column; gap:var(--space-4);">
+            <!-- DAG Step Pipeline -->
+            <div style="display:flex; align-items:center; gap:var(--space-2); overflow-x:auto; padding-bottom:var(--space-2); font-size:var(--text-xs); font-family:var(--font-mono);">
+              <span class="badge badge-success">1. ResolveAsset</span> &rarr;
+              <span class="badge badge-success">2. CertHistory</span> &rarr;
+              <span class="badge badge-success">3. TLSBaseline</span> &rarr;
+              <span class="badge badge-success">4. JA4Profile</span> &rarr;
+              <span class="badge badge-success">5. ChangeTickets</span> &rarr;
+              <span class="badge badge-success">6. ThreatIntel</span> &rarr;
+              <span class="badge badge-success">7. BlastRadius</span>
+            </div>
+
+            <!-- Dynamic Risk Breakdown Table -->
+            <div style="background:var(--bg-elevated); padding:var(--space-3); border-radius:var(--radius-md);">
+              <div style="font-weight:600; font-size:var(--text-xs); color:var(--accent-cyan); margin-bottom:var(--space-2);">
+                DYNAMIC RISK FACTOR BREAKDOWN (SCORE: 78.4/100)
+              </div>
+              <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:var(--space-2); font-size:var(--text-xs);">
+                <div>Asset Criticality: <strong>21.3 / 25.0</strong></div>
+                <div>Severity Weight: <strong>16.0 / 20.0</strong></div>
+                <div>Recurrence Rate: <strong>12.6 / 15.0</strong></div>
+                <div>Confidence Score: <strong>14.1 / 15.0</strong></div>
+                <div>Threat Intelligence: <strong>8.5 / 10.0</strong></div>
+                <div>Blast Radius: <strong>5.9 / 10.0</strong></div>
+              </div>
+            </div>
+
+            <!-- Uncertainty Model -->
+            <div style="background:var(--bg-elevated); padding:var(--space-3); border-radius:var(--radius-md);">
+              <div style="font-weight:600; font-size:var(--text-xs); color:var(--accent-purple); margin-bottom:var(--space-2);">
+                UNCERTAINTY MODEL (CONFIDENCE DIMENSIONS)
+              </div>
+              <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:var(--space-2); font-size:var(--text-xs);">
+                <div>Detection: <strong style="color:var(--accent-emerald);">95%</strong></div>
+                <div>Context: <strong style="color:var(--accent-emerald);">90%</strong></div>
+                <div>Attribution: <strong style="color:var(--accent-amber);">70%</strong></div>
+                <div>Response: <strong style="color:var(--accent-emerald);">85%</strong></div>
+                <div>Verification: <strong style="color:var(--accent-emerald);">98%</strong></div>
+              </div>
+            </div>
+
+            <!-- Ranked Root Cause Candidates -->
+            <div>
+              <div style="font-weight:600; font-size:var(--text-xs); color:var(--text-secondary); margin-bottom:var(--space-2);">
+                RANKED ROOT-CAUSE CANDIDATES
+              </div>
+              <div style="display:flex; flex-direction:column; gap:var(--space-2); font-size:var(--text-xs);">
+                <div style="padding:var(--space-2); background:rgba(0,240,255,0.05); border-left:3px solid var(--accent-cyan); display:flex; justify-content:space-between;">
+                  <span>1. Unapproved Service / Crypto Deployment Change</span>
+                  <span class="badge badge-critical">STRONG (88%)</span>
+                </div>
+                <div style="padding:var(--space-2); background:rgba(123,97,255,0.05); border-left:3px solid var(--accent-purple); display:flex; justify-content:space-between;">
+                  <span>2. Automated Certificate Renewal Configuration Drift</span>
+                  <span class="badge badge-medium">MODERATE (65%)</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:var(--space-3); margin-top:var(--space-2);">
+              <button class="btn btn-outline btn-sm" id="btn-dryrun-action">Simulate Dry-Run</button>
+              <button class="btn btn-primary btn-sm" id="btn-request-signoff">Request Four-Eyes Approval</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Closed-Loop Detection Engineering & Drift Tracker -->
+      <div class="glass-card">
+        <div class="glass-card-header">
+          <div>
+            <div style="font-size:var(--text-xs); color:var(--accent-cyan); font-weight:700;">CONTINUOUS DEFENSIVE REFINEMENT</div>
+            <h3>Closed-Loop Detection Engineering & Drift Monitor</h3>
+          </div>
+          <span class="badge badge-success">3 Production Rules Optimized</span>
+        </div>
+        <div class="glass-card-body" style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-6);">
+          <!-- Left: Feedback & Proposals -->
+          <div style="display:flex; flex-direction:column; gap:var(--space-3);">
+            <h4 style="color:var(--text-primary); font-size:var(--text-sm);">Automated Improvement Proposals</h4>
+            <div style="padding:var(--space-3); background:var(--bg-elevated); border-radius:var(--radius-md); border-left:3px solid var(--accent-emerald);">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-1);">
+                <strong style="color:var(--accent-cyan);">PROP-A14F9: Exclude Scheduled Maintenance for TLS-LEGACY-001</strong>
+                <span class="badge badge-low">VALIDATED</span>
+              </div>
+              <p style="font-size:var(--text-xs); color:var(--text-secondary); margin-bottom:var(--space-2);">
+                Observation: FPR increased to 18% over 30 days due to off-hours test relays. Proposed: Auto-suppress alerts when active change ticket is attached.
+              </p>
+              <div style="display:flex; justify-content:space-between; align-items:center; font-size:var(--text-xs);">
+                <span>Projected FP Reduction: <strong style="color:var(--accent-emerald);">65.0%</strong></span>
+                <button class="btn btn-primary btn-sm" id="btn-deploy-proposal">Deploy Rule v3.2</button>
+              </div>
+            </div>
+
+            <div style="padding:var(--space-3); background:var(--bg-elevated); border-radius:var(--radius-md); border-left:3px solid var(--accent-purple);">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-1);">
+                <strong style="color:var(--accent-purple);">PROP-C99B2: Promote Phase 23 Hunt Signature HUNT-JA4-77</strong>
+                <span class="badge badge-info">CANARY (10%)</span>
+              </div>
+              <p style="font-size:var(--text-xs); color:var(--text-secondary); margin-bottom:var(--space-2);">
+                Validated across 90-day lakehouse telemetry with 0 false positives. Ready for fleetwide deployment.
+              </p>
+              <div style="display:flex; justify-content:space-between; align-items:center; font-size:var(--text-xs);">
+                <span>Coverage: MITRE T1573.002</span>
+                <button class="btn btn-outline btn-sm" id="btn-promote-canary">Promote to 100%</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Autonomy Guardrails & Policy Status -->
+          <div style="display:flex; flex-direction:column; gap:var(--space-3);">
+            <h4 style="color:var(--text-primary); font-size:var(--text-sm);">Enterprise Safety Guardrails & Autonomy Gates</h4>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-3);">
+              <div class="glass-card" style="padding:var(--space-3);">
+                <div style="font-size:var(--text-xs); color:var(--text-tertiary);">Current Autonomy Level</div>
+                <div style="font-size:var(--text-md); font-weight:700; color:var(--accent-cyan); margin:var(--space-1) 0;">
+                  Level 3 (Low-Impact)
+                </div>
+                <div style="font-size:var(--text-xs); color:var(--text-secondary);">R0-R2 Auto, R3-R4 Four-Eyes</div>
+              </div>
+              <div class="glass-card" style="padding:var(--space-3);">
+                <div style="font-size:var(--text-xs); color:var(--text-tertiary);">Max Affected Assets</div>
+                <div style="font-size:var(--text-md); font-weight:700; color:var(--accent-emerald); margin:var(--space-1) 0;">
+                  5 Hosts Max
+                </div>
+                <div style="font-size:var(--text-xs); color:var(--text-secondary);">Hard Blast-Radius Ceiling</div>
+              </div>
+            </div>
+
+            <div style="padding:var(--space-3); background:var(--bg-elevated); border-radius:var(--radius-md);">
+              <div style="font-size:var(--text-xs); font-weight:600; color:var(--accent-cyan); margin-bottom:var(--space-1);">
+                PROTECTED ASSET CLASSES (AUTONOMOUS ISOLATION BLOCKED)
+              </div>
+              <div style="display:flex; gap:var(--space-2); flex-wrap:wrap;">
+                <span class="badge badge-neutral">CORE_IDENTITY_GATEWAY</span>
+                <span class="badge badge-neutral">PRIMARY_ROOT_CA</span>
+                <span class="badge badge-neutral">GLOBAL_MX_RELAY</span>
+              </div>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:var(--text-xs); color:var(--text-secondary);">Hash-Chained Audit Ledger: <strong>48 Transactions Verified</strong></span>
+              <button class="btn btn-outline btn-sm" id="btn-export-full-pir">Export Post-Mortem & Manifest</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Bind interactive elements
+  container.querySelectorAll('.btn-inspect-case').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const caseId = btn.dataset.id;
+      const targetCase = MOCK_CASES.find(c => c.id === caseId);
+      if (!targetCase) return;
+      const titleEl = container.querySelector('#dag-panel-title');
+      if (titleEl) {
+        titleEl.textContent = `Investigation DAG: ${targetCase.id} (${targetCase.asset})`;
+      }
+      alert(`Loaded contextual investigation DAG for ${targetCase.id}. Dynamic Risk: ${targetCase.riskScore}/100. Action: ${targetCase.recommendedAction}`);
+    });
+  });
+
+  container.querySelector('#btn-dryrun-action')?.addEventListener('click', () => {
+    alert("Dry-Run Simulation PASS: Would execute 'ROTATE_CERTIFICATE' on MTA-07. Blast radius 28% (2 dependent services). No downtime predicted.");
+  });
+
+  container.querySelector('#btn-request-signoff')?.addEventListener('click', () => {
+    alert("Four-Eyes Signoff Initiated: Request sent to Senior Security Lead (1/2 signatures granted).");
+  });
+
+  container.querySelector('#btn-deploy-proposal')?.addEventListener('click', () => {
+    alert("Deployed Detection Rule 'TLS-LEGACY-001' v3.2 to production canary fabric with 0 regressions!");
+  });
+
+  container.querySelector('#btn-promote-canary')?.addEventListener('click', () => {
+    alert("Promoted Hunt Signature 'HUNT-JA4-77' to 100% production coverage across passive sensor fabric.");
+  });
+
+  container.querySelector('#btn-export-full-pir')?.addEventListener('click', () => {
+    alert("Generated Post-Incident Review (PIR) and cryptographically sealed SHA-256 evidence manifest.");
+  });
+
+  container.querySelector('#btn-soc-trigger-alert')?.addEventListener('click', () => {
+    alert("Simulated Ingestion of Alert: 'TLS downgrade detected on MTA-07'. Correlated into active cluster CLUSTER-8821.");
+  });
+
+  container.querySelector('#btn-soc-replay-lakehouse')?.addEventListener('click', () => {
+    alert("Historical Replay Complete: Replayed 90 days of telemetry (42,910 events) from Phase 22 Lakehouse. 0 false positives detected.");
+  });
+
+  container.querySelector('#btn-soc-promote-hunt')?.addEventListener('click', () => {
+    alert("Threat Hunt Promotion Pipeline: Promoted candidate 'HUNT-009' through regression test harness into production detection rule RULE-HUNT-009!");
+  });
 }
 
 // ─────────────────────────────────────────────────────────────
