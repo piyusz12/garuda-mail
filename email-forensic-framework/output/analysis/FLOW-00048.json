@@ -1,0 +1,63 @@
+{
+  "session_id": "FLOW-00048",
+  "protocol": {
+    "name": "SMTP",
+    "confidence": 0.9,
+    "evidence": [
+      "server_220_banner",
+      "client_EHLO",
+      "smtp_250_response",
+      "mail_from"
+    ],
+    "confidence_bucket": "HIGH"
+  },
+  "transport": {
+    "src_ip": "10.0.0.15",
+    "src_port": 53241,
+    "dst_ip": "203.0.113.20",
+    "dst_port": 143
+  },
+  "encryption": {
+    "mode": "PLAINTEXT",
+    "starttls_offered": false,
+    "starttls_requested": false,
+    "starttls_accepted": false,
+    "starttls_rejected": false,
+    "tls_detected": false,
+    "boundary": null,
+    "security_indicators": [],
+    "offered": false,
+    "requested": false,
+    "accepted": false,
+    "rejected": false
+  },
+  "tls_metadata": null,
+  "events": [
+    {
+      "timestamp": 1.0,
+      "direction": "c2s",
+      "protocol": "SMTP",
+      "event_type": "COMMAND",
+      "normalized_event": "CLIENT_GREETING",
+      "command": "EHLO",
+      "stream_offset": 0,
+      "raw_length": 16,
+      "evidence": "EHLO workstation"
+    },
+    {
+      "timestamp": 1.0,
+      "direction": "c2s",
+      "protocol": "SMTP",
+      "event_type": "COMMAND",
+      "normalized_event": "MAIL_TRANSACTION",
+      "command": "MAIL",
+      "stream_offset": 18,
+      "raw_length": 25,
+      "evidence": "MAIL FROM:<a@example.com>"
+    }
+  ],
+  "security_indicators": [],
+  "parse_status": "COMPLETE",
+  "port_hint": "IMAP",
+  "port_protocol_conflict": true
+}

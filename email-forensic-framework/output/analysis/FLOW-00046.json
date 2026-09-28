@@ -1,0 +1,68 @@
+{
+  "session_id": "FLOW-00046",
+  "protocol": {
+    "name": "POP3",
+    "confidence": 0.75,
+    "evidence": [
+      "positive_ok_greeting",
+      "user_command",
+      "capa_command",
+      "known_pop3_port"
+    ],
+    "confidence_bucket": "MEDIUM"
+  },
+  "transport": {
+    "src_ip": "10.0.0.15",
+    "src_port": 53241,
+    "dst_ip": "203.0.113.20",
+    "dst_port": 110
+  },
+  "encryption": {
+    "mode": "STARTTLS",
+    "starttls_offered": true,
+    "starttls_requested": true,
+    "starttls_accepted": true,
+    "starttls_rejected": false,
+    "tls_detected": true,
+    "boundary": {
+      "direction": "client_to_server",
+      "offset": 12,
+      "stream_offset": 12,
+      "timestamp": 0.0
+    },
+    "security_indicators": [],
+    "offered": true,
+    "requested": true,
+    "accepted": true,
+    "rejected": false
+  },
+  "tls_metadata": null,
+  "events": [
+    {
+      "timestamp": 1.0,
+      "direction": "c2s",
+      "protocol": "POP3",
+      "event_type": "COMMAND",
+      "normalized_event": "COMMAND",
+      "command": "CAPA",
+      "stream_offset": 0,
+      "raw_length": 4,
+      "evidence": "CAPA"
+    },
+    {
+      "timestamp": 1.0,
+      "direction": "c2s",
+      "protocol": "POP3",
+      "event_type": "STARTTLS_REQUEST",
+      "normalized_event": "STARTTLS_REQUEST",
+      "command": "STLS",
+      "stream_offset": 6,
+      "raw_length": 4,
+      "evidence": "STLS"
+    }
+  ],
+  "security_indicators": [],
+  "parse_status": "COMPLETE",
+  "port_hint": "POP3",
+  "port_protocol_conflict": false
+}

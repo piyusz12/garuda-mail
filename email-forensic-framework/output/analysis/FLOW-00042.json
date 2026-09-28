@@ -1,0 +1,68 @@
+{
+  "session_id": "FLOW-00042",
+  "protocol": {
+    "name": "SMTP",
+    "confidence": 0.8,
+    "evidence": [
+      "server_220_banner",
+      "client_EHLO",
+      "smtp_250_response",
+      "known_smtp_port"
+    ],
+    "confidence_bucket": "MEDIUM"
+  },
+  "transport": {
+    "src_ip": "10.0.0.15",
+    "src_port": 53241,
+    "dst_ip": "203.0.113.20",
+    "dst_port": 587
+  },
+  "encryption": {
+    "mode": "STARTTLS",
+    "starttls_offered": true,
+    "starttls_requested": true,
+    "starttls_accepted": true,
+    "starttls_rejected": false,
+    "tls_detected": true,
+    "boundary": {
+      "direction": "client_to_server",
+      "offset": 34,
+      "stream_offset": 34,
+      "timestamp": 0.0
+    },
+    "security_indicators": [],
+    "offered": true,
+    "requested": true,
+    "accepted": true,
+    "rejected": false
+  },
+  "tls_metadata": null,
+  "events": [
+    {
+      "timestamp": 1.0,
+      "direction": "c2s",
+      "protocol": "SMTP",
+      "event_type": "COMMAND",
+      "normalized_event": "CLIENT_GREETING",
+      "command": "EHLO",
+      "stream_offset": 0,
+      "raw_length": 22,
+      "evidence": "EHLO workstation.local"
+    },
+    {
+      "timestamp": 1.0,
+      "direction": "c2s",
+      "protocol": "SMTP",
+      "event_type": "STARTTLS_REQUEST",
+      "normalized_event": "STARTTLS_REQUEST",
+      "command": "STARTTLS",
+      "stream_offset": 24,
+      "raw_length": 8,
+      "evidence": "STARTTLS"
+    }
+  ],
+  "security_indicators": [],
+  "parse_status": "COMPLETE",
+  "port_hint": "SMTP",
+  "port_protocol_conflict": false
+}

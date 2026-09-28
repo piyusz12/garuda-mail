@@ -1,0 +1,97 @@
+{
+  "session_id": "FLOW-00044",
+  "protocol": {
+    "name": "SMTP",
+    "confidence": 0.95,
+    "evidence": [
+      "server_220_banner",
+      "client_EHLO",
+      "smtp_250_response",
+      "mail_from",
+      "known_smtp_port"
+    ],
+    "confidence_bucket": "HIGH"
+  },
+  "transport": {
+    "src_ip": "10.0.0.15",
+    "src_port": 53241,
+    "dst_ip": "203.0.113.20",
+    "dst_port": 25
+  },
+  "encryption": {
+    "mode": "PLAINTEXT",
+    "starttls_offered": true,
+    "starttls_requested": true,
+    "starttls_accepted": false,
+    "starttls_rejected": true,
+    "tls_detected": false,
+    "boundary": null,
+    "security_indicators": [
+      {
+        "type": "STARTTLS_FAILURE",
+        "severity_hint": "HIGH",
+        "details": null
+      },
+      {
+        "type": "PLAINTEXT_CONTINUATION",
+        "severity_hint": "HIGH",
+        "details": null
+      }
+    ],
+    "offered": true,
+    "requested": true,
+    "accepted": false,
+    "rejected": true
+  },
+  "tls_metadata": null,
+  "events": [
+    {
+      "timestamp": 1.0,
+      "direction": "c2s",
+      "protocol": "SMTP",
+      "event_type": "COMMAND",
+      "normalized_event": "CLIENT_GREETING",
+      "command": "EHLO",
+      "stream_offset": 0,
+      "raw_length": 16,
+      "evidence": "EHLO workstation"
+    },
+    {
+      "timestamp": 1.0,
+      "direction": "c2s",
+      "protocol": "SMTP",
+      "event_type": "STARTTLS_REQUEST",
+      "normalized_event": "STARTTLS_REQUEST",
+      "command": "STARTTLS",
+      "stream_offset": 18,
+      "raw_length": 8,
+      "evidence": "STARTTLS"
+    },
+    {
+      "timestamp": 1.0,
+      "direction": "c2s",
+      "protocol": "SMTP",
+      "event_type": "COMMAND",
+      "normalized_event": "MAIL_TRANSACTION",
+      "command": "MAIL",
+      "stream_offset": 28,
+      "raw_length": 28,
+      "evidence": "MAIL FROM:<user@example.com>"
+    }
+  ],
+  "security_indicators": [
+    {
+      "type": "STARTTLS_FAILURE",
+      "severity_hint": "HIGH",
+      "details": null
+    },
+    {
+      "type": "PLAINTEXT_CONTINUATION",
+      "severity_hint": "HIGH",
+      "details": null
+    }
+  ],
+  "parse_status": "COMPLETE",
+  "port_hint": "SMTP",
+  "port_protocol_conflict": false
+}

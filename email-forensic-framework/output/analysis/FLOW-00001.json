@@ -1,0 +1,61 @@
+{
+  "session_id": "FLOW-00000",
+  "protocol": {
+    "name": "UNKNOWN",
+    "confidence": 0.0,
+    "evidence": []
+  },
+  "transport": {
+    "src_ip": "127.0.0.1",
+    "src_port": 0,
+    "dst_ip": "127.0.0.1",
+    "dst_port": 0
+  },
+  "encryption": {
+    "mode": "STARTTLS",
+    "starttls_offered": false,
+    "starttls_requested": false,
+    "starttls_accepted": false,
+    "starttls_rejected": false,
+    "tls_detected": true,
+    "boundary": {
+      "direction": "C2S",
+      "offset": 28,
+      "stream_offset": 0,
+      "timestamp": 0.0
+    },
+    "security_indicators": []
+  },
+  "tls_metadata": {
+    "client_version": null,
+    "server_version": null,
+    "cipher_suites_offered": [],
+    "cipher_suite_selected": null,
+    "sni": null,
+    "alpn_offered": [],
+    "alpn_selected": null,
+    "extensions_offered": [],
+    "certificates": [],
+    "ja4": {
+      "ja4": null,
+      "ja4s": null
+    }
+  },
+  "events": [
+    {
+      "timestamp": 1.0,
+      "direction": "c2s",
+      "protocol": "UNKNOWN",
+      "event_type": "STARTTLS_REQUEST",
+      "normalized_event": "STARTTLS_REQUEST",
+      "command": "STARTTLS",
+      "stream_offset": 0,
+      "raw_length": 8,
+      "evidence": "STARTTLS"
+    }
+  ],
+  "security_indicators": [],
+  "parse_status": "COMPLETE",
+  "port_hint": null,
+  "port_protocol_conflict": false
+}
