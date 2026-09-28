@@ -1,0 +1,174 @@
+@import "tailwindcss";
+
+/* ─── Garuda Mail Design System ─────────────────────────────────── */
+/* Dark-first forensic command center aesthetic                      */
+
+@theme inline {
+  --color-background: #0B0D10;
+  --color-foreground: #E4E7EC;
+  --font-sans: 'Inter', var(--font-geist-sans), system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', var(--font-geist-mono), ui-monospace, monospace;
+
+  /* Surface layers */
+  --color-surface-0: #0B0D10;
+  --color-surface-1: #111318;
+  --color-surface-2: #161920;
+  --color-surface-3: #1C1F28;
+  --color-surface-4: #232730;
+
+  /* Borders */
+  --color-border: #252830;
+  --color-border-subtle: #1E2128;
+  --color-border-active: #3A3F4B;
+
+  /* Text */
+  --color-text-primary: #E4E7EC;
+  --color-text-secondary: #9BA1AE;
+  --color-text-muted: #6B7280;
+  --color-text-dim: #4B5060;
+
+  /* Brand accent — muted cyan */
+  --color-accent: #38BDF8;
+  --color-accent-muted: #1E6C99;
+  --color-accent-dim: #0F3A54;
+  --color-accent-glow: rgba(56, 189, 248, 0.08);
+
+  /* Semantic severity */
+  --color-severity-critical: #EF4444;
+  --color-severity-critical-bg: rgba(239, 68, 68, 0.08);
+  --color-severity-high: #F59E0B;
+  --color-severity-high-bg: rgba(245, 158, 11, 0.08);
+  --color-severity-medium: #EAB308;
+  --color-severity-medium-bg: rgba(234, 179, 8, 0.08);
+  --color-severity-low: #3B82F6;
+  --color-severity-low-bg: rgba(59, 130, 246, 0.08);
+  --color-severity-info: #6B7280;
+  --color-severity-info-bg: rgba(107, 114, 128, 0.08);
+  --color-severity-healthy: #10B981;
+  --color-severity-healthy-bg: rgba(16, 185, 129, 0.08);
+}
+
+/* ─── Base Styles ───────────────────────────────────────────────── */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-surface-0);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-active);
+}
+
+/* ─── Selection ─────────────────────────────────────────────────── */
+
+::selection {
+  background: var(--color-accent-dim);
+  color: var(--color-accent);
+}
+
+/* ─── Focus Ring ────────────────────────────────────────────────── */
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ─── Utility Classes ───────────────────────────────────────────── */
+
+@layer utilities {
+  .text-mono {
+    font-family: var(--font-mono);
+    font-feature-settings: 'liga' 0, 'calt' 0;
+  }
+  .surface-1 {
+    background-color: var(--color-surface-1);
+  }
+  .surface-2 {
+    background-color: var(--color-surface-2);
+  }
+  .surface-3 {
+    background-color: var(--color-surface-3);
+  }
+  .border-default {
+    border-color: var(--color-border);
+  }
+  .border-subtle {
+    border-color: var(--color-border-subtle);
+  }
+
+  /* Severity badges */
+  .badge-critical {
+    color: var(--color-severity-critical);
+    background: var(--color-severity-critical-bg);
+    border: 1px solid rgba(239, 68, 68, 0.15);
+  }
+  .badge-high {
+    color: var(--color-severity-high);
+    background: var(--color-severity-high-bg);
+    border: 1px solid rgba(245, 158, 11, 0.15);
+  }
+  .badge-medium {
+    color: var(--color-severity-medium);
+    background: var(--color-severity-medium-bg);
+    border: 1px solid rgba(234, 179, 8, 0.15);
+  }
+  .badge-low {
+    color: var(--color-severity-low);
+    background: var(--color-severity-low-bg);
+    border: 1px solid rgba(59, 130, 246, 0.15);
+  }
+  .badge-info {
+    color: var(--color-severity-info);
+    background: var(--color-severity-info-bg);
+    border: 1px solid rgba(107, 114, 128, 0.15);
+  }
+  .badge-healthy {
+    color: var(--color-severity-healthy);
+    background: var(--color-severity-healthy-bg);
+    border: 1px solid rgba(16, 185, 129, 0.15);
+  }
+
+  /* Glow effects (restrained use only) */
+  .glow-accent {
+    box-shadow: 0 0 20px var(--color-accent-glow);
+  }
+  .glow-critical {
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.1);
+  }
+
+  /* Card surfaces */
+  .card {
+    background-color: var(--color-surface-1);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+  }
+  .card-hover {
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .card-hover:hover {
+    border-color: var(--color-border-active);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+}
