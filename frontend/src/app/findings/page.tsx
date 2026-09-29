@@ -133,9 +133,13 @@ export default function FindingsPage() {
                   <div className="flex flex-col items-center gap-2 pt-0.5">
                     <SeverityBadge severity={finding.severity} size="sm" />
                     {finding.detectionSource === 'ai_anomaly' ? (
-                      <Brain size={14} className="text-[var(--color-accent)]" title="AI Detection" />
+                      <span title="AI Detection">
+                        <Brain size={14} className="text-[var(--color-accent)]" />
+                      </span>
                     ) : (
-                      <Shield size={14} className="text-[var(--color-text-muted)]" title="Rule Engine" />
+                      <span title="Rule Engine">
+                        <Shield size={14} className="text-[var(--color-text-muted)]" />
+                      </span>
                     )}
                   </div>
 

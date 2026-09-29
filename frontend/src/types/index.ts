@@ -68,7 +68,7 @@ export interface SessionDetail extends SessionRecord {
   findings: Finding[];
   anomalies: Anomaly[];
   timeline: SessionTimelineEvent[];
-  packets: PacketRecord[];
+  packetRecords: PacketRecord[];
 }
 
 export interface SessionTimelineEvent {
