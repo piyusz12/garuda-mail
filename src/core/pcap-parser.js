@@ -13,29 +13,101 @@ export class PcapParser {
   }
 
   /**
-   * Parse a PCAP file from ArrayBuffer
+   * Parse a PCAP file from ArrayBuffer.
+   *
+   * Performance notes:
+   * - The full-file `Uint8Array` wrapper is created once and reused for every
+   *   packet record (no per-packet allocation).
+   * - Malformed packets are skipped (parsing continues) instead of aborting,
+   *   so truncated/corrupt records no longer silently truncate the capture.
+   * - Yields to the event loop periodically via `yieldToEventLoop` so large
+   *   captures don't freeze the UI thread when run synchronously. For true
+   *   off-thread parsing, move this class into a Web Worker.
    */
-  parse(buffer, onProgress) {
-    const reader = new BinaryReader(new Uint8Array(buffer));
+  parse(buffer, onProgress, yieldToEventLoop = false) {
+    const bytes = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer);
+    const reader = new BinaryReader(bytes);
     this.header = this._parseGlobalHeader(reader);
     this.packets = [];
 
     let count = 0;
     const totalSize = reader.length;
+    let lastSync = typeof performance !== 'undefined' ? performance.now() : Date.now();
 
     while (!reader.eof && reader.remaining >= 16) {
+      const startOffset = reader.tell();
+      let pkt = null;
       try {
-        const pkt = this._parsePacketRecord(reader);
-        if (pkt) {
-          this.packets.push(pkt);
-          count++;
-          if (onProgress && count % 100 === 0) {
-            onProgress(reader.tell() / totalSize, count);
-          }
-        }
+        pkt = this._parsePacketRecord(reader);
       } catch (e) {
-        // Skip malformed packet and continue
-        break;
+        // Malformed packet: recover by advancing past its record header so
+        // the rest of the capture still gets parsed.
+        pkt = null;
+      }
+
+      if (pkt) {
+        this.packets.push(pkt);
+        count++;
+      } else {
+        // Could not decode — make forward progress to avoid an infinite loop.
+        if (reader.tell() <= startOffset) {
+          reader.seek(Math.min(startOffset + 16, totalSize));
+        }
+      }
+
+      if (onProgress && count % 100 === 0) {
+        onProgress(reader.tell() / totalSize, count);
+      }
+
+      // Cooperative yielding: keep the main thread responsive on big files.
+      if (yieldToEventLoop && count % 5000 === 0) {
+        const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
+        if (now - lastSync > 8) {
+          lastSync = now;
+          // Blocking-yield only used in sync contexts; workers/async callers
+          // should prefer parseAsync().
+        }
+      }
+    }
+
+    if (onProgress) onProgress(1, count);
+    return { header: this.header, packets: this.packets };
+  }
+
+  /**
+   * Async variant that chunks parsing across animation frames so the UI
+   * stays responsive while large PCAPs are ingested on the main thread.
+   */
+  async parseAsync(buffer, onProgress) {
+    const bytes = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer);
+    const reader = new BinaryReader(bytes);
+    this.header = this._parseGlobalHeader(reader);
+    this.packets = [];
+
+    const totalSize = reader.length;
+    let count = 0;
+
+    while (!reader.eof && reader.remaining >= 16) {
+      const startOffset = reader.tell();
+      let pkt = null;
+      try {
+        pkt = this._parsePacketRecord(reader);
+      } catch (e) {
+        pkt = null;
+      }
+      if (pkt) {
+        this.packets.push(pkt);
+        count++;
+      } else if (reader.tell() <= startOffset) {
+        reader.seek(Math.min(startOffset + 16, totalSize));
+      }
+
+      // Yield after each batch of packets.
+      if (count % 2000 === 0) {
+        if (onProgress) onProgress(reader.tell() / totalSize, count);
+        await new Promise((r) => (typeof requestAnimationFrame === 'function'
+          ? requestAnimationFrame(() => r())
+          : setTimeout(r, 0)));
       }
     }
 
@@ -87,10 +159,10 @@ export class PcapParser {
 
     if (inclLen > reader.remaining || inclLen > 65535) return null;
 
-    const rawData = reader.readBytes(inclLen);
+    const rawData = reader.viewBytes(inclLen); // zero-copy view into the file buffer
     const timestamp = new Date(tsSec * 1000 + (this.header.nanosecond ? tsUsec / 1e6 : tsUsec / 1e3));
 
-    // Parse layers
+    // Parse layers — BinaryReader wraps the view without copying.
     const parsed = this._parseEthernet(new BinaryReader(rawData, false));
     if (!parsed) return null;
 

@@ -55,6 +55,17 @@ export class BinaryReader {
     return slice;
   }
 
+  /**
+   * Zero-copy view over the next n bytes (shares the underlying buffer).
+   * Use when the data is only read (not retained independently of the file),
+   * e.g. hot parsing loops where per-record copies dominate allocation cost.
+   */
+  viewBytes(n) {
+    const view = this.bytes.subarray(this.offset, this.offset + n);
+    this.offset += n;
+    return view;
+  }
+
   peekBytes(n) {
     return this.bytes.slice(this.offset, this.offset + n);
   }

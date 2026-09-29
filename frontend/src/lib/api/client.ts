@@ -9,27 +9,65 @@ import type {
 } from '@/types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_DATA !== 'false'; // default: mock
+// Explicit truthy parsing: only enable mock mode when the flag is unset or
+// explicitly set to a truthy value ("1", "true"). Previously any string other
+// than exactly "false" (e.g. a typo like "flase") silently enabled mocks.
+const USE_MOCK = (() => {
+  const v = process.env.NEXT_PUBLIC_USE_MOCK_DATA;
+  return v === undefined ? true : ['1', 'true', 'yes', 'on'].includes(v.toLowerCase());
+})();
 
 /* ── Generic Fetch ── */
 
-async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
-    ...options,
-  });
-  if (!res.ok) throw new Error(`API Error ${res.status}: ${res.statusText}`);
-  return res.json();
+const DEFAULT_TIMEOUT_MS = 15_000;
+
+async function apiFetch<T>(path: string, options?: RequestInit & { timeoutMs?: number }): Promise<T> {
+  const { timeoutMs = DEFAULT_TIMEOUT_MS, ...init } = options ?? {};
+
+  // Abort signal with timeout so hung backend requests fail fast instead of
+  // leaving UI spinners stuck indefinitely.
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  // Respect an externally-provided signal too (e.g. React unmount cancels).
+  const externalSignal = init.signal;
+  if (externalSignal) {
+    if (externalSignal.aborted) controller.abort();
+    else externalSignal.addEventListener('abort', () => controller.abort(), { once: true });
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}${path}`, {
+      headers: { 'Content-Type': 'application/json' },
+      ...init,
+      signal: controller.signal,
+    });
+    if (!res.ok) throw new Error(`API Error ${res.status}: ${res.statusText}`);
+    return res.json();
+  } catch (err) {
+    if (err instanceof DOMException && err.name === 'AbortError') {
+      throw new Error(`API request timed out after ${timeoutMs}ms: ${path}`);
+    }
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 /* ── Mock Data Loaders ── */
 
+// Cache the dynamic imports so repeated calls don't re-resolve modules and
+// each page navigation doesn't pay the import-lookup cost again.
+let _mockModule: Promise<typeof import('@/lib/mock/data')> | null = null;
+let _mockDetails: Promise<typeof import('@/lib/mock/details')> | null = null;
+
 async function getMockModule() {
-  return import('@/lib/mock/data');
+  if (!_mockModule) _mockModule = import('@/lib/mock/data');
+  return _mockModule;
 }
 
 async function getMockDetails() {
-  return import('@/lib/mock/details');
+  if (!_mockDetails) _mockDetails = import('@/lib/mock/details');
+  return _mockDetails;
 }
 
 /* ── API Methods ── */

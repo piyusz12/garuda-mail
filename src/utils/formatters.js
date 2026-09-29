@@ -62,10 +62,30 @@ export function getRiskBadgeClass(score) {
   return 'badge-low';
 }
 
-export function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
+/**
+ * Security-critical: synchronously escapes a value for safe interpolation
+ * into HTML text nodes and (double-quoted) attribute values. Used everywhere
+ * attacker-influenced data (PCAP-derived hostnames, certificate fields,
+ * filenames, search queries) is rendered via innerHTML templates.
+ */
+export function escapeHtml(value) {
+  if (value === null || value === undefined) return '';
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/**
+ * Returns a string containing only characters that are safe to place inside
+ * an HTML attribute or URL context. Used as a defense-in-depth sanitizer for
+ * protocol-derived identifiers (IPs, JA4 fingerprints, cipher names).
+ */
+export function sanitizeToken(value, allowed = /[^A-Za-z0-9._:/\-@ ]/g) {
+  if (value === null || value === undefined) return '';
+  return String(value).replace(allowed, '');
 }
 
 export function hashString(str) {
