@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Network, Filter, ArrowUpDown, ExternalLink } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
@@ -12,11 +12,17 @@ import clsx from 'clsx';
 type SortField = 'timestamp' | 'protocol' | 'riskScore' | 'destHostname' | 'tlsVersion';
 type SortDir = 'asc' | 'desc';
 
+const PAGE_SIZE = 50;
+
 export default function SessionsPage() {
   const [protocolFilter, setProtocolFilter] = useState<string>('all');
   const [riskFilter, setRiskFilter] = useState<string>('all');
   const [sortField, setSortField] = useState<SortField>('riskScore');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
+  const [page, setPage] = useState(0);
+  // Per-row mount animations on hundreds of rows cause jank; only animate the
+  // first screenful and cap the stagger delay.
+  const animateRows = page === 0;
 
   const protocols = ['all', 'SMTP', 'IMAP', 'POP3'];
   const risks = ['all', 'critical', 'high', 'medium', 'low'];
@@ -37,6 +43,18 @@ export default function SessionsPage() {
     });
     return sessions;
   }, [protocolFilter, riskFilter, sortField, sortDir]);
+
+  // Reset to first page whenever filters/sort change.
+  useEffect(() => {
+    setPage(0);
+  }, [protocolFilter, riskFilter, sortField, sortDir]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredSessions.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages - 1);
+  const visibleSessions = useMemo(
+    () => filteredSessions.slice(currentPage * PAGE_SIZE, currentPage * PAGE_SIZE + PAGE_SIZE),
+    [filteredSessions, currentPage],
+  );
 
   const toggleSort = (field: SortField) => {
     if (sortField === field) {
@@ -90,7 +108,7 @@ export default function SessionsPage() {
             ))}
           </div>
           <div className="ml-auto text-[11px] text-[var(--color-text-dim)]">
-            {filteredSessions.length} of {mockSessions.length} sessions
+            {visibleSessions.length} of {filteredSessions.length} sessions (page {currentPage + 1}/{totalPages})
           </div>
         </div>
 
@@ -113,12 +131,12 @@ export default function SessionsPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredSessions.map((session, i) => (
+                {visibleSessions.map((session, i) => (
                   <motion.tr
                     key={session.id}
-                    initial={{ opacity: 0, x: -8 }}
+                    initial={animateRows ? { opacity: 0, x: -8 } : false}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.03 }}
+                    transition={animateRows ? { delay: Math.min(i * 0.02, 0.3) } : undefined}
                     className="border-t border-[var(--color-border-subtle)] hover:bg-[var(--color-surface-2)] transition-colors"
                   >
                     <td className="px-4 py-3">
@@ -185,6 +203,29 @@ export default function SessionsPage() {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-3 px-4 py-3 border-t border-[var(--color-border-subtle)]">
+              <button
+                onClick={() => setPage(p => Math.max(0, p - 1))}
+                disabled={currentPage === 0}
+                className="px-3 py-1 text-[11px] font-medium rounded-md border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)] transition-colors disabled:opacity-40 disabled:pointer-events-none"
+              >
+                ← Prev
+              </button>
+              <span className="text-[11px] text-[var(--color-text-dim)] tabular-nums">
+                Page {currentPage + 1} of {totalPages}
+              </span>
+              <button
+                onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
+                disabled={currentPage >= totalPages - 1}
+                className="px-3 py-1 text-[11px] font-medium rounded-md border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)] transition-colors disabled:opacity-40 disabled:pointer-events-none"
+              >
+                Next →
+              </button>
+            </div>
+          )}
         </div>
       </motion.div>
     </AppShell>

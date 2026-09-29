@@ -9,7 +9,7 @@ import { CIPHER_SUITES } from './data/cipher-database.js';
 import { CVE_MAP, CWE_MAP, getRelevantCVEs } from './data/cve-mappings.js';
 import { JA4_SIGNATURES, matchJA4 } from './data/ja4-signatures.js';
 import { PORTS, PROTOCOL, TLS_VERSION, TLS_VERSION_SECURITY } from './utils/constants.js';
-import { formatBytes, formatDuration, formatTimestamp, getRiskBadgeClass, getRiskCategory, getRiskColor, truncateMiddle } from './utils/formatters.js';
+import { escapeHtml, formatBytes, formatDuration, formatTimestamp, getRiskBadgeClass, getRiskCategory, getRiskColor, truncateMiddle } from './utils/formatters.js';
 import { PcapParser } from './core/pcap-parser.js';
 import { Chart, registerables } from 'chart.js';
 
@@ -27,9 +27,23 @@ const state = {
   riskFilter: 'all',
   huntResults: null,
   charts: {},
+  // Performance: table pagination for large session lists
+  pageSize: 50,
+  pageIndex: 0,
 };
 
 state.filteredSessions = [...state.data.sessions];
+
+/** Debounce utility — avoids re-filtering/re-rendering on every keystroke. */
+function debounce(fn, waitMs = 250) {
+  let timer = null;
+  const debounced = (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), waitMs);
+  };
+  debounced.cancel = () => clearTimeout(timer);
+  return debounced;
+}
 
 // Root DOM initialization
 function initApp() {
@@ -132,14 +146,33 @@ function bindGlobalEvents() {
       const file = e.target.files?.[0];
       if (!file) return;
 
+      // SECURITY: cap ingestion size to prevent memory-exhaustion DoS from
+      // maliciously large files, and validate the extension before parsing.
+      const MAX_PCAP_BYTES = 256 * 1024 * 1024; // 256 MB
+      const nameLower = (file.name || '').toLowerCase();
+      const hasValidExt = ['.pcap', '.pcapng', '.cap'].some(ext => nameLower.endsWith(ext));
+      if (!hasValidExt) {
+        alert(`Rejected file '${escapeHtml(file.name)}': only .pcap/.pcapng/.cap captures are accepted.`);
+        fileInput.value = '';
+        return;
+      }
+      if (file.size > MAX_PCAP_BYTES) {
+        alert(`Rejected file '${escapeHtml(file.name)}' (${escapeHtml(formatBytes(file.size))}): exceeds the 256 MB ingestion limit.`);
+        fileInput.value = '';
+        return;
+      }
+
+      // Read the file asynchronously so decoding never blocks interaction.
       const buffer = await file.arrayBuffer();
       const parser = new PcapParser();
       try {
-        const result = parser.parse(buffer);
-        alert(`Successfully ingested PCAP file '${file.name}' with ${result.packets.length} network packets!`);
+        // parseAsync yields to the event loop in batches, keeping the UI
+        // responsive while ingesting large captures.
+        const result = await parser.parseAsync(buffer);
+        alert(`Successfully ingested PCAP file '${escapeHtml(file.name)}' with ${result.packets.length} network packets!`);
       } catch (err) {
         console.error(err);
-        alert(`Note: Ingested file '${file.name}'. Generating correlated forensic sessions.`);
+        alert(`Note: Ingested file '${escapeHtml(file.name)}'. Generating correlated forensic sessions.`);
       }
       state.data = generateDemoData(100);
       applyFilters();
@@ -282,13 +315,13 @@ function renderDashboard(container) {
                 </thead>
                 <tbody>
                   ${sessions.filter(s => s.riskScore >= 60).slice(0, 7).map(s => `
-                    <tr class="session-row" data-id="${s.id}">
+                    <tr class="session-row" data-id="${escapeHtml(s.id)}">
                       <td>${formatTimestamp(s.timestamp)}</td>
-                      <td><span class="badge badge-info">${s.protocol}</span></td>
-                      <td class="mono">${s.clientIp}:${s.clientPort} &rarr; ${s.serverIp}:${s.serverPort}</td>
-                      <td><span class="mono">${s.tlsVersion || 'PLAINTEXT'}</span></td>
+                      <td><span class="badge badge-info">${escapeHtml(s.protocol)}</span></td>
+                      <td class="mono">${escapeHtml(s.clientIp)}:${escapeHtml(s.clientPort)} &rarr; ${escapeHtml(s.serverIp)}:${escapeHtml(s.serverPort)}</td>
+                      <td><span class="mono">${escapeHtml(s.tlsVersion || 'PLAINTEXT')}</span></td>
                       <td><span class="badge ${getRiskBadgeClass(s.riskScore)}">${getRiskCategory(s.riskScore)} (${s.riskScore})</span></td>
-                      <td><button class="btn btn-outline btn-sm btn-inspect" data-id="${s.id}">Inspect</button></td>
+                      <td><button class="btn btn-outline btn-sm btn-inspect" data-id="${escapeHtml(s.id)}">Inspect</button></td>
                     </tr>
                   `).join('')}
                 </tbody>
@@ -424,13 +457,19 @@ function initDashboardCharts(sessions) {
 // VIEW 2: SESSIONS ANALYSIS
 // ─────────────────────────────────────────────────────────────
 function renderSessions(container) {
+  // Paginate: only render one page of rows to keep DOM size bounded.
+  const totalPages = Math.max(1, Math.ceil(state.filteredSessions.length / state.pageSize));
+  if (state.pageIndex >= totalPages) state.pageIndex = totalPages - 1;
+  const pageStart = state.pageIndex * state.pageSize;
+  const pagedRows = state.filteredSessions.slice(pageStart, pageStart + state.pageSize);
+
   container.innerHTML = `
     <div style="padding:var(--space-6) var(--space-8); display:flex; flex-direction:column; gap:var(--space-5);">
       <!-- Filter Toolbar -->
       <div class="glass-card" style="padding:var(--space-4) var(--space-6);">
         <div style="display:flex; gap:var(--space-4); align-items:center; flex-wrap:wrap; justify-content:space-between;">
           <div style="display:flex; gap:var(--space-3); align-items:center; flex-wrap:wrap;">
-            <input type="text" id="session-search" placeholder="Search IP, domain, JA4, protocol..." value="${state.searchQuery}" 
+            <input type="text" id="session-search" placeholder="Search IP, domain, JA4, protocol..." value="${escapeHtml(state.searchQuery)}" 
                    style="background:var(--bg-elevated); border:1px solid var(--border-default); border-radius:var(--radius-md); padding:0.5em 1em; color:var(--text-primary); font-family:var(--font-sans); width:280px;" />
             
             <select id="filter-protocol" style="background:var(--bg-elevated); border:1px solid var(--border-default); border-radius:var(--radius-md); padding:0.5em 1em; color:var(--text-primary);">
@@ -449,7 +488,7 @@ function renderSessions(container) {
           </div>
 
           <div style="color:var(--text-secondary); font-size:var(--text-sm);">
-            Showing <strong>${state.filteredSessions.length}</strong> of ${state.data.sessions.length} sessions
+            Showing <strong>${Math.min(pagedRows.length, state.filteredSessions.length)}</strong> of ${state.filteredSessions.length} filtered (${state.data.sessions.length} total) sessions
           </div>
         </div>
       </div>
@@ -472,20 +511,20 @@ function renderSessions(container) {
                 <th>Actions</th>
               </tr>
             </thead>
-            <tbody>
-              ${state.filteredSessions.length === 0 ? `
+            <tbody id="sessions-tbody">
+              ${pagedRows.length === 0 ? `
                 <tr><td colspan="10" style="text-align:center; padding:var(--space-8); color:var(--text-tertiary);">No sessions match the current filter criteria.</td></tr>
-              ` : state.filteredSessions.map(s => `
-                <tr class="session-row" data-id="${s.id}">
+              ` : pagedRows.map(s => `
+                <tr class="session-row" data-id="${escapeHtml(s.id)}" style="cursor:pointer;">
                   <td class="mono" style="color:var(--accent-cyan); font-weight:600;">FLOW-${s.index.toString().padStart(5, '0')}</td>
                   <td>${formatTimestamp(s.timestamp)}</td>
-                  <td><span class="badge badge-info">${s.protocol}</span></td>
-                  <td class="mono">${s.clientIp}:${s.clientPort}</td>
-                  <td class="mono">${s.serverIp}:${s.serverPort}</td>
+                  <td><span class="badge badge-info">${escapeHtml(s.protocol)}</span></td>
+                  <td class="mono">${escapeHtml(s.clientIp)}:${escapeHtml(s.clientPort)}</td>
+                  <td class="mono">${escapeHtml(s.serverIp)}:${escapeHtml(s.serverPort)}</td>
                   <td>
-                    ${s.tlsVersion ? `<span class="badge badge-low">${s.tlsVersion}</span>` : '<span class="badge badge-critical">PLAINTEXT</span>'}
+                    ${s.tlsVersion ? `<span class="badge badge-low">${escapeHtml(s.tlsVersion)}</span>` : '<span class="badge badge-critical">PLAINTEXT</span>'}
                   </td>
-                  <td class="mono" style="font-size:0.75rem;">${s.ja4 || '—'}</td>
+                  <td class="mono" style="font-size:0.75rem;">${escapeHtml(s.ja4) || '—'}</td>
                   <td class="mono">${(s.entropy || 0).toFixed(2)}</td>
                   <td>
                     <span class="badge ${getRiskBadgeClass(s.riskScore)}">
@@ -493,13 +532,20 @@ function renderSessions(container) {
                     </span>
                   </td>
                   <td>
-                    <button class="btn btn-outline btn-sm btn-inspect" data-id="${s.id}">Deep Inspect</button>
+                    <button class="btn btn-outline btn-sm btn-inspect" data-id="${escapeHtml(s.id)}">Deep Inspect</button>
                   </td>
                 </tr>
               `).join('')}
             </tbody>
           </table>
         </div>
+        ${totalPages > 1 ? `
+        <div style="display:flex; justify-content:center; align-items:center; gap:var(--space-4); padding:var(--space-4); border-top:1px solid var(--border-subtle); font-size:var(--text-sm); color:var(--text-secondary);">
+          <button class="btn btn-outline btn-sm" id="page-prev" ${state.pageIndex === 0 ? 'disabled' : ''}>← Previous</button>
+          <span>Page ${state.pageIndex + 1} of ${totalPages}</span>
+          <button class="btn btn-outline btn-sm" id="page-next" ${state.pageIndex >= totalPages - 1 ? 'disabled' : ''}>Next →</button>
+        </div>
+        ` : ''}
       </div>
     </div>
   `;
@@ -513,26 +559,54 @@ function renderSessions(container) {
     state.searchQuery = searchInput.value.toLowerCase();
     state.protocolFilter = protoSelect.value;
     state.riskFilter = riskSelect.value;
+    state.pageIndex = 0; // reset pagination when filters change
     applyFilters();
     renderSessions(container);
   };
 
-  searchInput.addEventListener('input', onFilterChange);
+  // Debounce the text input so filtering + full re-render happens at most
+  // once per 250ms instead of on every keystroke.
+  const debouncedFilterChange = debounce(onFilterChange, 250);
+  searchInput.addEventListener('input', debouncedFilterChange);
   protoSelect.addEventListener('change', onFilterChange);
   riskSelect.addEventListener('change', onFilterChange);
 
-  container.querySelectorAll('.btn-inspect').forEach(b => {
-    b.addEventListener('click', (e) => {
-      e.stopPropagation();
-      openSessionModal(b.dataset.id);
+  // Event delegation: one listener for the whole table body instead of
+  // O(rows) individual listeners — cheaper to attach and survives re-renders.
+  const tbody = container.querySelector('#sessions-tbody');
+  if (tbody) {
+    tbody.addEventListener('click', (e) => {
+      const btn = e.target.closest('.btn-inspect');
+      if (btn) {
+        e.stopPropagation();
+        openSessionModal(btn.dataset.id);
+        return;
+      }
+      const row = e.target.closest('.session-row');
+      if (row) openSessionModal(row.dataset.id);
     });
-  });
+  }
 
-  container.querySelectorAll('.session-row').forEach(row => {
-    row.addEventListener('click', () => {
-      openSessionModal(row.dataset.id);
+  // Pagination controls
+  const prevBtn = container.querySelector('#page-prev');
+  const nextBtn = container.querySelector('#page-next');
+  if (prevBtn) {
+    prevBtn.addEventListener('click', () => {
+      if (state.pageIndex > 0) {
+        state.pageIndex--;
+        renderSessions(container);
+      }
     });
-  });
+  }
+  if (nextBtn) {
+    nextBtn.addEventListener('click', () => {
+      const totalPages = Math.max(1, Math.ceil(state.filteredSessions.length / state.pageSize));
+      if (state.pageIndex < totalPages - 1) {
+        state.pageIndex++;
+        renderSessions(container);
+      }
+    });
+  }
 }
 
 function applyFilters() {
@@ -553,6 +627,9 @@ function applyFilters() {
     }
     return true;
   });
+  // Clamp page index after new filter results
+  const totalPages = Math.max(1, Math.ceil(state.filteredSessions.length / state.pageSize));
+  if (state.pageIndex >= totalPages) state.pageIndex = totalPages - 1;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -596,13 +673,13 @@ function renderHunting(container) {
             <div>
               <label style="font-size:var(--text-xs); color:var(--text-secondary); margin-bottom:var(--space-2); display:block;">Select Pre-configured Playbook Template:</label>
               <select id="hql-template-select" style="width:100%; background:var(--bg-elevated); border:1px solid var(--border-default); border-radius:var(--radius-md); padding:0.6em 1em; color:var(--text-primary); font-family:var(--font-sans);">
-                ${templates.map(t => `<option value="${t.id}">${t.name} (${t.id})</option>`).join('')}
+                ${templates.map(t => `<option value="${escapeHtml(t.id)}">${escapeHtml(t.name)} (${escapeHtml(t.id)})</option>`).join('')}
               </select>
             </div>
 
             <div>
               <label style="font-size:var(--text-xs); color:var(--text-secondary); margin-bottom:var(--space-2); display:block;">HQL Expression:</label>
-              <textarea id="hql-query-text" rows="4" class="mono" style="width:100%; background:var(--bg-elevated); border:1px solid var(--border-cyan); border-radius:var(--radius-md); padding:var(--space-3); color:var(--accent-cyan); font-size:var(--text-sm); line-height:1.4;">${templates[0].query}</textarea>
+              <textarea id="hql-query-text" rows="4" class="mono" style="width:100%; background:var(--bg-elevated); border:1px solid var(--border-cyan); border-radius:var(--radius-md); padding:var(--space-3); color:var(--accent-cyan); font-size:var(--text-sm); line-height:1.4;">${escapeHtml(templates[0].query)}</textarea>
             </div>
 
             <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -708,11 +785,11 @@ function renderHunting(container) {
             ${matches.map((m, idx) => `
               <tr>
                 <td class="mono" style="color:var(--accent-cyan);">CAND-${(idx + 1).toString().padStart(4, '0')}</td>
-                <td class="mono">${m.serverName || m.serverIp}</td>
+                <td class="mono">${escapeHtml(m.serverName || m.serverIp)}</td>
                 <td>${formatTimestamp(m.timestamp)}</td>
-                <td><span class="badge badge-critical">${m.securityIndicators?.[0] || 'CRYPTOGRAPHIC_ANOMALY'}</span></td>
+                <td><span class="badge badge-critical">${escapeHtml(m.securityIndicators?.[0] || 'CRYPTOGRAPHIC_ANOMALY')}</span></td>
                 <td><span class="badge badge-low">${(0.85 + (idx % 10) * 0.01).toFixed(2)}</span></td>
-                <td><button class="btn btn-outline btn-sm btn-inspect" data-id="${m.id}">Investigate Asset</button></td>
+                <td><button class="btn btn-outline btn-sm btn-inspect" data-id="${escapeHtml(m.id)}">Investigate Asset</button></td>
               </tr>
             `).join('')}
           </tbody>
@@ -763,14 +840,14 @@ function renderCVE(container) {
               <tbody>
                 ${cveEntries.map(c => `
                   <tr>
-                    <td><strong>${c.title}</strong></td>
-                    <td class="mono" style="color:var(--accent-cyan); font-weight:600;">${c.id}</td>
+                    <td><strong>${escapeHtml(c.title)}</strong></td>
+                    <td class="mono" style="color:var(--accent-cyan); font-weight:600;">${escapeHtml(c.id)}</td>
                     <td>
                       <span class="badge ${c.severity === 'Critical' ? 'badge-critical' : c.severity === 'High' ? 'badge-high' : 'badge-medium'}">
-                        ${c.severity}
+                        ${escapeHtml(c.severity)}
                       </span>
                     </td>
-                    <td style="color:var(--text-secondary); max-width:450px;">${c.description}</td>
+                    <td style="color:var(--text-secondary); max-width:450px;">${escapeHtml(c.description)}</td>
                     <td><code style="font-size:0.75rem;">Disable legacy ciphers & upgrade to TLS 1.3</code></td>
                   </tr>
                 `).join('')}
@@ -798,9 +875,9 @@ function renderCVE(container) {
               <tbody>
                 ${cweEntries.map(w => `
                   <tr>
-                    <td class="mono" style="color:var(--accent-purple); font-weight:700;">${w.id}</td>
-                    <td><strong>${w.title}</strong></td>
-                    <td style="color:var(--text-secondary);">${w.description}</td>
+                    <td class="mono" style="color:var(--accent-purple); font-weight:700;">${escapeHtml(w.id)}</td>
+                    <td><strong>${escapeHtml(w.title)}</strong></td>
+                    <td style="color:var(--text-secondary);">${escapeHtml(w.description)}</td>
                   </tr>
                 `).join('')}
               </tbody>
@@ -841,16 +918,16 @@ function renderJA4(container) {
               <tbody>
                 ${ja4Entries.map(([fprint, meta]) => `
                   <tr>
-                    <td class="mono" style="color:var(--accent-cyan); font-weight:600;">${fprint}</td>
-                    <td><strong>${meta.name}</strong></td>
-                    <td><span class="badge badge-neutral">${meta.category}</span></td>
-                    <td>${meta.vendor}</td>
+                    <td class="mono" style="color:var(--accent-cyan); font-weight:600;">${escapeHtml(fprint)}</td>
+                    <td><strong>${escapeHtml(meta.name)}</strong></td>
+                    <td><span class="badge badge-neutral">${escapeHtml(meta.category)}</span></td>
+                    <td>${escapeHtml(meta.vendor)}</td>
                     <td>
                       <span class="badge ${meta.risk === 'critical' ? 'badge-critical' : meta.risk === 'high' ? 'badge-high' : meta.risk === 'medium' ? 'badge-medium' : 'badge-low'}">
-                        ${meta.risk.toUpperCase()}
+                        ${escapeHtml(String(meta.risk).toUpperCase())}
                       </span>
                     </td>
-                    <td style="color:var(--text-secondary); max-width:350px;">${meta.description}</td>
+                    <td style="color:var(--text-secondary); max-width:350px;">${escapeHtml(meta.description)}</td>
                   </tr>
                 `).join('')}
               </tbody>
@@ -1001,22 +1078,22 @@ function renderSOAR(container) {
                 <tbody>
                   ${MOCK_INCIDENTS.map(inc => `
                     <tr>
-                      <td class="mono" style="color:var(--accent-cyan); font-weight:700;">${inc.id}</td>
-                      <td><strong>${inc.title}</strong></td>
+                      <td class="mono" style="color:var(--accent-cyan); font-weight:700;">${escapeHtml(inc.id)}</td>
+                      <td><strong>${escapeHtml(inc.title)}</strong></td>
                       <td>
                         <span class="badge ${inc.severity === 'Critical' ? 'badge-critical' : inc.severity === 'High' ? 'badge-high' : 'badge-medium'}">
-                          ${inc.severity}
+                          ${escapeHtml(inc.severity)}
                         </span>
                       </td>
-                      <td class="mono" style="font-size:0.75rem;">${inc.priority}</td>
+                      <td class="mono" style="font-size:0.75rem;">${escapeHtml(inc.priority)}</td>
                       <td>
                         <span class="badge ${inc.status === 'REMEDIATING' ? 'badge-high' : inc.status === 'WAITING_APPROVAL' ? 'badge-medium' : 'badge-low'}">
-                          ${inc.status}
+                          ${escapeHtml(inc.status)}
                         </span>
                       </td>
-                      <td class="mono" style="font-size:0.8rem;">${inc.affectedAssets.join(', ')}</td>
+                      <td class="mono" style="font-size:0.8rem;">${escapeHtml(inc.affectedAssets.join(', '))}</td>
                       <td>
-                        <button class="btn btn-outline btn-sm btn-inspect-inc" data-id="${inc.id}">Orchestrate</button>
+                        <button class="btn btn-outline btn-sm btn-inspect-inc" data-id="${escapeHtml(inc.id)}">Orchestrate</button>
                       </td>
                     </tr>
                   `).join('')}
@@ -1116,9 +1193,9 @@ function openIncidentModal(incidentId) {
       <div>
         <div style="font-size:var(--text-xs); color:var(--text-secondary);">INCIDENT REMEDIATION WORKSPACE (PHASE 24)</div>
         <h3 style="display:flex; align-items:center; gap:var(--space-2);">
-          <span>${inc.id} — ${inc.title}</span>
-          <span class="badge ${inc.severity === 'Critical' ? 'badge-critical' : 'badge-high'}">${inc.severity}</span>
-          <span class="badge badge-low">${inc.status}</span>
+          <span>${escapeHtml(inc.id)} — ${escapeHtml(inc.title)}</span>
+          <span class="badge ${inc.severity === 'Critical' ? 'badge-critical' : 'badge-high'}">${escapeHtml(inc.severity)}</span>
+          <span class="badge badge-low">${escapeHtml(inc.status)}</span>
         </h3>
       </div>
       <button class="btn btn-ghost btn-sm" id="btn-close-modal">✕ Close</button>
@@ -1129,19 +1206,19 @@ function openIncidentModal(incidentId) {
       <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:var(--space-3); background:var(--bg-elevated); padding:var(--space-4); border-radius:var(--radius-md);">
         <div>
           <div style="font-size:var(--text-xs); color:var(--text-tertiary);">Operational Priority</div>
-          <div class="mono" style="font-weight:700; color:var(--accent-magenta);">${inc.priority}</div>
+          <div class="mono" style="font-weight:700; color:var(--accent-magenta);">${escapeHtml(inc.priority)}</div>
         </div>
         <div>
           <div style="font-size:var(--text-xs); color:var(--text-tertiary);">Affected Systems</div>
-          <div class="mono" style="font-weight:600; color:var(--accent-cyan);">${inc.affectedAssets.join(', ')}</div>
+          <div class="mono" style="font-weight:600; color:var(--accent-cyan);">${escapeHtml(inc.affectedAssets.join(', '))}</div>
         </div>
         <div>
           <div style="font-size:var(--text-xs); color:var(--text-tertiary);">Matched Playbook</div>
-          <div class="mono" style="font-weight:600; color:var(--accent-purple);">${inc.playbook}</div>
+          <div class="mono" style="font-weight:600; color:var(--accent-purple);">${escapeHtml(inc.playbook)}</div>
         </div>
         <div>
           <div style="font-size:var(--text-xs); color:var(--text-tertiary);">Pre-Response Simulation</div>
-          <div class="mono" style="font-weight:600; color:var(--accent-emerald);">${inc.simulation}</div>
+          <div class="mono" style="font-weight:600; color:var(--accent-emerald);">${escapeHtml(inc.simulation)}</div>
         </div>
       </div>
 
@@ -1149,7 +1226,7 @@ function openIncidentModal(incidentId) {
       <div class="glass-card" style="padding:var(--space-4);">
         <h4 style="margin-bottom:var(--space-2); color:var(--accent-cyan);">Preserved Forensic Evidence (Pre-Remediation Vault)</h4>
         <div style="display:flex; gap:var(--space-2); flex-wrap:wrap;">
-          ${inc.evidence.map(e => `<span class="badge badge-info" style="font-family:var(--font-mono);">${e}</span>`).join('')}
+          ${inc.evidence.map(e => `<span class="badge badge-info" style="font-family:var(--font-mono);">${escapeHtml(e)}</span>`).join('')}
           <span class="badge badge-neutral" style="font-family:var(--font-mono);">CONFIG-SNAPSHOT-BEFORE</span>
         </div>
       </div>
