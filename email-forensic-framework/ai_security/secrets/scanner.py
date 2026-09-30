@@ -92,7 +92,7 @@ class AISecretsScanner:
         for sec_type, regex, conf in self.PATTERNS:
             for match in re.finditer(regex, text, re.IGNORECASE):
                 val = match.group(0)
-                masked = val[:4] + "*" * (len(val) - 6) + val[-2:] if len(val) > 8 else "***REDACTED***"
+                masked = val[:8] + "*" * (len(val) - 10) + val[-2:] if len(val) > 12 else "***REDACTED***"
                 detected.append(
                     DetectedSecret(
                         secret_id=f"SEC-{uuid.uuid4().hex[:6].upper()}",

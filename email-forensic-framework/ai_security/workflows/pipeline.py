@@ -146,7 +146,7 @@ class AIWorkflowManager:
         wf.add_stage(WorkflowStageRecord("STG-02", WorkflowStageType.CLASSIFIER, "Intent Classifier", "intent-classifier-v1", [ClassificationLevel.PUBLIC, ClassificationLevel.INTERNAL, ClassificationLevel.CONFIDENTIAL, ClassificationLevel.RESTRICTED]))
         wf.add_stage(WorkflowStageRecord("STG-03", WorkflowStageType.RETRIEVER, "Vector Retriever", "vdb-customer-kb", [ClassificationLevel.PUBLIC, ClassificationLevel.INTERNAL, ClassificationLevel.CONFIDENTIAL]))
         wf.add_stage(WorkflowStageRecord("STG-04", WorkflowStageType.LLM, "Core Inference", "MODEL-781", [ClassificationLevel.PUBLIC, ClassificationLevel.INTERNAL, ClassificationLevel.CONFIDENTIAL]))
-        wf.add_stage(WorkflowStageRecord("STG-05", WorkflowStageType.TOOL, "Action Tool", "database_query", [ClassificationLevel.PUBLIC, ClassificationLevel.INTERNAL, ClassificationLevel.CONFIDENTIAL]))
+        wf.add_stage(WorkflowStageRecord("STG-05", WorkflowStageType.DATABASE, "Action Tool", "database_query", [ClassificationLevel.PUBLIC, ClassificationLevel.INTERNAL, ClassificationLevel.CONFIDENTIAL]))
         wf.add_stage(WorkflowStageRecord("STG-06", WorkflowStageType.POSTPROCESSOR, "DLP & Output Guardrail", "output-guardrail", [ClassificationLevel.PUBLIC, ClassificationLevel.INTERNAL, ClassificationLevel.CONFIDENTIAL, ClassificationLevel.RESTRICTED]))
         self._workflows[wf.workflow_id] = wf
 

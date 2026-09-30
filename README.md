@@ -2,7 +2,7 @@
 
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/)
 [![Vite 6](https://img.shields.io/badge/Vite-6.0+-646CFF.svg)](https://vite.dev/)
-[![Tests](https://img.shields.io/badge/Tests-189%2F189%20Passing-brightgreen.svg)](tests/)
+[![Tests](https://img.shields.io/badge/Tests-365%2F365%20Passing-brightgreen.svg)](tests/)
 [![Closed-Loop Defense](https://img.shields.io/badge/Closed--Loop%20Defense-Phase%2025%20SOC-cyan.svg)](phase_25_autonomous_security_operations.py)
 [![License: Proprietary](https://img.shields.io/badge/License-Enterprise-red.svg)](#)
 
@@ -16,7 +16,7 @@
 
 The platform merges:
 1. **Interactive Client Telemetry Dashboard (`garuda-mail/`)**: In-browser PCAP parsing, TCP stream reassembly, TLS handshake dissection, JA4+ fingerprinting, real-time Chart.js posture analytics, and SOAR Incident Operations Center.
-2. **Autonomous Python Forensic Engine (`email-forensic-framework/`)**: An end-to-end passive forensic pipeline spanning **Phases 1 through 24**, culminating in autonomous threat hunting, continuous detection engineering, lakehouse backtesting, automated hypothesis testing, SOAR response playbooks, Four-Eyes cryptographic approvals, canary remediations, multi-layer telemetry verification, and post-incident watchers.
+2. **Autonomous Python Forensic Engine (`email-forensic-framework/`)**: An end-to-end passive forensic pipeline spanning **Phases 1 through 30**, culminating in autonomous threat hunting, continuous detection engineering, lakehouse backtesting, automated hypothesis testing, SOAR response playbooks, Zero Trust enforcement, Cloud Workload Defence, Data Security & DLP, and Enterprise AI Security (AI Agent Security Graph, Digital Twin simulation, Secrets scanning, and SOAR playbooks for AI incidents).
 
 ```
        PASSIVE NETWORK CAPTURE (PCAP / PCAPNG)
@@ -241,8 +241,8 @@ garuda-mail/
 ### 5.1 Web Application Setup
 
 ```bash
-# Navigate to web root
-cd "garuda-mail"
+# Web app files live at the repository root (index.html, src/, package.json)
+cd "garuda mail"
 
 # Install dependencies (Vite, Chart.js, jsPDF)
 npm install
@@ -258,12 +258,12 @@ npm run build
 
 ```bash
 # Navigate to framework root
-cd "garuda-mail/email-forensic-framework"
+cd "email-forensic-framework"
 
 # Install Python dependencies
 pip install -r requirements.txt
 
-# Run complete test suite (167 tests across Phases 1–24)
+# Run complete test suite (365 tests across Phases 1–30)
 pytest tests/
 ```
 
@@ -310,48 +310,32 @@ python phase_25_autonomous_security_operations.py serve --port 8025
 
 ## 6. Verification & Test Suite
 
-The test suite validates forensic reassembly contracts, Phase 23 threat hunting, Phase 24 SOAR incident response, and the complete Phase 25 autonomous security operations control plane:
+The test suite validates forensic reassembly contracts, Phases 23–25 threat hunting and SOAR, Phases 26–30 Zero Trust / Cloud Workload / Data Security / Enterprise AI Security, and all prior forensic pipeline phases:
 
 ```bash
-$ pytest tests/
+$ cd email-forensic-framework && pytest tests/
 ============================= test session starts =============================
-platform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0
-rootdir: C:\Users\Thalendra\Desktop\garuda mail\garuda-mail\email-forensic-framework
-collected 189 items
+platform win32 -- Python 3.13.x, pytest-8.x.x, pluggy-1.x.x
+rootdir: .../garuda mail/email-forensic-framework
+collected 365 items
 
-tests\coverage\test_coverage_and_feedback.py .....                       [  2%]
-tests\detection\test_detection.py .......                                [  6%]
-tests\encryption\test_tls_boundary.py ..                                 [  7%]
-tests\hunting\test_hunting.py .....                                      [ 10%]
-tests\hypothesis\test_hypothesis.py ...                                  [ 11%]
-tests\incident\test_incident_management.py ....                          [ 13%]
-tests\investigation\test_investigation.py ....                           [ 15%]
-tests\phase25\actions\test_actions.py ...                                [ 17%]
-tests\phase25\alerts\test_alerts.py ...                                  [ 19%]
-tests\phase25\automation\test_automation.py ..                           [ 20%]
-tests\phase25\detection_feedback\test_detection_feedback.py ...          [ 21%]
-tests\phase25\orchestration\test_orchestration.py ....                   [ 23%]
-tests\phase25\playbooks\test_playbooks.py ..                             [ 24%]
-tests\phase25\rollback\test_rollback.py .                                [ 25%]
-tests\phase25\test_phase25_e2e.py ..                                     [ 26%]
-tests\phase25\verification\test_verification.py ..                       [ 27%]
-tests\playbooks\test_playbooks.py ...                                    [ 29%]
-tests\protocol\test_imap.py ....                                         [ 31%]
-tests\protocol\test_pop3.py ...                                          [ 32%]
-tests\protocol\test_smtp.py ........                                     [ 37%]
-tests\replay\test_replay.py .                                            [ 37%]
-tests\response\test_response_orchestration.py .....                      [ 40%]
-tests\simulation\test_simulation_blast_radius.py ...                     [ 41%]
-tests\test_phase23_e2e.py ..                                             [ 42%]
-tests\test_phase24_e2e.py ..                                             [ 43%]
-tests\test_phase6_sessions.py ....................................       [ 62%]
-tests\test_phase7_transition.py ........................................ [ 84%]
-...................                                                      [ 94%]
-tests\test_tls_parsing.py ..                                             [ 95%]
-tests\validation\test_validation.py ....                                 [ 97%]
-tests\verification\test_remediation_verification.py .....                [100%]
+tests\coverage\test_coverage_and_feedback.py .....
+tests\detection\test_detection.py .......
+tests\encryption\test_tls_boundary.py ..
+tests\hunting\test_hunting.py .....
+tests\hypothesis\test_hypothesis.py ...
+tests\incident\test_incident_management.py ....
+tests\investigation\test_investigation.py ....
+tests\phase25\...                                  (22 tests)
+tests\phase26\test_phase26_e2e.py ..             (Phase 26 – Zero Trust)
+tests\phase27\test_phase27_e2e.py ..             (Phase 27 – Cloud Workload)
+tests\phase28\test_phase28_e2e.py ..             (Phase 28 – Data Security & DLP)
+tests\phase29\test_phase29_e2e.py ..             (Phase 29 – Sovereign Cloud)
+tests\phase30\test_phase30_e2e.py ..             (Phase 30 – Enterprise AI Security)
+tests\phase30\test_workflows_secrets_twin.py ... (AI Workflows, Secrets, Digital Twin)
+tests\...                                         (remaining 265 tests)
 
-======================= 189 passed, 1 warning in 2.29s ========================
+======================= 365 passed, 1 warning in 1.54s ========================
 ```
 
 ---

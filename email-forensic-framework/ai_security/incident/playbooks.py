@@ -35,6 +35,7 @@ class AIPlaybookExecutionResult:
             "execution_id": self.execution_id,
             "playbook_id": self.playbook_id,
             "action_type": self.action_type,
+            "action": self.action_type,  # REST API alias expected by e2e tests
             "target_id": self.target_id,
             "status": self.status,
             "details": self.details,
