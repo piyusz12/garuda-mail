@@ -4,10 +4,22 @@ import time
 import hashlib
 import logging
 import argparse
+import sys
 import numpy as np
 from datetime import datetime, timezone
 from dataclasses import dataclass, field, asdict
 from typing import Dict, List, Any, Optional
+
+if sys.stdout and hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+if sys.stderr and hasattr(sys.stderr, "reconfigure"):
+    try:
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] Phase20 - %(message)s")
 logger = logging.getLogger("Federation-Engine")
@@ -281,14 +293,17 @@ class LocalFederationAgent:
 
 
 if HAS_FASTAPI:
-    app = FastAPI(title="Phase 20 - Federation Control Plane", version="20.0.0")
-    
+    from contextlib import asynccontextmanager
+
     coordinator = FederationCoordinator()
-    
-    @app.on_event("startup")
-    async def setup_mocks():
+
+    @asynccontextmanager
+    async def lifespan(app_instance: FastAPI):
         coordinator.register_organization("ORG-A", "Enterprise Alpha")
         coordinator.register_organization("ORG-B", "Enterprise Beta")
+        yield
+
+    app = FastAPI(title="Phase 20 - Federation Control Plane", version="20.0.0", lifespan=lifespan)
 
     @app.get("/api/v1/federation/intelligence", tags=["Intelligence"])
     def get_intelligence(x_org_id: str = Header(...)):
@@ -348,6 +363,17 @@ def run_phase20_demo():
     # Alpha attempts to share it. Watch the privacy engine intercept.
     agent_alpha.share_finding(raw_local_finding)
     
+    # Alpha strips raw packet captures and payloads, sharing only sanitized telemetry
+    clean_local_finding = {
+        "type": "JA4_BEHAVIOR",
+        "value": "t13d1516h2_8daaf_anomaly",
+        "confidence": 0.95,
+        "ja4": "t13d1516h2_8daaf_anomaly",
+        "ip_address": "10.0.5.12", # SENSITIVE - will be pseudonymized by privacy engine
+    }
+    print("    -> Alpha submitting sanitized indicator (raw payload & PCAP stripped)...")
+    agent_alpha.share_finding(clean_local_finding)
+
     # Beta syncs and hunts
     print("\n[*] Enterprise Beta pulling global intelligence...")
     agent_beta.sync_global_intelligence()
@@ -374,7 +400,7 @@ def run_phase20_demo():
         print(f"       {np.round(new_global, 3)}")
         print("    -> Alpha and Beta models successfully merged. Gamma's attack was quarantined.")
 
-    print("\n[✓] Phase 20 Execution Complete. Cross-Enterprise learning achieved with 0 data leakage.")
+    print("\n[+] Phase 20 Execution Complete. Cross-Enterprise learning achieved with 0 data leakage.")
 
 
 def main():

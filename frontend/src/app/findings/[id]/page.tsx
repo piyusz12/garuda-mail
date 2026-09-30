@@ -1,10 +1,10 @@
 'use client';
 
-import { use } from 'react';
+import { use, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft, Shield, Brain, AlertTriangle, ExternalLink,
-  Copy, CheckCircle, FileText, Bookmark, ChevronRight,
+  Copy, Check, CheckCircle, FileText, Bookmark, ChevronRight,
   Info, Target, Layers, ClipboardCheck,
 } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
@@ -24,6 +24,20 @@ const fadeUp = {
 export default function FindingDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const finding = mockFindings.find(f => f.id === id);
+  const [copied, setCopied] = useState(false);
+  const [isReviewed, setIsReviewed] = useState(finding?.status === 'reviewed');
+
+  const handleCopyRecommendation = () => {
+    if (finding?.remediation) {
+      navigator.clipboard.writeText(finding.remediation);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    }
+  };
+
+  const handleToggleReviewed = () => {
+    setIsReviewed(prev => !prev);
+  };
 
   if (!finding) {
     return (
@@ -66,7 +80,7 @@ export default function FindingDetailPage({ params }: { params: Promise<{ id: st
                 {finding.ruleId && (
                   <span className="text-[10px] text-mono text-[var(--color-text-dim)] bg-[var(--color-surface-3)] px-1.5 py-0.5 rounded">{finding.ruleId}</span>
                 )}
-                <StatusBadge status={finding.status} />
+                <StatusBadge status={isReviewed ? 'reviewed' : finding.status} />
               </div>
               <h2 className="text-xl font-bold text-[var(--color-text-primary)] mb-2">{finding.title}</h2>
               <p className="text-[13px] text-[var(--color-text-secondary)] leading-relaxed">{finding.description}</p>
@@ -157,11 +171,26 @@ export default function FindingDetailPage({ params }: { params: Promise<{ id: st
               </div>
             </div>
             <div className="flex items-center gap-2 pt-3 border-t border-[var(--color-border-subtle)]">
-              <button className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium text-[var(--color-text-secondary)] bg-[var(--color-surface-3)] rounded-md hover:bg-[var(--color-surface-4)] transition-colors">
-                <Copy size={12} /> Copy Recommendation
+              <button
+                type="button"
+                onClick={handleCopyRecommendation}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium text-[var(--color-text-secondary)] bg-[var(--color-surface-3)] rounded-md hover:bg-[var(--color-surface-4)] transition-colors active:scale-95"
+              >
+                {copied ? <Check size={12} className="text-[var(--color-severity-healthy)]" /> : <Copy size={12} />}
+                {copied ? 'Copied to Clipboard!' : 'Copy Recommendation'}
               </button>
-              <button className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium text-[var(--color-text-secondary)] bg-[var(--color-surface-3)] rounded-md hover:bg-[var(--color-surface-4)] transition-colors">
-                <Bookmark size={12} /> Mark Reviewed
+              <button
+                type="button"
+                onClick={handleToggleReviewed}
+                className={clsx(
+                  "flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium rounded-md transition-colors active:scale-95",
+                  isReviewed
+                    ? "bg-[rgba(52,211,153,0.15)] text-[var(--color-severity-healthy)] border border-[rgba(52,211,153,0.3)]"
+                    : "text-[var(--color-text-secondary)] bg-[var(--color-surface-3)] hover:bg-[var(--color-surface-4)]"
+                )}
+              >
+                {isReviewed ? <CheckCircle size={12} /> : <Bookmark size={12} />}
+                {isReviewed ? 'Reviewed' : 'Mark Reviewed'}
               </button>
             </div>
           </motion.div>
