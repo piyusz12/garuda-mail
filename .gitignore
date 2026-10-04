@@ -24,6 +24,8 @@ pnpm-debug.log*
 .idea/
 .DS_Store
 Thumbs.db
+*.db
+*.db-journal
 *.suo
 *.ntvs*
 *.njsproj
