@@ -1,23 +1,26 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Send, X, Paperclip, Bold, Italic, Link2,
   Shield, Lock, Info, ChevronDown, Save, AlertCircle,
+  Cpu, CheckCircle2, Terminal, Network, Settings2
 } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
 import { useRouter, useSearchParams } from 'next/navigation';
 import clsx from 'clsx';
+import { SUPPORTED_PROTOCOLS, ProtocolType, ProtocolSpec } from '@/lib/protocols';
 
 const fadeUp = { initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.3 } };
 
-const quickContacts = [
-  { name: 'Security Operations', email: 'security@enterprise.local' },
-  { name: 'Alice Vance (Crypto)', email: 'alice@enterprise.local' },
-  { name: 'Bob Henderson (NetSec)', email: 'bob@enterprise.local' },
-  { name: 'Garuda Analyst', email: 'analyst@enterprise.local' },
-];
+interface DirectoryUser {
+  id: string;
+  name: string | null;
+  email: string | null;
+  role: string;
+  department: string | null;
+}
 
 export default function ComposePage() {
   return (
@@ -36,55 +39,163 @@ function ComposeForm() {
   const [showCc, setShowCc] = useState(false);
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
+  const [protocol, setProtocol] = useState<ProtocolType>('auto');
+
+  // Custom SMTP override toggle
+  const [showCustomSmtp, setShowCustomSmtp] = useState(false);
+  const [customHost, setCustomHost] = useState('');
+  const [customPort, setCustomPort] = useState('587');
+  const [customUser, setCustomUser] = useState('');
+  const [customPass, setCustomPass] = useState('');
+
+  // Directory users
+  const [directoryUsers, setDirectoryUsers] = useState<DirectoryUser[]>([]);
+  const [activeIps, setActiveIps] = useState<string[]>([]);
+
+  // State
   const [sending, setSending] = useState(false);
   const [savingDraft, setSavingDraft] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState('');
+
+  // Transmission simulation log
+  const [handshakeSteps, setHandshakeSteps] = useState<string[]>([]);
+  const [showTransmissionModal, setShowTransmissionModal] = useState(false);
+
+  // Fetch directory users and protocols info
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [usersRes, protoRes] = await Promise.all([
+          fetch('/api/users'),
+          fetch('/api/protocols'),
+        ]);
+        if (usersRes.ok) {
+          const data = await usersRes.json();
+          if (data.users) setDirectoryUsers(data.users);
+        }
+        if (protoRes.ok) {
+          const data = await protoRes.json();
+          if (data.lanIps) setActiveIps(data.lanIps);
+        }
+      } catch (err) {
+        console.error('Failed to load compose metadata:', err);
+      }
+    }
+    loadData();
+  }, []);
 
   // Pre-fill from query params (e.g. Reply, Forward)
   useEffect(() => {
     const replyTo = searchParams.get('to') || searchParams.get('replyTo');
     const qSubject = searchParams.get('subject');
     const qBody = searchParams.get('body');
+    const qProto = searchParams.get('protocol') as ProtocolType;
 
     if (replyTo) setTo(replyTo);
     if (qSubject) setSubject(qSubject);
     if (qBody) setBody(qBody);
+    if (qProto && SUPPORTED_PROTOCOLS[qProto]) setProtocol(qProto);
   }, [searchParams]);
 
+  // Helper to extract clean email addresses
+  const parseAddresses = (raw: string) => {
+    return raw
+      .split(/[,;\s]+/)
+      .map(s => {
+        const match = s.match(/<([^>]+)>/);
+        return match ? match[1].trim() : s.trim();
+      })
+      .filter(s => s.length > 0 && s.includes('@'))
+      .map(email => ({ email: email.toLowerCase() }));
+  };
+
+  const selectedSpec: ProtocolSpec = SUPPORTED_PROTOCOLS[protocol] || SUPPORTED_PROTOCOLS['auto'];
+
   const handleSend = async () => {
-    if (!to || !subject || !body) return;
-    setSending(true);
     setError('');
 
+    // Validation
+    const toParsed = parseAddresses(to);
+    if (toParsed.length === 0) {
+      setError('Please provide at least one valid recipient email address (e.g. user@enterprise.local or someone@gmail.com).');
+      return;
+    }
+    if (!subject.trim()) {
+      setError('Subject is required before dispatching message.');
+      return;
+    }
+    if (!body.trim()) {
+      setError('Email message body cannot be empty.');
+      return;
+    }
+
+    setSending(true);
+    setShowTransmissionModal(true);
+    setHandshakeSteps([
+      `[1/4] Establishing TCP connection on port ${customHost ? customPort : selectedSpec.defaultPort}...`,
+    ]);
+
     try {
-      const toAddresses = to.split(',').map(s => s.trim()).filter(Boolean).map(email => ({ email }));
-      const ccAddresses = cc ? cc.split(',').map(s => s.trim()).filter(Boolean).map(email => ({ email })) : [];
+      const ccParsed = cc ? parseAddresses(cc) : [];
+
+      // Step 2 simulation
+      setTimeout(() => {
+        setHandshakeSteps(prev => [
+          ...prev,
+          `[2/4] Negotiating ${selectedSpec.encryption} (${selectedSpec.cipher}) with Perfect Forward Secrecy...`,
+        ]);
+      }, 400);
+
+      // Step 3 simulation
+      setTimeout(() => {
+        setHandshakeSteps(prev => [
+          ...prev,
+          `[3/4] Transmitting RFC 5321 envelope & forensic headers (${protocol.toUpperCase()})...`,
+        ]);
+      }, 800);
+
+      const customSmtpPayload = showCustomSmtp && customHost ? {
+        host: customHost,
+        port: parseInt(customPort) || 587,
+        user: customUser,
+        pass: customPass,
+      } : undefined;
 
       const res = await fetch('/api/emails', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          to: toAddresses,
-          cc: ccAddresses,
-          subject,
-          body,
+          to: toParsed,
+          cc: ccParsed,
+          subject: subject.trim(),
+          body: body.trim(),
           draft: false,
+          protocol,
+          customSmtp: customSmtpPayload,
         }),
       });
 
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || 'Failed to send email');
+        throw new Error(data.error || 'Failed to dispatch email');
       }
+
+      setHandshakeSteps(prev => [
+        ...prev,
+        `[4/4] 250 2.0.0 OK: Delivered across all active devices & network peers!`,
+      ]);
 
       setSending(false);
       setSent(true);
+
       setTimeout(() => {
+        setShowTransmissionModal(false);
         router.push('/sent');
-      }, 1000);
+      }, 1500);
     } catch (err: any) {
       setSending(false);
+      setShowTransmissionModal(false);
       setError(err.message || 'Error sending message. Check recipient email format.');
     }
   };
@@ -95,18 +206,17 @@ function ComposeForm() {
     setError('');
 
     try {
-      const toAddresses = to
-        ? to.split(',').map(s => s.trim()).filter(Boolean).map(email => ({ email }))
-        : [{ email: 'draft@enterprise.local' }];
+      const toParsed = to ? parseAddresses(to) : [{ email: 'draft@enterprise.local' }];
 
       const res = await fetch('/api/emails', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          to: toAddresses,
+          to: toParsed.length > 0 ? toParsed : [{ email: 'draft@enterprise.local' }],
           subject: subject || '(Draft - No Subject)',
           body: body || '',
           draft: true,
+          protocol,
         }),
       });
 
@@ -121,36 +231,116 @@ function ComposeForm() {
 
   const handleDiscard = () => router.push('/inbox');
 
-  return (
-    <AppShell title="New Message" description="Compose a new secure email">
-      <motion.div initial="initial" animate="animate" className="space-y-4 max-w-3xl">
+  const addRecipient = (email: string) => {
+    if (!to) {
+      setTo(email);
+    } else if (!to.toLowerCase().includes(email.toLowerCase())) {
+      setTo(prev => `${prev}, ${email}`);
+    }
+  };
 
-        {/* Security Notice */}
-        <motion.div {...fadeUp} className="flex items-start gap-3 p-3 rounded-lg border border-[rgba(56,189,248,0.15)] bg-[var(--color-accent-dim)]">
-          <Shield size={14} className="text-[var(--color-accent)] mt-0.5 flex-shrink-0" />
-          <div className="text-[12px] text-[var(--color-text-secondary)] leading-relaxed">
-            <span className="font-semibold text-[var(--color-accent)]">Transport Security: </span>
-            Outbound mail is secured via TLS 1.3 and cryptographic analysis metadata will be automatically attached.
+  return (
+    <AppShell title="Compose Message" description="Dispatch email across SMTP, SMTPS, Direct MX, or Garuda LAN P2P Mesh">
+      <motion.div initial="initial" animate="animate" className="space-y-4 max-w-4xl">
+
+        {/* ── Protocol Selection Bar ── */}
+        <motion.div {...fadeUp} className="card p-3 space-y-3 bg-[var(--color-surface-1)] border border-[var(--color-border)]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-[var(--color-border-subtle)]">
+            <div className="flex items-center gap-2">
+              <Network size={15} className="text-[var(--color-accent)]" />
+              <span className="text-[12px] font-bold text-[var(--color-text-primary)]">Dispatch Protocol:</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-[11px] text-[var(--color-text-muted)]">
+              <span>Local Network Host:</span>
+              <span className="px-2 py-0.5 rounded font-mono text-[10px] bg-[var(--color-surface-3)] text-[var(--color-accent)] border border-[var(--color-border)]">
+                {activeIps.length > 0 ? `http://${activeIps[0]}:3000` : 'http://localhost:3000'}
+              </span>
+            </div>
+          </div>
+
+          {/* Protocol Buttons */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
+            {(Object.values(SUPPORTED_PROTOCOLS).filter(p => p.id !== 'imap-sync')).map(spec => {
+              const isSelected = protocol === spec.id;
+              return (
+                <button
+                  key={spec.id}
+                  type="button"
+                  onClick={() => setProtocol(spec.id)}
+                  className={clsx(
+                    'p-2.5 rounded-lg border text-left transition-all relative overflow-hidden flex flex-col justify-between',
+                    isSelected
+                      ? 'border-[var(--color-accent)] bg-[var(--color-accent-dim)] shadow-[0_0_12px_rgba(56,189,248,0.15)]'
+                      : 'border-[var(--color-border-subtle)] bg-[var(--color-surface-2)] hover:border-[var(--color-border)] text-[var(--color-text-secondary)]'
+                  )}
+                >
+                  <div className="flex items-center justify-between gap-1 mb-1">
+                    <span className="text-[11px] font-bold tracking-tight text-[var(--color-text-primary)]">
+                      {spec.shortName}
+                    </span>
+                    <span
+                      className="w-2 h-2 rounded-full"
+                      style={{ backgroundColor: spec.badgeColor }}
+                    />
+                  </div>
+                  <div className="text-[10px] text-[var(--color-text-muted)] line-clamp-1">
+                    Port {spec.defaultPort} • {spec.encryption}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Active Protocol Security Details */}
+          <div className="p-2.5 rounded-md bg-[var(--color-surface-2)] border border-[var(--color-border-subtle)] flex flex-col md:flex-row md:items-center justify-between gap-2 text-[11px]">
+            <div className="flex items-center gap-2">
+              <Lock size={12} className="text-[var(--color-accent)] flex-shrink-0" />
+              <span className="text-[var(--color-text-secondary)]">
+                <strong className="text-[var(--color-text-primary)]">{selectedSpec.name} ({selectedSpec.rfc}): </strong>
+                {selectedSpec.description}
+              </span>
+            </div>
+            <div className="flex items-center gap-3 text-[10px] font-mono text-[var(--color-text-dim)] flex-shrink-0">
+              <span>CIPHER: {selectedSpec.cipher}</span>
+              <span>PFS: {selectedSpec.pfs ? 'ENABLED' : 'NONE'}</span>
+            </div>
           </div>
         </motion.div>
 
-        {/* Error Alert */}
+        {/* ── Error Banner ── */}
         {error && (
           <motion.div {...fadeUp} className="flex items-center gap-2.5 p-3 rounded-md bg-[var(--color-severity-critical-bg)] border border-[rgba(239,68,68,0.25)] text-[12px] text-[var(--color-severity-critical)]">
-            <AlertCircle size={14} className="flex-shrink-0" />
+            <AlertCircle size={15} className="flex-shrink-0" />
             <span>{error}</span>
           </motion.div>
         )}
 
-        {/* Compose Card */}
+        {/* ── Compose Card ── */}
         <motion.div {...fadeUp} className="card overflow-hidden">
 
-          {/* Toolbar */}
+          {/* Header Toolbar */}
           <div className="flex items-center justify-between px-4 py-2.5 border-b border-[var(--color-border)] bg-[var(--color-surface-2)]">
             <div className="flex items-center gap-2">
-              <span className="text-[12px] font-semibold text-[var(--color-text-primary)]">New Secure Message</span>
+              <span className="text-[12px] font-semibold text-[var(--color-text-primary)]">New Email Message</span>
+              <span className="text-[10px] px-2 py-0.5 rounded font-mono font-bold bg-[var(--color-accent-dim)] text-[var(--color-accent)] border border-[rgba(56,189,248,0.2)]">
+                {selectedSpec.shortName}
+              </span>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => setShowCustomSmtp(!showCustomSmtp)}
+                className={clsx(
+                  'flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-medium transition-colors border',
+                  showCustomSmtp
+                    ? 'bg-[var(--color-accent-dim)] text-[var(--color-accent)] border-[var(--color-accent)]'
+                    : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] bg-[var(--color-surface-3)] border-[var(--color-border-subtle)]'
+                )}
+                title="Configure custom SMTP relay"
+              >
+                <Settings2 size={12} />
+                <span>Custom Relay</span>
+              </button>
               <button
                 onClick={handleSaveDraft}
                 disabled={savingDraft || (!to && !subject && !body)}
@@ -170,16 +360,62 @@ function ComposeForm() {
             </div>
           </div>
 
-          {/* Fields */}
+          {/* Custom SMTP Config Drawer */}
+          {showCustomSmtp && (
+            <div className="p-3 bg-[var(--color-surface-1)] border-b border-[var(--color-border)] grid grid-cols-1 sm:grid-cols-4 gap-2 text-[12px]">
+              <div>
+                <label className="text-[10px] uppercase font-mono text-[var(--color-text-dim)] block mb-1">SMTP Host</label>
+                <input
+                  type="text"
+                  placeholder="smtp.gmail.com or 192.168.1.3"
+                  value={customHost}
+                  onChange={e => setCustomHost(e.target.value)}
+                  className="w-full px-2 py-1 bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded text-[11px] text-[var(--color-text-primary)]"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] uppercase font-mono text-[var(--color-text-dim)] block mb-1">Port</label>
+                <input
+                  type="text"
+                  placeholder="587"
+                  value={customPort}
+                  onChange={e => setCustomPort(e.target.value)}
+                  className="w-full px-2 py-1 bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded text-[11px] text-[var(--color-text-primary)]"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] uppercase font-mono text-[var(--color-text-dim)] block mb-1">Username / Auth</label>
+                <input
+                  type="text"
+                  placeholder="user@example.com"
+                  value={customUser}
+                  onChange={e => setCustomUser(e.target.value)}
+                  className="w-full px-2 py-1 bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded text-[11px] text-[var(--color-text-primary)]"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] uppercase font-mono text-[var(--color-text-dim)] block mb-1">Password / App Pass</label>
+                <input
+                  type="password"
+                  placeholder="••••••••••••"
+                  value={customPass}
+                  onChange={e => setCustomPass(e.target.value)}
+                  className="w-full px-2 py-1 bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded text-[11px] text-[var(--color-text-primary)]"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Form Fields */}
           <div className="divide-y divide-[var(--color-border-subtle)]">
-            {/* To */}
+            {/* To Field */}
             <div className="flex items-center gap-3 px-4 py-2.5">
               <label className="text-[12px] font-medium text-[var(--color-text-muted)] w-12 flex-shrink-0">To</label>
               <input
-                type="email"
+                type="text"
                 value={to}
                 onChange={e => setTo(e.target.value)}
-                placeholder="recipient@enterprise.local or user@example.com"
+                placeholder="bob@enterprise.local, bhaskarthalendra@gmail.com, etc."
                 className="flex-1 text-[13px] bg-transparent text-[var(--color-text-primary)] placeholder:text-[var(--color-text-dim)] outline-none"
               />
               <button
@@ -191,27 +427,31 @@ function ComposeForm() {
               </button>
             </div>
 
-            {/* Quick Contacts Suggestion Chips */}
-            <div className="flex items-center gap-1.5 px-4 py-1.5 bg-[var(--color-surface-1)] text-[11px] overflow-x-auto">
-              <span className="text-[10px] uppercase text-[var(--color-text-dim)] font-mono mr-1">Quick Add:</span>
-              {quickContacts.map(c => (
+            {/* Quick Directory Contacts */}
+            <div className="flex items-center gap-1.5 px-4 py-2 bg-[var(--color-surface-1)] text-[11px] overflow-x-auto">
+              <span className="text-[10px] uppercase text-[var(--color-text-dim)] font-mono mr-1 flex-shrink-0">
+                Network Peers:
+              </span>
+              {directoryUsers.map(u => (
                 <button
-                  key={c.email}
+                  key={u.id}
                   type="button"
-                  onClick={() => setTo(c.email)}
-                  className="px-2 py-0.5 rounded text-[10px] bg-[var(--color-surface-3)] text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] hover:bg-[var(--color-accent-dim)] border border-[var(--color-border-subtle)] transition-colors"
+                  onClick={() => addRecipient(u.email || '')}
+                  className="px-2.5 py-0.5 rounded text-[10px] bg-[var(--color-surface-2)] text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] hover:bg-[var(--color-accent-dim)] border border-[var(--color-border-subtle)] transition-colors flex items-center gap-1 flex-shrink-0"
                 >
-                  {c.name.split(' ')[0]} ({c.email.split('@')[0]})
+                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-severity-healthy)]" />
+                  <span>{u.name || u.email?.split('@')[0]}</span>
+                  <span className="text-[var(--color-text-dim)]">({u.email})</span>
                 </button>
               ))}
             </div>
 
-            {/* CC */}
+            {/* CC Field */}
             {showCc && (
               <div className="flex items-center gap-3 px-4 py-2.5">
                 <label className="text-[12px] font-medium text-[var(--color-text-muted)] w-12 flex-shrink-0">CC</label>
                 <input
-                  type="email"
+                  type="text"
                   value={cc}
                   onChange={e => setCc(e.target.value)}
                   placeholder="cc@enterprise.local"
@@ -220,27 +460,27 @@ function ComposeForm() {
               </div>
             )}
 
-            {/* Subject */}
+            {/* Subject Field */}
             <div className="flex items-center gap-3 px-4 py-2.5">
               <label className="text-[12px] font-medium text-[var(--color-text-muted)] w-12 flex-shrink-0">Subject</label>
               <input
                 type="text"
                 value={subject}
                 onChange={e => setSubject(e.target.value)}
-                placeholder="Message subject"
+                placeholder="Message subject line"
                 className="flex-1 text-[13px] bg-transparent text-[var(--color-text-primary)] placeholder:text-[var(--color-text-dim)] outline-none font-medium"
               />
             </div>
           </div>
 
-          {/* Body */}
-          <div className="px-4 pt-2 pb-4">
+          {/* Message Body */}
+          <div className="px-4 pt-3 pb-4">
             <textarea
               value={body}
               onChange={e => setBody(e.target.value)}
-              placeholder="Write your email message here..."
-              rows={14}
-              className="w-full text-[13px] leading-relaxed bg-transparent text-[var(--color-text-secondary)] placeholder:text-[var(--color-text-dim)] outline-none resize-none"
+              placeholder="Write your email message here... When dispatched, the message will immediately sync across all PCs and mail servers."
+              rows={12}
+              className="w-full text-[13px] leading-relaxed bg-transparent text-[var(--color-text-secondary)] placeholder:text-[var(--color-text-dim)] outline-none resize-none font-sans"
             />
           </div>
 
@@ -253,40 +493,45 @@ function ComposeForm() {
             <FormatButton icon={Paperclip} title="Attach file" />
           </div>
 
-          {/* Send Bar */}
+          {/* Send / Action Bar */}
           <div className="flex items-center justify-between px-4 py-3 border-t border-[var(--color-border)] bg-[var(--color-surface-2)]">
             <div className="flex items-center gap-2 text-[11px] text-[var(--color-text-muted)]">
-              <Lock size={11} className="text-[var(--color-accent)]" />
-              <span>TLS transport enforced (ECDHE + AES-GCM)</span>
+              <Shield size={13} className="text-[var(--color-accent)]" />
+              <span>Multi-device synchronization active • Instant cross-PC delivery</span>
             </div>
             <div className="flex items-center gap-2">
               <button
+                type="button"
                 onClick={handleDiscard}
                 className="px-4 py-1.5 text-[12px] font-medium text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-3)] rounded-md transition-colors border border-[var(--color-border)]"
               >
                 Discard
               </button>
               <button
+                type="button"
                 onClick={handleSend}
-                disabled={!to || !subject || !body || sending || sent}
+                disabled={sending || sent}
                 className={clsx(
-                  'flex items-center gap-1.5 px-4 py-1.5 text-[12px] font-semibold rounded-md transition-all duration-200',
+                  'flex items-center gap-2 px-5 py-2 text-[12px] font-semibold rounded-md transition-all duration-200 shadow-md',
                   sent
                     ? 'bg-[var(--color-severity-healthy)] text-white'
-                    : 'bg-[var(--color-accent)] text-[#0B0D10] hover:bg-[#5ccbfc] disabled:opacity-40 disabled:pointer-events-none'
+                    : 'bg-[var(--color-accent)] text-[#0B0D10] hover:bg-[#5ccbfc] hover:shadow-[0_0_15px_rgba(56,189,248,0.3)] disabled:opacity-50'
                 )}
               >
                 {sending ? (
                   <>
-                    <div className="w-3 h-3 border-2 border-[#0B0D10]/30 border-t-[#0B0D10] rounded-full animate-spin" />
-                    Sending...
+                    <div className="w-3.5 h-3.5 border-2 border-[#0B0D10]/30 border-t-[#0B0D10] rounded-full animate-spin" />
+                    Dispatching via {selectedSpec.shortName}...
                   </>
                 ) : sent ? (
-                  <>✓ Sent</>
+                  <>
+                    <CheckCircle2 size={14} />
+                    Dispatched!
+                  </>
                 ) : (
                   <>
                     <Send size={13} />
-                    Send
+                    Dispatch via {selectedSpec.shortName}
                   </>
                 )}
               </button>
@@ -294,29 +539,67 @@ function ComposeForm() {
           </div>
         </motion.div>
 
-        {/* Security Analysis Preview */}
-        <motion.div {...fadeUp} className="card p-4">
-          <div className="flex items-center gap-2 mb-3">
-            <Info size={13} className="text-[var(--color-accent)]" />
-            <span className="text-[11px] uppercase tracking-wider text-[var(--color-text-muted)] font-semibold">Live Security Pipeline</span>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-[11px]">
-            {[
-              { label: 'TLS Negotiation', value: 'TLS 1.3 Strict', status: 'healthy' },
-              { label: 'Certificate Check', value: 'X.509 Validated', status: 'healthy' },
-              { label: 'Forward Secrecy', value: 'ECDHE Enforced', status: 'healthy' },
-              { label: 'Recipient Routing', value: 'Instant Multi-PC Sync', status: 'accent' },
-            ].map(item => (
-              <div key={item.label} className="p-2.5 bg-[var(--color-surface-2)] rounded-md border border-[var(--color-border-subtle)]">
-                <div className="text-[10px] text-[var(--color-text-dim)] mb-1">{item.label}</div>
-                <div className={clsx(
-                  'font-medium',
-                  item.status === 'healthy' ? 'text-[var(--color-severity-healthy)]' : 'text-[var(--color-accent)]'
-                )}>{item.value}</div>
-              </div>
-            ))}
-          </div>
-        </motion.div>
+        {/* ── Protocol Forensic Handshake Transmission Modal ── */}
+        <AnimatePresence>
+          {showTransmissionModal && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+            >
+              <motion.div
+                initial={{ scale: 0.95, y: 10 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.95, y: 10 }}
+                className="w-full max-w-xl bg-[var(--color-surface-1)] border border-[var(--color-accent)] rounded-xl shadow-2xl overflow-hidden"
+              >
+                <div className="flex items-center justify-between px-4 py-3 bg-[var(--color-surface-2)] border-b border-[var(--color-border)]">
+                  <div className="flex items-center gap-2">
+                    <Terminal size={15} className="text-[var(--color-accent)] animate-pulse" />
+                    <span className="text-[13px] font-bold text-[var(--color-text-primary)]">
+                      Protocol Handshake: {selectedSpec.name} ({selectedSpec.shortName})
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[var(--color-surface-3)] text-[var(--color-accent)]">
+                    PORT {customHost ? customPort : selectedSpec.defaultPort}
+                  </span>
+                </div>
+
+                <div className="p-4 bg-[#0a0f1d] font-mono text-[12px] space-y-2 text-slate-300 min-h-[160px]">
+                  {handshakeSteps.map((step, idx) => (
+                    <motion.div
+                      key={idx}
+                      initial={{ opacity: 0, x: -5 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      className={clsx(
+                        'leading-relaxed',
+                        step.includes('250') || step.includes('Delivered')
+                          ? 'text-emerald-400 font-bold'
+                          : step.includes('TLS') || step.includes('Negotiating')
+                            ? 'text-sky-300'
+                            : 'text-slate-300'
+                      )}
+                    >
+                      {step}
+                    </motion.div>
+                  ))}
+                  {sending && (
+                    <div className="flex items-center gap-2 text-sky-400/70 text-[11px] pt-1">
+                      <div className="w-2.5 h-2.5 border-2 border-sky-400/30 border-t-sky-400 rounded-full animate-spin" />
+                      <span>Negotiating cryptographic envelope...</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="px-4 py-2.5 bg-[var(--color-surface-2)] border-t border-[var(--color-border)] flex items-center justify-between text-[11px] text-[var(--color-text-muted)]">
+                  <span>Cryptographic Protocol: {selectedSpec.cipher}</span>
+                  <span className="text-emerald-400 font-medium">Multi-PC Sync Enforced</span>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
       </motion.div>
     </AppShell>

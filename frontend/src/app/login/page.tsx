@@ -18,7 +18,8 @@ export default function LoginPage() {
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get('callbackUrl') || '/inbox';
+  const rawCallback = searchParams.get('callbackUrl') || '/inbox';
+  const callbackUrl = rawCallback.startsWith('/') ? rawCallback : '/inbox';
   const registered = searchParams.get('registered') === 'true';
 
   const [email, setEmail] = useState('');

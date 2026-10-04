@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import {
   Inbox as InboxIcon, Star, Paperclip, AlertTriangle,
-  ChevronRight, Lock, LockOpen, Filter, RefreshCw,
+  ChevronRight, Lock, LockOpen, Filter, RefreshCw, Network,
 } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
 import { getEmailsByFolder } from '@/lib/mock/emails';
@@ -90,10 +90,10 @@ export default function InboxPage() {
 
   useEffect(() => {
     fetchEmails();
-    // Auto-poll every 5 seconds so new emails sent from other PCs appear automatically
+    // Auto-poll every 2 seconds for instant real-time multi-PC synchronization
     const interval = setInterval(() => {
       fetchEmails(true);
-    }, 5000);
+    }, 2000);
     return () => clearInterval(interval);
   }, [fetchEmails]);
 
@@ -321,6 +321,12 @@ function EmailRow({
               NONE
             </span>
           ) : null}
+          {email.security.cipher?.includes('[') && (
+            <span className="flex items-center gap-1 text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-[var(--color-accent-dim)] text-[var(--color-accent)] border border-[rgba(56,189,248,0.2)]">
+              <Network size={9} />
+              {email.security.cipher.match(/\[([A-Z0-9\/\-]+)\]/)?.[1] || 'SMTP'}
+            </span>
+          )}
           {email.security.riskScore !== null && (
             <RiskPill score={email.security.riskScore} />
           )}

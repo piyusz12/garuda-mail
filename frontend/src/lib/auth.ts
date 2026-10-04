@@ -68,6 +68,16 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     },
+    async redirect({ url, baseUrl }) {
+      // Keep redirects relative so multi-device browsers on LAN stay on their connecting IP/host
+      if (url.startsWith('/')) return url;
+      try {
+        const parsed = new URL(url);
+        return parsed.pathname + parsed.search;
+      } catch {
+        return '/inbox';
+      }
+    },
   },
 
   secret: process.env.NEXTAUTH_SECRET || 'garuda-mail-super-secret-production-jwt-2026-key',

@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import {
   Send as SendIcon, Lock, LockOpen, Paperclip,
-  ChevronRight, RefreshCw,
+  ChevronRight, RefreshCw, Network,
 } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
 import { getEmailsByFolder } from '@/lib/mock/emails';
@@ -152,6 +152,12 @@ function SentEmailRow({ email }: { email: EmailMessage }) {
           ) : (
             <span className="text-[10px] font-semibold text-[var(--color-severity-critical)] px-1.5 py-0.5 rounded bg-[var(--color-severity-critical-bg)]">
               <LockOpen size={9} className="inline mr-0.5" />NONE
+            </span>
+          )}
+          {email.security.cipher?.includes('[') && (
+            <span className="flex items-center gap-1 text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-[var(--color-accent-dim)] text-[var(--color-accent)] border border-[rgba(56,189,248,0.2)]">
+              <Network size={9} />
+              {email.security.cipher.match(/\[([A-Z0-9\/\-]+)\]/)?.[1] || 'SMTP'}
             </span>
           )}
         </div>
