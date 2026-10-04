@@ -1,0 +1,153 @@
+// Garuda Mail — Prisma Schema
+// Supports Supabase (PostgreSQL) in production, SQLite for local dev
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ── NextAuth Models ──────────────────────────────────────────────────
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ── Core User Model ──────────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?   // hashed with bcrypt
+  role          String    @default("analyst") // analyst | admin
+  department    String?
+  avatarColor   String    @default("#38BDF8")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // NextAuth relations
+  accounts      Account[]
+  sessions      Session[]
+
+  // Email relations
+  sentEmails    Email[]   @relation("SentEmails")
+  recipients    EmailRecipient[]
+}
+
+// ── Email System ─────────────────────────────────────────────────────
+
+model Email {
+  id          String   @id @default(cuid())
+  subject     String
+  body        String   @db.Text
+  preview     String?  // auto-generated first 200 chars
+  fromId      String
+  from        User     @relation("SentEmails", fields: [fromId], references: [id])
+  
+  // External email support
+  fromExternal    String? // if sent from external SMTP
+  toExternal      String? // if sent to external address
+  
+  folder      String   @default("inbox") // inbox | sent | draft | archive | trash
+  starred     Boolean  @default(false)
+  draft       Boolean  @default(false)
+  
+  // Message threading
+  threadId    String?
+  inReplyTo   String?
+  
+  // Security metadata (from forensic analysis)
+  tlsVersion  String?
+  cipher      String?
+  forwardSecrecy Boolean?
+  starttls    Boolean?
+  riskScore   Int?
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  sentAt      DateTime?
+  
+  recipients  EmailRecipient[]
+  attachments Attachment[]
+  labels      EmailLabel[]
+}
+
+model EmailRecipient {
+  id        String   @id @default(cuid())
+  emailId   String
+  userId    String?
+  address   String   // email address (for external)
+  name      String?
+  type      String   @default("to") // to | cc | bcc
+  read      Boolean  @default(false)
+  readAt    DateTime?
+  folder    String   @default("inbox") // per-recipient folder
+  starred   Boolean  @default(false)
+  email     Email    @relation(fields: [emailId], references: [id], onDelete: Cascade)
+  user      User?    @relation(fields: [userId], references: [id])
+}
+
+model Attachment {
+  id        String   @id @default(cuid())
+  emailId   String
+  filename  String
+  mimeType  String
+  size      Int
+  url       String   // storage URL
+  email     Email    @relation(fields: [emailId], references: [id], onDelete: Cascade)
+}
+
+model Label {
+  id        String   @id @default(cuid())
+  name      String
+  color     String   @default("#38BDF8")
+  userId    String
+  emails    EmailLabel[]
+}
+
+model EmailLabel {
+  emailId   String
+  labelId   String
+  email     Email  @relation(fields: [emailId], references: [id], onDelete: Cascade)
+  label     Label  @relation(fields: [labelId], references: [id], onDelete: Cascade)
+
+  @@id([emailId, labelId])
+}

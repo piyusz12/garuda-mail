@@ -4,13 +4,23 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import {
+  Inbox, Send, FileEdit, Star, Archive, Trash2,
   LayoutDashboard, Upload, Network, AlertTriangle, Shield,
   Award, Brain, Search as SearchIcon, FileText, Settings, Layers,
-  ChevronLeft, ChevronRight, Activity,
+  ChevronLeft, ChevronRight, Plus, Mail,
 } from 'lucide-react';
 import clsx from 'clsx';
 
-const navigation = [
+const emailNav = [
+  { name: 'Inbox', href: '/inbox', icon: Inbox, countKey: 'inbox' as const },
+  { name: 'Sent', href: '/sent', icon: Send },
+  { name: 'Drafts', href: '/drafts', icon: FileEdit, countKey: 'drafts' as const },
+  { name: 'Starred', href: '/starred', icon: Star },
+  { name: 'Archive', href: '/archive', icon: Archive },
+  { name: 'Trash', href: '/trash', icon: Trash2 },
+];
+
+const securityNav = [
   { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Analysis', href: '/analysis', icon: Upload },
   { name: 'Sessions', href: '/sessions', icon: Network },
@@ -29,6 +39,8 @@ interface SidebarProps {
   onToggle: () => void;
 }
 
+const unreadCounts = { inbox: 3, drafts: 1 };
+
 export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const pathname = usePathname();
 
@@ -42,8 +54,7 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
     >
       {/* ── Logo ── */}
       <div className="flex items-center h-[56px] px-4 border-b border-default">
-        <Link href="/dashboard" className="flex items-center gap-2.5 overflow-hidden">
-          {/* Garuda Mark — geometric minimal symbol */}
+        <Link href="/inbox" className="flex items-center gap-2.5 overflow-hidden">
           <div className="flex-shrink-0 w-7 h-7 flex items-center justify-center">
             <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-7 h-7">
               <path d="M14 2L24 8V20L14 26L4 20V8L14 2Z" stroke="var(--color-accent)" strokeWidth="1.5" fill="none" />
@@ -64,10 +75,81 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
         </Link>
       </div>
 
+      {/* ── Compose Button ── */}
+      <div className={clsx('px-2 pt-3', collapsed ? 'px-1.5' : 'px-3')}>
+        <Link
+          href="/compose"
+          className={clsx(
+            'flex items-center justify-center gap-2 rounded-lg font-medium transition-all duration-200',
+            'bg-[var(--color-accent)] text-[#0B0D10] hover:bg-[#5ccbfc] active:scale-[0.97]',
+            collapsed ? 'w-9 h-9 mx-auto' : 'w-full h-9 px-4 text-[13px]'
+          )}
+        >
+          <Plus size={16} strokeWidth={2.5} />
+          {!collapsed && <span>Compose</span>}
+        </Link>
+      </div>
+
       {/* ── Navigation ── */}
-      <nav className="flex-1 overflow-y-auto py-3 px-2">
+      <nav className="flex-1 overflow-y-auto py-2 px-2">
+        {/* Email Section */}
+        {!collapsed && (
+          <div className="px-2 pt-2 pb-1.5">
+            <span className="text-[10px] uppercase tracking-widest text-[var(--color-text-dim)] font-semibold flex items-center gap-1.5">
+              <Mail size={10} />
+              EMAIL
+            </span>
+          </div>
+        )}
         <div className="space-y-0.5">
-          {navigation.map((item) => {
+          {emailNav.map((item) => {
+            const isActive = pathname === item.href;
+            const count = item.countKey ? (unreadCounts as any)[item.countKey] : undefined;
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                title={collapsed ? item.name : undefined}
+                className={clsx(
+                  'flex items-center gap-2.5 px-2.5 py-2 rounded-md text-[13px] font-medium transition-all duration-150',
+                  isActive
+                    ? 'bg-[var(--color-accent-dim)] text-[var(--color-accent)] border border-[rgba(56,189,248,0.12)]'
+                    : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)] border border-transparent',
+                  collapsed && 'justify-center px-0'
+                )}
+              >
+                <item.icon className={clsx('flex-shrink-0', isActive ? 'text-[var(--color-accent)]' : 'text-[var(--color-text-muted)]')} size={18} strokeWidth={1.8} />
+                {!collapsed && (
+                  <>
+                    <span className="truncate flex-1">{item.name}</span>
+                    {count && count > 0 && (
+                      <span className="text-[10px] font-bold tabular-nums bg-[var(--color-accent)] text-[#0B0D10] rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+                        {count}
+                      </span>
+                    )}
+                  </>
+                )}
+              </Link>
+            );
+          })}
+        </div>
+
+        {/* Divider */}
+        <div className={clsx('my-3', collapsed ? 'mx-2' : 'mx-3')}>
+          <div className="h-px bg-[var(--color-border)]" />
+        </div>
+
+        {/* Security Section */}
+        {!collapsed && (
+          <div className="px-2 pb-1.5">
+            <span className="text-[10px] uppercase tracking-widest text-[var(--color-text-dim)] font-semibold flex items-center gap-1.5">
+              <Shield size={10} />
+              SECURITY
+            </span>
+          </div>
+        )}
+        <div className="space-y-0.5">
+          {securityNav.map((item) => {
             const isActive = pathname === item.href || pathname?.startsWith(item.href + '/');
             return (
               <Link
