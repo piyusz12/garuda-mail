@@ -1,7 +1,11 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Search, Bell, Wifi, Activity, Check, ShieldAlert, Clock, ExternalLink, Settings as SettingsIcon, UserCheck } from 'lucide-react';
+import { useSession, signOut } from 'next-auth/react';
+import {
+  Search, Bell, Wifi, Activity, Check, Clock,
+  ExternalLink, Settings as SettingsIcon, LogOut, Laptop,
+} from 'lucide-react';
 import clsx from 'clsx';
 import Link from 'next/link';
 
@@ -11,6 +15,7 @@ interface TopBarProps {
 }
 
 export default function TopBar({ title, description }: TopBarProps) {
+  const { data: session } = useSession();
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeDropdown, setActiveDropdown] = useState<'notifications' | 'api' | 'user' | null>(null);
@@ -34,6 +39,15 @@ export default function TopBar({ title, description }: TopBarProps) {
   }, []);
 
   const unreadCount = notifications.filter(n => n.unread).length;
+
+  const userName = session?.user?.name || 'Garuda Analyst';
+  const userEmail = session?.user?.email || 'analyst@enterprise.local';
+  const userInitials = userName
+    .split(' ')
+    .map(w => w[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
 
   return (
     <header className="sticky top-0 z-30 h-[56px] flex items-center justify-between px-6 surface-1 border-b border-default backdrop-blur-md">
@@ -59,8 +73,13 @@ export default function TopBar({ title, description }: TopBarProps) {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search sessions, findings, hosts..."
+                  placeholder="Search emails, subject, sender..."
                   autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && searchQuery.trim()) {
+                      window.location.href = `/inbox?search=${encodeURIComponent(searchQuery.trim())}`;
+                    }
+                  }}
                   onBlur={() => { if (!searchQuery) setSearchOpen(false); }}
                   className="w-[280px] h-8 pl-8 pr-3 text-[12px] rounded-md bg-[var(--color-surface-2)] border border-default text-[var(--color-text-primary)] placeholder:text-[var(--color-text-dim)] focus:outline-none focus:border-[var(--color-accent)]"
                 />
@@ -75,7 +94,7 @@ export default function TopBar({ title, description }: TopBarProps) {
               className="flex items-center gap-2 h-8 px-3 text-[12px] text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] bg-[var(--color-surface-2)] border border-default rounded-md hover:border-[var(--color-border-active)] transition-colors"
             >
               <Search size={14} />
-              <span className="hidden md:inline">Search</span>
+              <span className="hidden md:inline">Search emails</span>
               <kbd className="hidden md:inline-flex items-center px-1.5 h-4 text-[10px] font-mono text-[var(--color-text-dim)] bg-[var(--color-surface-3)] border border-[var(--color-border-subtle)] rounded">
                 ⌘K
               </kbd>
@@ -85,31 +104,17 @@ export default function TopBar({ title, description }: TopBarProps) {
 
         <div className="w-px h-5 bg-[var(--color-border)] mx-2" />
 
-        {/* Analysis Status */}
+        {/* Multi-PC / Network Info */}
         <div className="relative">
           <button
-            title="Analysis Engine Status"
+            title="Multi-PC Connection Diagnostics"
             onClick={() => setActiveDropdown(activeDropdown === 'api' ? null : 'api')}
             className={clsx(
               "relative flex items-center justify-center w-8 h-8 rounded-md transition-colors",
               activeDropdown === 'api' ? "bg-[var(--color-surface-3)] text-white" : "text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)]"
             )}
           >
-            <Activity size={16} className="text-[var(--color-accent)]" />
-          </button>
-        </div>
-
-        {/* API Status */}
-        <div className="relative">
-          <button
-            title="Backend API Connection"
-            onClick={() => setActiveDropdown(activeDropdown === 'api' ? null : 'api')}
-            className={clsx(
-              "relative flex items-center justify-center w-8 h-8 rounded-md transition-colors",
-              activeDropdown === 'api' ? "bg-[var(--color-surface-3)] text-white" : "text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)]"
-            )}
-          >
-            <Wifi size={16} className="text-[var(--color-severity-healthy)]" />
+            <Laptop size={15} className="text-[var(--color-accent)]" />
           </button>
         </div>
 
@@ -132,15 +137,15 @@ export default function TopBar({ title, description }: TopBarProps) {
           </button>
         </div>
 
-        {/* User */}
+        {/* User Avatar Button */}
         <div className="relative">
           <button
-            title="User Profile"
+            title={`Logged in as ${userName}`}
             onClick={() => setActiveDropdown(activeDropdown === 'user' ? null : 'user')}
-            className="flex items-center justify-center w-8 h-8 rounded-md text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)] transition-colors"
+            className="flex items-center justify-center w-8 h-8 rounded-md hover:bg-[var(--color-surface-2)] transition-colors"
           >
-            <div className="w-6 h-6 rounded-full bg-[var(--color-accent-dim)] border border-[var(--color-accent-muted)] flex items-center justify-center">
-              <span className="text-[10px] font-bold text-[var(--color-accent)]">GA</span>
+            <div className="w-7 h-7 rounded-full bg-[var(--color-accent-dim)] border border-[rgba(56,189,248,0.25)] flex items-center justify-center">
+              <span className="text-[10px] font-bold text-[var(--color-accent)]">{userInitials}</span>
             </div>
           </button>
         </div>
@@ -187,40 +192,38 @@ export default function TopBar({ title, description }: TopBarProps) {
           </div>
         )}
 
-        {/* ── Dropdown: API & Engine Status ── */}
+        {/* ── Dropdown: Multi-PC & Diagnostics ── */}
         {activeDropdown === 'api' && (
-          <div className="absolute right-14 top-[54px] w-72 card bg-[var(--color-surface-1)] border border-[var(--color-border)] shadow-2xl rounded-xl p-4 space-y-3 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+          <div className="absolute right-14 top-[54px] w-80 card bg-[var(--color-surface-1)] border border-[var(--color-border)] shadow-2xl rounded-xl p-4 space-y-3 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
             <div className="flex items-center justify-between pb-2 border-b border-[var(--color-border)]">
-              <span className="text-[12px] font-semibold text-[var(--color-text-primary)]">System Diagnostics</span>
+              <span className="text-[12px] font-semibold text-[var(--color-text-primary)] flex items-center gap-1.5">
+                <Wifi size={13} className="text-[var(--color-severity-healthy)]" /> Multi-PC Access Info
+              </span>
               <span className="inline-flex items-center gap-1 text-[10px] text-[var(--color-severity-healthy)] font-bold">
                 <Check size={12} /> Operational
               </span>
             </div>
             <div className="space-y-2 text-[11px]">
               <div className="flex justify-between py-1 border-b border-[var(--color-border-subtle)]">
-                <span className="text-[var(--color-text-muted)]">Backend REST API</span>
-                <span className="text-mono text-[var(--color-text-primary)] font-medium">http://localhost:8000</span>
+                <span className="text-[var(--color-text-muted)]">This PC Access</span>
+                <span className="text-mono text-[var(--color-accent)] font-medium">http://localhost:3000</span>
               </div>
               <div className="flex justify-between py-1 border-b border-[var(--color-border-subtle)]">
-                <span className="text-[var(--color-text-muted)]">Forensic Engine</span>
-                <span className="text-[var(--color-severity-healthy)] font-medium">Phase 1–25 Active</span>
+                <span className="text-[var(--color-text-muted)]">2nd PC Network URL</span>
+                <span className="text-mono text-[var(--color-severity-healthy)] font-bold">http://192.168.1.3:3000</span>
               </div>
               <div className="flex justify-between py-1 border-b border-[var(--color-border-subtle)]">
-                <span className="text-[var(--color-text-muted)]">Data Lakehouse</span>
-                <span className="text-mono text-[var(--color-text-primary)]">DuckDB / Parquet</span>
+                <span className="text-[var(--color-text-muted)]">Database Engine</span>
+                <span className="text-mono text-[var(--color-text-primary)]">SQLite (dev.db synchronized)</span>
               </div>
               <div className="flex justify-between py-1">
-                <span className="text-[var(--color-text-muted)]">Telemetry Sync Mode</span>
-                <span className="text-mono text-[var(--color-accent)]">Live / Hybrid</span>
+                <span className="text-[var(--color-text-muted)]">Session Auth</span>
+                <span className="text-mono text-[var(--color-severity-healthy)]">NextAuth Active</span>
               </div>
             </div>
-            <Link
-              href="/settings"
-              onClick={() => setActiveDropdown(null)}
-              className="btn btn-secondary w-full text-[11px] py-1.5 flex items-center justify-center gap-1.5 mt-2"
-            >
-              <SettingsIcon size={12} /> Configure API & Engine
-            </Link>
+            <p className="text-[10px] text-[var(--color-text-dim)] pt-1">
+              Open the 2nd PC Network URL on your other computer connected to the same Wi-Fi to test cross-device mail.
+            </p>
           </div>
         )}
 
@@ -228,22 +231,24 @@ export default function TopBar({ title, description }: TopBarProps) {
         {activeDropdown === 'user' && (
           <div className="absolute right-4 top-[54px] w-64 card bg-[var(--color-surface-1)] border border-[var(--color-border)] shadow-2xl rounded-xl p-4 space-y-3 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
             <div className="flex items-center gap-2.5 pb-3 border-b border-[var(--color-border)]">
-              <div className="w-8 h-8 rounded-full bg-[var(--color-accent-dim)] border border-[var(--color-accent-muted)] flex items-center justify-center font-bold text-[12px] text-[var(--color-accent)]">
-                GA
+              <div className="w-8 h-8 rounded-full bg-[var(--color-accent-dim)] border border-[rgba(56,189,248,0.25)] flex items-center justify-center font-bold text-[12px] text-[var(--color-accent)]">
+                {userInitials}
               </div>
-              <div>
-                <div className="text-[12px] font-semibold text-[var(--color-text-primary)]">Garuda Analyst</div>
-                <div className="text-[10px] text-[var(--color-text-dim)]">Principal Cryptographic SOC</div>
+              <div className="min-w-0">
+                <div className="text-[12px] font-semibold text-[var(--color-text-primary)] truncate">{userName}</div>
+                <div className="text-[10px] text-[var(--color-text-dim)] truncate">{userEmail}</div>
               </div>
             </div>
             <div className="space-y-1 text-[11px]">
               <div className="flex items-center justify-between text-[var(--color-text-muted)] py-1">
-                <span>Tenant Domain:</span>
-                <span className="text-mono text-[var(--color-text-secondary)]">enterprise.internal</span>
+                <span>Domain:</span>
+                <span className="text-mono text-[var(--color-text-secondary)]">enterprise.local</span>
               </div>
               <div className="flex items-center justify-between text-[var(--color-text-muted)] py-1">
-                <span>Security Clearance:</span>
-                <span className="text-[var(--color-severity-healthy)] font-medium">Level 4 (Four-Eyes)</span>
+                <span>Account Role:</span>
+                <span className="text-[var(--color-severity-healthy)] font-medium capitalize">
+                  {(session?.user as any)?.role || 'Analyst'}
+                </span>
               </div>
             </div>
             <Link
@@ -251,8 +256,15 @@ export default function TopBar({ title, description }: TopBarProps) {
               onClick={() => setActiveDropdown(null)}
               className="btn btn-secondary w-full text-[11px] py-1.5 flex items-center justify-center gap-1.5 mt-2"
             >
-              <SettingsIcon size={12} /> User Preferences
+              <SettingsIcon size={12} /> Preferences
             </Link>
+            <button
+              onClick={() => signOut({ callbackUrl: '/login' })}
+              className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-[11px] font-medium rounded-md text-[var(--color-severity-critical)] hover:bg-[var(--color-severity-critical-bg)] border border-[rgba(239,68,68,0.2)] transition-colors"
+            >
+              <LogOut size={12} />
+              Sign Out
+            </button>
           </div>
         )}
 

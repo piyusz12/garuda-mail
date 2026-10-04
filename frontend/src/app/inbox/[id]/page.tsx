@@ -1,12 +1,12 @@
 'use client';
 
-import { use, useState } from 'react';
+import { use, useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft, Star, Paperclip, Reply, Forward, Trash2,
-  Shield, AlertTriangle, Lock, LockOpen, Award, Brain,
-  ExternalLink, CheckCircle, XCircle, AlertCircle, ChevronRight,
-  Network, Eye,
+  Shield, AlertTriangle, Lock, LockOpen, CheckCircle, XCircle, AlertCircle, ChevronRight,
+  Network, Eye, ExternalLink, RefreshCw,
 } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
 import { SeverityBadge } from '@/components/ui/shared';
@@ -14,14 +14,139 @@ import { getEmailById } from '@/lib/mock/emails';
 import { mockFindings, mockSessions } from '@/lib/mock/data';
 import Link from 'next/link';
 import clsx from 'clsx';
-import type { EmailMessage } from '@/types/email';
+import type { EmailMessage, SecurityLevel } from '@/types/email';
 
 const fadeUp = { initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.28 } };
 
 export default function EmailDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const router = useRouter();
   const { id } = use(params);
-  const email = getEmailById(id);
+
+  const [email, setEmail] = useState<EmailMessage | null>(null);
+  const [loading, setLoading] = useState(true);
   const [securityExpanded, setSecurityExpanded] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    async function loadEmail() {
+      try {
+        const res = await fetch(`/api/emails/${id}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.email) {
+            const e = data.email;
+            const secLevel: SecurityLevel =
+              e.riskScore !== null && e.riskScore !== undefined
+                ? e.riskScore >= 75 ? 'critical' : e.riskScore >= 40 ? 'warning' : 'secure'
+                : e.tlsVersion ? 'secure' : 'critical';
+
+            const fromName = e.from?.name || e.fromExternal || 'Unknown Sender';
+            const fromEmail = e.from?.email || e.fromExternal || 'unknown@domain.com';
+            const domain = fromEmail.includes('@') ? fromEmail.split('@')[1] : 'enterprise.local';
+
+            const transformed: EmailMessage = {
+              id: e.id,
+              folder: (e.folder as any) || 'inbox',
+              from: {
+                name: fromName,
+                email: fromEmail,
+                domain,
+              },
+              to: e.recipients?.map((r: any) => ({
+                name: r.name || r.user?.name || r.address,
+                email: r.address || r.user?.email || '',
+                domain: (r.address || '').split('@')[1] || '',
+              })) || [],
+              subject: e.subject || '(No Subject)',
+              preview: e.preview || e.body?.slice(0, 140) || '',
+              body: e.body || '',
+              timestamp: e.sentAt || e.createdAt,
+              read: true,
+              starred: e.starred || false,
+              attachments: e.attachments || [],
+              security: {
+                level: secLevel,
+                tlsVersion: e.tlsVersion || null,
+                cipher: e.cipher || null,
+                forwardSecrecy: e.forwardSecrecy ?? null,
+                starttls: e.starttls ?? null,
+                certificateStatus: e.tlsVersion ? 'valid' : null,
+                riskScore: e.riskScore ?? null,
+                anomalyScore: null,
+                findingsCount: e.riskScore && e.riskScore > 50 ? 2 : 0,
+                sessionId: null,
+              },
+              threadId: e.threadId || `THREAD-${e.id}`,
+              labels: [],
+            };
+            setEmail(transformed);
+            setLoading(false);
+            return;
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching email by ID', err);
+      }
+
+      // Fallback to mock data if ID matches mock or DB request failed
+      const mock = getEmailById(id);
+      setEmail(mock || null);
+      setLoading(false);
+    }
+
+    loadEmail();
+  }, [id]);
+
+  const handleToggleStar = async () => {
+    if (!email) return;
+    const newStarred = !email.starred;
+    setEmail({ ...email, starred: newStarred });
+
+    try {
+      await fetch(`/api/emails/${email.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ starred: newStarred }),
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!email || isDeleting) return;
+    setIsDeleting(true);
+
+    try {
+      await fetch(`/api/emails/${email.id}`, {
+        method: 'DELETE',
+      });
+      router.push('/inbox');
+    } catch {
+      router.push('/inbox');
+    }
+  };
+
+  const handleReply = () => {
+    if (!email) return;
+    router.push(`/compose?to=${encodeURIComponent(email.from.email)}&subject=Re: ${encodeURIComponent(email.subject)}`);
+  };
+
+  const handleForward = () => {
+    if (!email) return;
+    router.push(`/compose?subject=Fwd: ${encodeURIComponent(email.subject)}&body=${encodeURIComponent('\n\n--- Forwarded message ---\nFrom: ' + email.from.name + ' <' + email.from.email + '>\nSubject: ' + email.subject + '\n\n' + email.body)}`);
+  };
+
+  if (loading) {
+    return (
+      <AppShell title="Loading Message...">
+        <div className="flex items-center justify-center py-20 text-[13px] text-[var(--color-text-muted)]">
+          <RefreshCw size={18} className="animate-spin mr-2 text-[var(--color-accent)]" />
+          Loading message details...
+        </div>
+      </AppShell>
+    );
+  }
 
   if (!email) {
     return (
@@ -72,7 +197,7 @@ export default function EmailDetailPage({ params }: { params: Promise<{ id: stri
                   </div>
                 </div>
                 <span className="text-[11px] text-[var(--color-text-dim)]">
-                  To: {email.to.map(t => t.name).join(', ')}
+                  To: {email.to.map(t => t.name || t.email).join(', ')}
                 </span>
                 <span className="text-[11px] text-[var(--color-text-dim)] tabular-nums ml-auto">
                   {formatDateTime(email.timestamp)}
@@ -83,18 +208,31 @@ export default function EmailDetailPage({ params }: { params: Promise<{ id: stri
 
           {/* Email Actions */}
           <div className="flex items-center gap-2 pt-4 border-t border-[var(--color-border-subtle)]">
-            <button className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)] rounded-md transition-colors border border-[var(--color-border)]">
+            <button
+              onClick={handleReply}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)] rounded-md transition-colors border border-[var(--color-border)]"
+            >
               <Reply size={13} /> Reply
             </button>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)] rounded-md transition-colors border border-[var(--color-border)]">
+            <button
+              onClick={handleForward}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)] rounded-md transition-colors border border-[var(--color-border)]"
+            >
               <Forward size={13} /> Forward
             </button>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-severity-high)] hover:bg-[rgba(245,158,11,0.08)] rounded-md transition-colors border border-[var(--color-border)] ml-auto">
+            <button
+              onClick={handleToggleStar}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-severity-high)] hover:bg-[rgba(245,158,11,0.08)] rounded-md transition-colors border border-[var(--color-border)] ml-auto"
+            >
               <Star size={13} className={email.starred ? 'text-[var(--color-severity-high)] fill-[var(--color-severity-high)]' : ''} />
-              {email.starred ? 'Unstar' : 'Star'}
+              {email.starred ? 'Starred' : 'Star'}
             </button>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-severity-critical)] hover:bg-[var(--color-severity-critical-bg)] rounded-md transition-colors border border-[var(--color-border)]">
-              <Trash2 size={13} /> Delete
+            <button
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-severity-critical)] hover:bg-[var(--color-severity-critical-bg)] rounded-md transition-colors border border-[var(--color-border)]"
+            >
+              <Trash2 size={13} /> {isDeleting ? 'Deleting...' : 'Delete'}
             </button>
           </div>
         </motion.div>
@@ -124,14 +262,14 @@ export default function EmailDetailPage({ params }: { params: Promise<{ id: stri
                 Attachments ({email.attachments.length})
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {email.attachments.map((att, i) => (
+                {email.attachments.map((att: any, i: number) => (
                   <div key={i} className="flex items-center gap-3 p-3 rounded-md bg-[var(--color-surface-2)] border border-[var(--color-border)] hover:border-[var(--color-border-active)] transition-colors cursor-pointer">
                     <div className="w-8 h-8 rounded bg-[var(--color-surface-3)] flex items-center justify-center">
                       <Paperclip size={14} className="text-[var(--color-text-muted)]" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-[12px] font-medium text-[var(--color-text-primary)] truncate">{att.name}</div>
-                      <div className="text-[10px] text-[var(--color-text-dim)]">{formatBytes(att.size)}</div>
+                      <div className="text-[12px] font-medium text-[var(--color-text-primary)] truncate">{att.filename || att.name}</div>
+                      <div className="text-[10px] text-[var(--color-text-dim)]">{formatBytes(att.size || 1024)}</div>
                     </div>
                   </div>
                 ))}

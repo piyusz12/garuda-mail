@@ -15,8 +15,9 @@ export async function POST(request: NextRequest) {
     const validation = registerSchema.safeParse(body);
 
     if (!validation.success) {
+      const errMsg = validation.error.issues?.[0]?.message || (validation.error as any).errors?.[0]?.message || 'Invalid registration data';
       return NextResponse.json(
-        { error: validation.error.errors[0].message },
+        { error: errMsg },
         { status: 400 }
       );
     }

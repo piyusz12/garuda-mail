@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -8,6 +8,14 @@ import { Mail, Lock, Eye, EyeOff, AlertCircle, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[var(--color-surface-0)] flex items-center justify-center text-[var(--color-text-dim)]">Loading Garuda Mail...</div>}>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/inbox';
@@ -165,6 +173,40 @@ export default function LoginPage() {
               )}
             </button>
           </form>
+
+          {/* Quick Demo Logins for Multi-PC testing */}
+          <div className="mt-5 pt-4 border-t border-[var(--color-border-subtle)]">
+            <div className="text-[10px] uppercase font-mono tracking-wider text-[var(--color-text-dim)] mb-2 text-center">
+              Quick Sign In (For Multi-PC Testing)
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-[11px]">
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail('analyst@enterprise.local');
+                  setPassword('password123');
+                }}
+                className="p-2 rounded bg-[var(--color-surface-2)] hover:bg-[var(--color-surface-3)] border border-[var(--color-border-subtle)] hover:border-[var(--color-accent)] text-left transition-colors"
+              >
+                <div className="font-semibold text-[var(--color-text-primary)]">PC 1: Analyst</div>
+                <div className="text-[10px] text-[var(--color-text-dim)] truncate">analyst@enterprise.local</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail('bob@enterprise.local');
+                  setPassword('password123');
+                }}
+                className="p-2 rounded bg-[var(--color-surface-2)] hover:bg-[var(--color-surface-3)] border border-[var(--color-border-subtle)] hover:border-[var(--color-accent)] text-left transition-colors"
+              >
+                <div className="font-semibold text-[var(--color-text-primary)]">PC 2: Bob NetSec</div>
+                <div className="text-[10px] text-[var(--color-text-dim)] truncate">bob@enterprise.local</div>
+              </button>
+            </div>
+            <div className="text-[10px] text-center text-[var(--color-text-dim)] mt-2">
+              Default password: <span className="text-mono text-[var(--color-text-secondary)]">password123</span>
+            </div>
+          </div>
         </div>
 
         {/* Register link */}

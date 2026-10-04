@@ -1,13 +1,12 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useMemo, useEffect, useCallback } from 'react';
+import { motion } from 'framer-motion';
 import {
-  Inbox as InboxIcon, Star, Paperclip, Shield, AlertTriangle,
-  ChevronRight, Lock, LockOpen, Eye, Filter,
+  Inbox as InboxIcon, Star, Paperclip, AlertTriangle,
+  ChevronRight, Lock, LockOpen, Filter, RefreshCw,
 } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
-import { SeverityBadge } from '@/components/ui/shared';
 import { getEmailsByFolder } from '@/lib/mock/emails';
 import Link from 'next/link';
 import clsx from 'clsx';
@@ -16,9 +15,105 @@ import type { EmailMessage, SecurityLevel } from '@/types/email';
 const fadeUp = { initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.25 } };
 
 export default function InboxPage() {
-  const emails = getEmailsByFolder('inbox');
+  const [emails, setEmails] = useState<EmailMessage[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [securityFilter, setSecurityFilter] = useState<SecurityLevel | 'all'>('all');
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+
+  const fetchEmails = useCallback(async (isSilent = false) => {
+    if (!isSilent) setRefreshing(true);
+    try {
+      const res = await fetch('/api/emails?folder=inbox');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.emails && Array.isArray(data.emails)) {
+          const mapped: EmailMessage[] = data.emails.map((e: any) => {
+            const secLevel: SecurityLevel =
+              e.riskScore !== null && e.riskScore !== undefined
+                ? e.riskScore >= 75 ? 'critical' : e.riskScore >= 40 ? 'warning' : 'secure'
+                : e.tlsVersion ? 'secure' : 'critical';
+
+            const fromName = e.from?.name || e.fromExternal || 'Unknown Sender';
+            const fromEmail = e.from?.email || e.fromExternal || 'unknown@domain.com';
+            const domain = fromEmail.includes('@') ? fromEmail.split('@')[1] : 'enterprise.local';
+
+            return {
+              id: e.id,
+              folder: 'inbox',
+              from: {
+                name: fromName,
+                email: fromEmail,
+                domain,
+              },
+              to: e.recipients?.map((r: any) => ({
+                name: r.name || r.user?.name || r.address,
+                email: r.address || r.user?.email || '',
+                domain: (r.address || '').split('@')[1] || '',
+              })) || [],
+              subject: e.subject || '(No Subject)',
+              preview: e.preview || e.body?.slice(0, 140) || '',
+              body: e.body || '',
+              timestamp: e.sentAt || e.createdAt,
+              read: e._recipient ? e._recipient.read : true,
+              starred: e._recipient ? e._recipient.starred : e.starred || false,
+              attachments: e.attachments || [],
+              security: {
+                level: secLevel,
+                tlsVersion: e.tlsVersion || null,
+                cipher: e.cipher || null,
+                forwardSecrecy: e.forwardSecrecy ?? null,
+                starttls: e.starttls ?? null,
+                certificateStatus: e.tlsVersion ? 'valid' : null,
+                riskScore: e.riskScore ?? null,
+                anomalyScore: null,
+                findingsCount: e.riskScore && e.riskScore > 50 ? 2 : 0,
+                sessionId: null,
+              },
+              threadId: e.threadId || `THREAD-${e.id}`,
+              labels: [],
+            };
+          });
+          setEmails(mapped);
+        }
+      } else {
+        // Fallback to local data if unauthorized or initializing
+        setEmails(getEmailsByFolder('inbox'));
+      }
+    } catch {
+      setEmails(getEmailsByFolder('inbox'));
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchEmails();
+    // Auto-poll every 5 seconds so new emails sent from other PCs appear automatically
+    const interval = setInterval(() => {
+      fetchEmails(true);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [fetchEmails]);
+
+  const handleToggleStar = async (e: React.MouseEvent, emailId: string, currentStarred: boolean) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Optimistic UI update
+    setEmails(prev => prev.map(em => em.id === emailId ? { ...em, starred: !currentStarred } : em));
+
+    try {
+      await fetch(`/api/emails/${emailId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ starred: !currentStarred }),
+      });
+    } catch (err) {
+      console.error('Failed to toggle star', err);
+    }
+  };
 
   const filtered = useMemo(() => {
     if (securityFilter === 'all') return emails;
@@ -29,44 +124,64 @@ export default function InboxPage() {
   const criticalCount = emails.filter(e => e.security.level === 'critical').length;
 
   return (
-    <AppShell title="Inbox" description={`${emails.length} messages • ${unreadCount} unread • ${criticalCount} critical`}>
+    <AppShell
+      title="Inbox"
+      description={`${emails.length} messages • ${unreadCount} unread • ${criticalCount} critical • Auto-Sync Active`}
+    >
       <motion.div initial="initial" animate="animate" className="space-y-4">
 
-        {/* Security Filter Bar */}
-        <motion.div {...fadeUp} className="card p-3 flex items-center gap-3 flex-wrap">
-          <div className="flex items-center gap-2">
-            <Filter size={14} className="text-[var(--color-text-muted)]" />
-            <span className="text-[11px] uppercase tracking-wider text-[var(--color-text-muted)] font-medium">Security</span>
+        {/* Security Filter & Action Bar */}
+        <motion.div {...fadeUp} className="card p-3 flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center gap-1.5 mr-2">
+              <Filter size={14} className="text-[var(--color-text-muted)]" />
+              <span className="text-[11px] uppercase tracking-wider text-[var(--color-text-muted)] font-medium">Security</span>
+            </div>
+            {[
+              { id: 'all' as const, label: 'All', count: emails.length },
+              { id: 'critical' as const, label: 'Critical', count: emails.filter(e => e.security.level === 'critical').length },
+              { id: 'warning' as const, label: 'Warning', count: emails.filter(e => e.security.level === 'warning').length },
+              { id: 'secure' as const, label: 'Secure', count: emails.filter(e => e.security.level === 'secure').length },
+            ].map(f => (
+              <button
+                key={f.id}
+                onClick={() => setSecurityFilter(f.id)}
+                className={clsx(
+                  'px-3 py-1.5 text-[11px] font-medium rounded-md transition-colors',
+                  securityFilter === f.id
+                    ? 'bg-[var(--color-accent-dim)] text-[var(--color-accent)] border border-[rgba(56,189,248,0.15)]'
+                    : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)] border border-transparent'
+                )}
+              >
+                {f.label}
+                <span className="ml-1 tabular-nums opacity-60">{f.count}</span>
+              </button>
+            ))}
           </div>
-          {[
-            { id: 'all' as const, label: 'All', count: emails.length },
-            { id: 'critical' as const, label: 'Critical', count: emails.filter(e => e.security.level === 'critical').length },
-            { id: 'warning' as const, label: 'Warning', count: emails.filter(e => e.security.level === 'warning').length },
-            { id: 'secure' as const, label: 'Secure', count: emails.filter(e => e.security.level === 'secure').length },
-          ].map(f => (
-            <button
-              key={f.id}
-              onClick={() => setSecurityFilter(f.id)}
-              className={clsx(
-                'px-3 py-1.5 text-[11px] font-medium rounded-md transition-colors',
-                securityFilter === f.id
-                  ? 'bg-[var(--color-accent-dim)] text-[var(--color-accent)] border border-[rgba(56,189,248,0.15)]'
-                  : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)] border border-transparent'
-              )}
-            >
-              {f.label}
-              <span className="ml-1 tabular-nums opacity-60">{f.count}</span>
-            </button>
-          ))}
+
+          <button
+            onClick={() => fetchEmails(false)}
+            disabled={refreshing}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium rounded-md text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)] border border-[var(--color-border)] transition-colors"
+            title="Refresh emails"
+          >
+            <RefreshCw size={12} className={clsx(refreshing && 'animate-spin text-[var(--color-accent)]')} />
+            <span>{refreshing ? 'Syncing...' : 'Sync'}</span>
+          </button>
         </motion.div>
 
         {/* Email List */}
         <motion.div {...fadeUp} className="card overflow-hidden">
-          {filtered.length === 0 ? (
+          {loading ? (
+            <div className="flex items-center justify-center py-20 text-[13px] text-[var(--color-text-muted)]">
+              <RefreshCw size={18} className="animate-spin mr-2 text-[var(--color-accent)]" />
+              Loading your inbox...
+            </div>
+          ) : filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <InboxIcon size={40} className="text-[var(--color-text-dim)] mb-4" />
               <h3 className="text-[15px] font-semibold text-[var(--color-text-primary)] mb-1">No messages match filter</h3>
-              <p className="text-[13px] text-[var(--color-text-muted)]">Try adjusting your security filter.</p>
+              <p className="text-[13px] text-[var(--color-text-muted)]">Try selecting "All" or send an email to yourself from another PC.</p>
             </div>
           ) : (
             <div className="divide-y divide-[var(--color-border-subtle)]">
@@ -77,6 +192,7 @@ export default function InboxPage() {
                   index={i}
                   isHovered={hoveredId === email.id}
                   onHover={setHoveredId}
+                  onToggleStar={handleToggleStar}
                 />
               ))}
             </div>
@@ -87,8 +203,18 @@ export default function InboxPage() {
   );
 }
 
-function EmailRow({ email, index, isHovered, onHover }: {
-  email: EmailMessage; index: number; isHovered: boolean; onHover: (id: string | null) => void;
+function EmailRow({
+  email,
+  index,
+  isHovered,
+  onHover,
+  onToggleStar,
+}: {
+  email: EmailMessage;
+  index: number;
+  isHovered: boolean;
+  onHover: (id: string | null) => void;
+  onToggleStar: (e: React.MouseEvent, id: string, starred: boolean) => void;
 }) {
   const securityColor = {
     secure: 'var(--color-severity-healthy)',
@@ -116,16 +242,28 @@ function EmailRow({ email, index, isHovered, onHover }: {
       onMouseEnter={() => onHover(email.id)}
       onMouseLeave={() => onHover(null)}
     >
-      {/* Security Indicator */}
+      {/* Security Indicator & Star Button */}
       <div className="flex-shrink-0 flex flex-col items-center gap-1.5">
         <div
-          className="w-2 h-2 rounded-full flex-shrink-0"
+          className="w-2.5 h-2.5 rounded-full flex-shrink-0"
           style={{ backgroundColor: securityColor, boxShadow: email.security.level === 'critical' ? `0 0 6px ${securityColor}40` : 'none' }}
           title={`Security: ${email.security.level}`}
         />
-        {email.starred && (
-          <Star size={12} className="text-[var(--color-severity-high)] fill-[var(--color-severity-high)]" />
-        )}
+        <button
+          type="button"
+          onClick={(e) => onToggleStar(e, email.id, email.starred)}
+          className="p-0.5 rounded hover:bg-[var(--color-surface-3)] transition-colors"
+          title={email.starred ? 'Starred' : 'Not starred'}
+        >
+          <Star
+            size={13}
+            className={clsx(
+              email.starred
+                ? 'text-[var(--color-severity-high)] fill-[var(--color-severity-high)]'
+                : 'text-[var(--color-text-dim)] hover:text-[var(--color-severity-high)]'
+            )}
+          />
+        </button>
       </div>
 
       {/* Sender & Content */}
@@ -133,11 +271,14 @@ function EmailRow({ email, index, isHovered, onHover }: {
         <div className="flex items-center gap-2 mb-0.5">
           <span className={clsx(
             'text-[13px] truncate',
-            !email.read ? 'font-semibold text-[var(--color-text-primary)]' : 'font-medium text-[var(--color-text-secondary)]'
+            !email.read ? 'font-bold text-[var(--color-text-primary)]' : 'font-medium text-[var(--color-text-secondary)]'
           )}>
             {email.from.name}
           </span>
           <span className="text-[10px] text-[var(--color-text-dim)] text-mono">{email.from.domain}</span>
+          {!email.read && (
+            <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-accent)] inline-block ml-1" />
+          )}
         </div>
         <div className="flex items-center gap-2 mb-0.5">
           <span className={clsx(

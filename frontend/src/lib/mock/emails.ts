@@ -2,7 +2,7 @@
 /* Links forensic session data to an analyst-friendly email view.    */
 /* Each email is connected to a forensic session via security.sessionId */
 
-import type { EmailMessage } from '@/types/email';
+import type { EmailMessage, EmailFolder } from '@/types/email';
 
 export const mockEmails: EmailMessage[] = [
   {

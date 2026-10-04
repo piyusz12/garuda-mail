@@ -33,8 +33,8 @@ export async function GET(request: NextRequest) {
       };
       if (search) {
         whereClause.OR = [
-          { subject: { contains: search, mode: 'insensitive' } },
-          { body: { contains: search, mode: 'insensitive' } },
+          { subject: { contains: search } },
+          { body: { contains: search } },
         ];
       }
       emails = await prisma.email.findMany({
@@ -85,7 +85,7 @@ export async function GET(request: NextRequest) {
         skip,
         take: limit,
       });
-      emails = recipientRecords.map(r => ({ ...r.email, _recipient: r }));
+      emails = recipientRecords.map((r: any) => ({ ...r.email, _recipient: r }));
     } else {
       // inbox, archive, trash
       const whereClause: any = {
@@ -95,8 +95,8 @@ export async function GET(request: NextRequest) {
       if (search) {
         whereClause.email = {
           OR: [
-            { subject: { contains: search, mode: 'insensitive' } },
-            { body: { contains: search, mode: 'insensitive' } },
+            { subject: { contains: search } },
+            { body: { contains: search } },
           ],
         };
       }
@@ -118,7 +118,7 @@ export async function GET(request: NextRequest) {
         skip,
         take: limit,
       });
-      emails = recipientRecords.map(r => ({
+      emails = recipientRecords.map((r: any) => ({
         ...r.email,
         _recipient: { read: r.read, folder: r.folder, starred: r.starred },
       }));
@@ -133,7 +133,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       emails,
-      unreadCounts: Object.fromEntries(unreadCounts.map(u => [u.folder, u._count])),
+      unreadCounts: Object.fromEntries(unreadCounts.map((u: any) => [u.folder, u._count])),
       page,
       total: emails.length,
     });
@@ -172,8 +172,9 @@ export async function POST(request: NextRequest) {
     const validation = sendSchema.safeParse(body);
 
     if (!validation.success) {
+      const errMsg = validation.error.issues?.[0]?.message || (validation.error as any).errors?.[0]?.message || 'Invalid email data';
       return NextResponse.json(
-        { error: validation.error.errors[0].message },
+        { error: errMsg },
         { status: 400 }
       );
     }

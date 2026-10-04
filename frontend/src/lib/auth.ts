@@ -70,7 +70,7 @@ export const authOptions: NextAuthOptions = {
     },
   },
 
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET || 'garuda-mail-super-secret-production-jwt-2026-key',
 
   debug: process.env.NODE_ENV === 'development',
 };

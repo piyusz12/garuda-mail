@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Inbox, Send, FileEdit, Star, Archive, Trash2,
   LayoutDashboard, Upload, Network, AlertTriangle, Shield,
@@ -39,10 +39,26 @@ interface SidebarProps {
   onToggle: () => void;
 }
 
-const unreadCounts = { inbox: 3, drafts: 1 };
-
 export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const pathname = usePathname();
+  const [unreadCounts, setUnreadCounts] = useState<{ inbox?: number; drafts?: number }>({ inbox: 2, drafts: 0 });
+
+  useEffect(() => {
+    async function loadCounts() {
+      try {
+        const res = await fetch('/api/emails?folder=inbox');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.unreadCounts) {
+            setUnreadCounts(data.unreadCounts);
+          }
+        }
+      } catch {}
+    }
+    loadCounts();
+    const interval = setInterval(loadCounts, 8000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <aside
