@@ -122,6 +122,14 @@ function ComposeForm() {
         }
       }
 
+      // 2.5 Auto-repair missing @ before common email domains (e.g. usergmail.com -> user@gmail.com)
+      if (candidate && !candidate.includes('@')) {
+        const domainFix = candidate.match(/^([a-zA-Z0-9._%+-]+)((?:gmail|yahoo|outlook|hotmail|icloud|protonmail|proton)\.com)$/i);
+        if (domainFix) {
+          candidate = `${domainFix[1]}@${domainFix[2]}`;
+        }
+      }
+
       // 3. If candidate has @, register it
       if (candidate && candidate.includes('@')) {
         const clean = candidate.toLowerCase().trim();

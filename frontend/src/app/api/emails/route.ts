@@ -189,15 +189,31 @@ export async function GET(request: NextRequest) {
 const sendSchema = z.object({
   to: z.array(z.object({
     email: z.string().min(1).transform(s => {
-      const clean = s.toLowerCase().trim();
-      return clean.includes('@') ? clean : `${clean}@enterprise.local`;
+      let clean = s.toLowerCase().trim();
+      if (!clean.includes('@')) {
+        const domainFix = clean.match(/^([a-zA-Z0-9._%+-]+)((?:gmail|yahoo|outlook|hotmail|icloud|protonmail|proton)\.com)$/i);
+        if (domainFix) {
+          clean = `${domainFix[1]}@${domainFix[2]}`;
+        } else {
+          clean = `${clean}@enterprise.local`;
+        }
+      }
+      return clean;
     }),
     name: z.string().optional(),
   })).min(1, 'At least one recipient required'),
   cc: z.array(z.object({
     email: z.string().transform(s => {
-      const clean = s.toLowerCase().trim();
-      return clean.includes('@') ? clean : `${clean}@enterprise.local`;
+      let clean = s.toLowerCase().trim();
+      if (!clean.includes('@')) {
+        const domainFix = clean.match(/^([a-zA-Z0-9._%+-]+)((?:gmail|yahoo|outlook|hotmail|icloud|protonmail|proton)\.com)$/i);
+        if (domainFix) {
+          clean = `${domainFix[1]}@${domainFix[2]}`;
+        } else {
+          clean = `${clean}@enterprise.local`;
+        }
+      }
+      return clean;
     }),
     name: z.string().optional(),
   })).optional().default([]),
