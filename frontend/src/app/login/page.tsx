@@ -175,33 +175,33 @@ function LoginForm() {
             </button>
           </form>
 
-          {/* Quick Demo Logins for Multi-PC testing */}
+          {/* Quick Sign In for Real Registered People */}
           <div className="mt-5 pt-4 border-t border-[var(--color-border-subtle)]">
             <div className="text-[10px] uppercase font-mono tracking-wider text-[var(--color-text-dim)] mb-2 text-center">
-              Quick Sign In (For Multi-PC Testing)
+              Quick Sign In
             </div>
             <div className="grid grid-cols-2 gap-2 text-[11px]">
               <button
                 type="button"
                 onClick={() => {
-                  setEmail('analyst@enterprise.local');
+                  setEmail('bhaskarthalendra@gmail.com');
                   setPassword('password123');
                 }}
                 className="p-2 rounded bg-[var(--color-surface-2)] hover:bg-[var(--color-surface-3)] border border-[var(--color-border-subtle)] hover:border-[var(--color-accent)] text-left transition-colors"
               >
-                <div className="font-semibold text-[var(--color-text-primary)]">PC 1: Analyst</div>
-                <div className="text-[10px] text-[var(--color-text-dim)] truncate">analyst@enterprise.local</div>
+                <div className="font-semibold text-[var(--color-text-primary)]">Thalendra Bhaskar</div>
+                <div className="text-[10px] text-[var(--color-text-dim)] truncate">bhaskarthalendra@gmail.com</div>
               </button>
               <button
                 type="button"
                 onClick={() => {
-                  setEmail('bob@enterprise.local');
+                  setEmail('piyushtembhurkar12@gmail.com');
                   setPassword('password123');
                 }}
                 className="p-2 rounded bg-[var(--color-surface-2)] hover:bg-[var(--color-surface-3)] border border-[var(--color-border-subtle)] hover:border-[var(--color-accent)] text-left transition-colors"
               >
-                <div className="font-semibold text-[var(--color-text-primary)]">PC 2: Bob NetSec</div>
-                <div className="text-[10px] text-[var(--color-text-dim)] truncate">bob@enterprise.local</div>
+                <div className="font-semibold text-[var(--color-text-primary)]">Piyush Tembhurkar</div>
+                <div className="text-[10px] text-[var(--color-text-dim)] truncate">piyushtembhurkar12@gmail.com</div>
               </button>
             </div>
             <div className="text-[10px] text-center text-[var(--color-text-dim)] mt-2">

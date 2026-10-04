@@ -7,7 +7,6 @@ import {
   ChevronRight, RefreshCw, Network,
 } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
-import { getEmailsByFolder } from '@/lib/mock/emails';
 import Link from 'next/link';
 import clsx from 'clsx';
 import type { EmailMessage } from '@/types/email';
@@ -64,10 +63,10 @@ export default function SentPage() {
           setEmails(mapped);
         }
       } else {
-        setEmails(getEmailsByFolder('sent'));
+        setEmails([]);
       }
     } catch {
-      setEmails(getEmailsByFolder('sent'));
+      // keep current emails
     } finally {
       setLoading(false);
       setRefreshing(false);

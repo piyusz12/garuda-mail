@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { FileEdit, ChevronRight, Clock, RefreshCw } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
-import { getEmailsByFolder } from '@/lib/mock/emails';
 import Link from 'next/link';
 import type { EmailMessage } from '@/types/email';
 
@@ -54,10 +53,10 @@ export default function DraftsPage() {
           setDrafts(mapped);
         }
       } else {
-        setDrafts(getEmailsByFolder('drafts'));
+        setDrafts([]);
       }
     } catch {
-      setDrafts(getEmailsByFolder('drafts'));
+      // keep current drafts
     } finally {
       setLoading(false);
     }

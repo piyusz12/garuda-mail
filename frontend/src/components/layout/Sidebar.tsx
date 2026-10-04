@@ -20,17 +20,8 @@ const emailNav = [
   { name: 'Trash', href: '/trash', icon: Trash2 },
 ];
 
-const securityNav = [
-  { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Analysis', href: '/analysis', icon: Upload },
-  { name: 'Sessions', href: '/sessions', icon: Network },
-  { name: 'Findings', href: '/findings', icon: AlertTriangle },
-  { name: 'Crypto Posture', href: '/crypto', icon: Shield },
-  { name: 'Certificates', href: '/certificates', icon: Award },
-  { name: 'AI Anomalies', href: '/anomalies', icon: Brain },
-  { name: 'Investigations', href: '/investigations', icon: SearchIcon },
-  { name: 'CBOM', href: '/cbom', icon: Layers },
-  { name: 'Reports', href: '/reports', icon: FileText },
+const systemNav = [
+  { name: 'Certificates & CA', href: '/certificates', icon: Award },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
@@ -41,7 +32,7 @@ interface SidebarProps {
 
 export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const pathname = usePathname();
-  const [unreadCounts, setUnreadCounts] = useState<{ inbox?: number; drafts?: number }>({ inbox: 2, drafts: 0 });
+  const [unreadCounts, setUnreadCounts] = useState<{ inbox?: number; drafts?: number }>({ inbox: 0, drafts: 0 });
 
   useEffect(() => {
     async function loadCounts() {
@@ -155,17 +146,17 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
           <div className="h-px bg-[var(--color-border)]" />
         </div>
 
-        {/* Security Section */}
+        {/* System & Tools Section */}
         {!collapsed && (
           <div className="px-2 pb-1.5">
             <span className="text-[10px] uppercase tracking-widest text-[var(--color-text-dim)] font-semibold flex items-center gap-1.5">
-              <Shield size={10} />
-              SECURITY
+              <Settings size={10} />
+              SYSTEM
             </span>
           </div>
         )}
         <div className="space-y-0.5">
-          {securityNav.map((item) => {
+          {systemNav.map((item) => {
             const isActive = pathname === item.href || pathname?.startsWith(item.href + '/');
             return (
               <Link
@@ -191,11 +182,11 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
       {/* ── System Status ── */}
       {!collapsed && (
         <div className="px-3 py-3 border-t border-default">
-          <div className="text-[10px] uppercase tracking-wider text-[var(--color-text-dim)] font-semibold mb-2">System Status</div>
+          <div className="text-[10px] uppercase tracking-wider text-[var(--color-text-dim)] font-semibold mb-2">Network Status</div>
           <div className="space-y-1.5">
-            <StatusDot label="Backend" status="connected" />
-            <StatusDot label="Analysis Engine" status="connected" />
-            <StatusDot label="AI Engine" status="connected" />
+            <StatusDot label="Mail Dispatcher" status="connected" />
+            <StatusDot label="AES-256-GCM E2EE" status="connected" />
+            <StatusDot label="Multi-PC Sync" status="connected" />
           </div>
         </div>
       )}

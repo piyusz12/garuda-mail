@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Star as StarIcon, ChevronRight, Lock, LockOpen, AlertTriangle, RefreshCw } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
-import { getEmailsByFolder } from '@/lib/mock/emails';
 import Link from 'next/link';
 import type { EmailMessage } from '@/types/email';
 
@@ -60,10 +59,10 @@ export default function StarredPage() {
           setEmails(mapped);
         }
       } else {
-        setEmails(getEmailsByFolder('starred'));
+        setEmails([]);
       }
     } catch {
-      setEmails(getEmailsByFolder('starred'));
+      // keep current emails
     } finally {
       setLoading(false);
       setRefreshing(false);

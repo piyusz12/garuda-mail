@@ -7,7 +7,6 @@ import {
   ChevronRight, Lock, LockOpen, Filter, RefreshCw, Network,
 } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
-import { getEmailsByFolder } from '@/lib/mock/emails';
 import Link from 'next/link';
 import clsx from 'clsx';
 import type { EmailMessage, SecurityLevel } from '@/types/email';
@@ -36,7 +35,7 @@ export default function InboxPage() {
 
             const fromName = e.from?.name || e.fromExternal || 'Unknown Sender';
             const fromEmail = e.from?.email || e.fromExternal || 'unknown@domain.com';
-            const domain = fromEmail.includes('@') ? fromEmail.split('@')[1] : 'enterprise.local';
+            const domain = fromEmail.includes('@') ? fromEmail.split('@')[1] : 'garudamail.local';
 
             return {
               id: e.id,
@@ -77,11 +76,10 @@ export default function InboxPage() {
           setEmails(mapped);
         }
       } else {
-        // Fallback to local data if unauthorized or initializing
-        setEmails(getEmailsByFolder('inbox'));
+        setEmails([]);
       }
     } catch {
-      setEmails(getEmailsByFolder('inbox'));
+      // keep current emails
     } finally {
       setLoading(false);
       setRefreshing(false);

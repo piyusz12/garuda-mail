@@ -40,8 +40,8 @@ export default function TopBar({ title, description }: TopBarProps) {
 
   const unreadCount = notifications.filter(n => n.unread).length;
 
-  const userName = session?.user?.name || 'Garuda Analyst';
-  const userEmail = session?.user?.email || 'analyst@enterprise.local';
+  const userName = session?.user?.name || 'User';
+  const userEmail = session?.user?.email || '';
   const userInitials = userName
     .split(' ')
     .map(w => w[0])
@@ -242,7 +242,9 @@ export default function TopBar({ title, description }: TopBarProps) {
             <div className="space-y-1 text-[11px]">
               <div className="flex items-center justify-between text-[var(--color-text-muted)] py-1">
                 <span>Domain:</span>
-                <span className="text-mono text-[var(--color-text-secondary)]">enterprise.local</span>
+                <span className="text-mono text-[var(--color-text-secondary)]">
+                  {userEmail.includes('@') ? userEmail.split('@')[1] : 'garudamail.local'}
+                </span>
               </div>
               <div className="flex items-center justify-between text-[var(--color-text-muted)] py-1">
                 <span>Account Role:</span>

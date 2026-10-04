@@ -59,10 +59,6 @@ function ComposeForm() {
   const [sent, setSent] = useState(false);
   const [error, setError] = useState('');
 
-  // Transmission simulation log
-  const [handshakeSteps, setHandshakeSteps] = useState<string[]>([]);
-  const [showTransmissionModal, setShowTransmissionModal] = useState(false);
-
   // Fetch directory users and protocols info
   useEffect(() => {
     async function loadData() {
@@ -157,14 +153,6 @@ function ComposeForm() {
           continue;
         }
 
-        // 5. Plain single-word fallback -> resolve to enterprise LAN user
-        if (!query.includes(' ')) {
-          const synthesized = `${query}@enterprise.local`;
-          if (!seen.has(synthesized)) {
-            seen.add(synthesized);
-            results.push({ email: synthesized });
-          }
-        }
       }
     }
 
@@ -193,7 +181,7 @@ function ComposeForm() {
     // Parse and resolve recipients
     const toParsed = resolveRecipientAddresses(to, directoryUsers);
     if (toParsed.length === 0) {
-      setError('Please provide at least one recipient email address (e.g. bob@enterprise.local or bhaskar).');
+      setError('Please provide at least one recipient email address (e.g. piyushtembhurkar12@gmail.com).');
       const inputEl = document.getElementById('recipient-input');
       inputEl?.focus();
       return;
@@ -204,31 +192,9 @@ function ComposeForm() {
     const finalBody = body.trim() || '(No content)';
 
     setSending(true);
-    setShowTransmissionModal(true);
-    setHandshakeSteps([
-      `[1/4] Deriving 256-bit symmetric key via HKDF-SHA256 & PQC Kyber-768...`,
-    ]);
 
     try {
       const ccParsed = cc ? resolveRecipientAddresses(cc, directoryUsers) : [];
-
-      // Step 2 simulation
-      setTimeout(() => {
-        setHandshakeSteps(prev => [
-          ...prev,
-          encrypted
-            ? `[2/4] Encrypting message body via authenticated AES-256-GCM (12-byte IV + 128-bit MAC)...`
-            : `[2/4] Preparing transport-level cryptographic envelope...`,
-        ]);
-      }, 250);
-
-      // Step 3 simulation
-      setTimeout(() => {
-        setHandshakeSteps(prev => [
-          ...prev,
-          `[3/4] Establishing ${selectedSpec.encryption} socket over ${selectedSpec.shortName} (Port ${customHost ? customPort : selectedSpec.defaultPort})...`,
-        ]);
-      }, 500);
 
       const customSmtpPayload = showCustomSmtp && customHost ? {
         host: customHost,
@@ -257,21 +223,11 @@ function ComposeForm() {
         throw new Error(data.error || 'Failed to dispatch email');
       }
 
-      setHandshakeSteps(prev => [
-        ...prev,
-        `[4/4] 250 2.0.0 OK: Delivered across all active devices & network peers!`,
-      ]);
-
       setSending(false);
       setSent(true);
-
-      setTimeout(() => {
-        setShowTransmissionModal(false);
-        router.push('/sent');
-      }, 1200);
+      router.push('/sent');
     } catch (err: any) {
       setSending(false);
-      setShowTransmissionModal(false);
       const isAuthErr = err.message?.toLowerCase().includes('unauthorized') || err.message?.includes('401');
       setError(isAuthErr ? 'You are not signed in. Please log in before sending.' : (err.message || 'Error sending message. Check recipient email format.'));
     }
@@ -283,13 +239,13 @@ function ComposeForm() {
     setError('');
 
     try {
-      const toParsed = to ? parseAddresses(to) : [{ email: 'draft@enterprise.local' }];
+      const toParsed = to ? resolveRecipientAddresses(to, directoryUsers) : [];
 
       const res = await fetch('/api/emails', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          to: toParsed.length > 0 ? toParsed : [{ email: 'draft@enterprise.local' }],
+          to: toParsed.length > 0 ? toParsed : [{ email: 'draft@garudamail.local' }],
           subject: subject || '(Draft - No Subject)',
           body: body || '',
           draft: true,
@@ -518,7 +474,7 @@ function ComposeForm() {
                   setTo(e.target.value);
                   if (error) setError('');
                 }}
-                placeholder="bob@enterprise.local, bhaskarthalendra@gmail.com, or LAN peer name"
+                placeholder="piyushtembhurkar12@gmail.com, bhaskarthalendra@gmail.com"
                 className="flex-1 text-[13px] bg-transparent text-[var(--color-text-primary)] placeholder:text-[var(--color-text-dim)] outline-none"
               />
               <button
@@ -533,7 +489,7 @@ function ComposeForm() {
             {/* Quick Directory Contacts */}
             <div className="flex items-center gap-1.5 px-4 py-2 bg-[var(--color-surface-1)] text-[11px] overflow-x-auto">
               <span className="text-[10px] uppercase text-[var(--color-text-dim)] font-mono mr-1 flex-shrink-0">
-                Network Peers:
+                Contacts:
               </span>
               {directoryUsers.map(u => (
                 <button
@@ -558,7 +514,7 @@ function ComposeForm() {
                   type="text"
                   value={cc}
                   onChange={e => setCc(e.target.value)}
-                  placeholder="cc@enterprise.local"
+                  placeholder="piyushtembhurkar12@gmail.com"
                   className="flex-1 text-[13px] bg-transparent text-[var(--color-text-primary)] placeholder:text-[var(--color-text-dim)] outline-none"
                 />
               </div>
@@ -663,67 +619,7 @@ function ComposeForm() {
           </div>
         </motion.div>
 
-        {/* ── Protocol Forensic Handshake Transmission Modal ── */}
-        <AnimatePresence>
-          {showTransmissionModal && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
-            >
-              <motion.div
-                initial={{ scale: 0.95, y: 10 }}
-                animate={{ scale: 1, y: 0 }}
-                exit={{ scale: 0.95, y: 10 }}
-                className="w-full max-w-xl bg-[var(--color-surface-1)] border border-[var(--color-accent)] rounded-xl shadow-2xl overflow-hidden"
-              >
-                <div className="flex items-center justify-between px-4 py-3 bg-[var(--color-surface-2)] border-b border-[var(--color-border)]">
-                  <div className="flex items-center gap-2">
-                    <Terminal size={15} className="text-[var(--color-accent)] animate-pulse" />
-                    <span className="text-[13px] font-bold text-[var(--color-text-primary)]">
-                      Protocol Handshake: {selectedSpec.name} ({selectedSpec.shortName})
-                    </span>
-                  </div>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[var(--color-surface-3)] text-[var(--color-accent)]">
-                    PORT {customHost ? customPort : selectedSpec.defaultPort}
-                  </span>
-                </div>
 
-                <div className="p-4 bg-[#0a0f1d] font-mono text-[12px] space-y-2 text-slate-300 min-h-[160px]">
-                  {handshakeSteps.map((step, idx) => (
-                    <motion.div
-                      key={idx}
-                      initial={{ opacity: 0, x: -5 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      className={clsx(
-                        'leading-relaxed',
-                        step.includes('250') || step.includes('Delivered')
-                          ? 'text-emerald-400 font-bold'
-                          : step.includes('TLS') || step.includes('Negotiating')
-                            ? 'text-sky-300'
-                            : 'text-slate-300'
-                      )}
-                    >
-                      {step}
-                    </motion.div>
-                  ))}
-                  {sending && (
-                    <div className="flex items-center gap-2 text-sky-400/70 text-[11px] pt-1">
-                      <div className="w-2.5 h-2.5 border-2 border-sky-400/30 border-t-sky-400 rounded-full animate-spin" />
-                      <span>Negotiating cryptographic envelope...</span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="px-4 py-2.5 bg-[var(--color-surface-2)] border-t border-[var(--color-border)] flex items-center justify-between text-[11px] text-[var(--color-text-muted)]">
-                  <span>Cryptographic Protocol: {selectedSpec.cipher}</span>
-                  <span className="text-emerald-400 font-medium">Multi-PC Sync Enforced</span>
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
       </motion.div>
     </AppShell>

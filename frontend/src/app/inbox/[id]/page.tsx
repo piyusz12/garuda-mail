@@ -10,8 +10,6 @@ import {
 } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
 import { SeverityBadge } from '@/components/ui/shared';
-import { getEmailById } from '@/lib/mock/emails';
-import { mockFindings, mockSessions } from '@/lib/mock/data';
 import Link from 'next/link';
 import clsx from 'clsx';
 import type { EmailMessage, SecurityLevel } from '@/types/email';
@@ -44,7 +42,7 @@ export default function EmailDetailPage({ params }: { params: Promise<{ id: stri
 
             const fromName = e.from?.name || e.fromExternal || 'Unknown Sender';
             const fromEmail = e.from?.email || e.fromExternal || 'unknown@domain.com';
-            const domain = fromEmail.includes('@') ? fromEmail.split('@')[1] : 'enterprise.local';
+            const domain = fromEmail.includes('@') ? fromEmail.split('@')[1] : 'garudamail.local';
 
             const transformed: EmailMessage = {
               id: e.id,
@@ -93,9 +91,7 @@ export default function EmailDetailPage({ params }: { params: Promise<{ id: stri
         console.error('Error fetching email by ID', err);
       }
 
-      // Fallback to mock data if ID matches mock or DB request failed
-      const mock = getEmailById(id);
-      setEmail(mock || null);
+      setEmail(null);
       setLoading(false);
     }
 
@@ -165,13 +161,7 @@ export default function EmailDetailPage({ params }: { params: Promise<{ id: stri
     );
   }
 
-  const session = email.security.sessionId
-    ? mockSessions.find(s => s.id === email.security.sessionId)
-    : null;
 
-  const findings = email.security.sessionId
-    ? mockFindings.filter(f => f.relatedSessionIds.includes(email.security.sessionId!))
-    : [];
 
   return (
     <AppShell title={email.subject} description={`From ${email.from.email} • ${formatDateTime(email.timestamp)}`}>
@@ -242,12 +232,10 @@ export default function EmailDetailPage({ params }: { params: Promise<{ id: stri
           </div>
         </motion.div>
 
-        {/* Security Analysis Header — THE FORENSIC OVERLAY */}
+        {/* Security Analysis Header */}
         <motion.div {...fadeUp}>
           <SecurityHeader
             email={email}
-            session={session}
-            findings={findings}
             expanded={securityExpanded}
             onToggle={() => setSecurityExpanded(e => !e)}
           />
@@ -392,53 +380,16 @@ export default function EmailDetailPage({ params }: { params: Promise<{ id: stri
           )}
         </motion.div>
 
-        {/* Forensic Findings linked to this email */}
-        {findings.length > 0 && (
-          <motion.div {...fadeUp} className="card p-5">
-            <div className="flex items-center gap-2 mb-4">
-              <AlertTriangle size={14} className="text-[var(--color-severity-critical)]" />
-              <span className="text-[11px] uppercase tracking-wider text-[var(--color-text-muted)] font-semibold">
-                Security Findings for this Message
-              </span>
-              <span className="text-[10px] tabular-nums bg-[var(--color-severity-critical-bg)] text-[var(--color-severity-critical)] px-1.5 py-0.5 rounded font-semibold">
-                {findings.length}
-              </span>
-            </div>
-            <div className="space-y-2">
-              {findings.map(f => (
-                <Link
-                  key={f.id}
-                  href={`/findings/${f.id}`}
-                  className="flex items-center justify-between p-3 rounded-md bg-[var(--color-surface-2)] hover:bg-[var(--color-surface-3)] transition-colors group border border-[var(--color-border-subtle)] hover:border-[var(--color-border-active)]"
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <SeverityBadge severity={f.severity} size="xs" />
-                    <div className="min-w-0">
-                      <div className="text-[13px] font-medium text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors truncate">
-                        {f.title}
-                      </div>
-                      <div className="text-[11px] text-[var(--color-text-dim)]">
-                        {f.id} • {f.category} • Confidence {f.confidence}%
-                      </div>
-                    </div>
-                  </div>
-                  <ChevronRight size={14} className="flex-shrink-0 text-[var(--color-text-dim)] group-hover:text-[var(--color-accent)]" />
-                </Link>
-              ))}
-            </div>
-          </motion.div>
-        )}
+
 
       </motion.div>
     </AppShell>
   );
 }
 
-/* ── Security Header (The Forensic Overlay) ── */
-function SecurityHeader({ email, session, findings, expanded, onToggle }: {
+/* ── Security Header ── */
+function SecurityHeader({ email, expanded, onToggle }: {
   email: EmailMessage;
-  session: any;
-  findings: any[];
   expanded: boolean;
   onToggle: () => void;
 }) {
@@ -504,27 +455,12 @@ function SecurityHeader({ email, session, findings, expanded, onToggle }: {
                 <LockOpen size={9} className="inline mr-1" />NO ENCRYPTION
               </span>
             )}
-            {s.findingsCount > 0 && (
-              <span className="text-[11px] font-semibold text-[var(--color-severity-critical)] px-2 py-0.5 rounded bg-[var(--color-severity-critical-bg)]">
-                <AlertTriangle size={9} className="inline mr-1" />{s.findingsCount} Finding{s.findingsCount > 1 ? 's' : ''}
-              </span>
-            )}
           </div>
           <div className="text-[11px] text-[var(--color-text-muted)] mt-0.5">
-            {session ? `Session ${session.id} • ${session.sourceIp} → ${session.destHostname || session.destIp}` : 'Transport security analysis'}
+            Real Transport & E2EE Cryptographic Status
           </div>
         </div>
         <div className="flex items-center gap-1.5">
-          {session && (
-            <Link
-              href={`/sessions/${session.id}`}
-              onClick={e => e.stopPropagation()}
-              className="flex items-center gap-1 px-2 py-1 text-[11px] font-medium rounded-md text-[var(--color-accent)] hover:bg-[var(--color-accent-dim)] transition-colors border border-[rgba(56,189,248,0.15)]"
-            >
-              <Eye size={11} />
-              View Session
-            </Link>
-          )}
           <ChevronRight
             size={14}
             className={clsx('text-[var(--color-text-muted)] transition-transform duration-200', expanded && 'rotate-90')}
@@ -570,28 +506,7 @@ function SecurityHeader({ email, session, findings, expanded, onToggle }: {
                 mono
               />
             )}
-            {session && (
-              <div className="col-span-2 md:col-span-4 flex items-center gap-3 pt-2">
-                <Link
-                  href={`/sessions/${session.id}`}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium rounded-md text-[var(--color-accent)] bg-[var(--color-accent-dim)] hover:bg-[rgba(56,189,248,0.15)] transition-colors border border-[rgba(56,189,248,0.15)]"
-                >
-                  <Network size={12} />
-                  Forensic Session {session.id}
-                  <ExternalLink size={10} />
-                </Link>
-                {findings.length > 0 && (
-                  <Link
-                    href="/findings"
-                    className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium rounded-md text-[var(--color-severity-critical)] bg-[var(--color-severity-critical-bg)] hover:bg-[rgba(239,68,68,0.12)] transition-colors border border-[rgba(239,68,68,0.15)]"
-                  >
-                    <AlertTriangle size={12} />
-                    {findings.length} Finding{findings.length > 1 ? 's' : ''}
-                    <ExternalLink size={10} />
-                  </Link>
-                )}
-              </div>
-            )}
+
           </div>
         </div>
       )}

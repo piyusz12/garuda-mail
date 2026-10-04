@@ -274,7 +274,7 @@ export default function SettingsPage() {
                       type="text"
                       value={smtpHost}
                       onChange={(e) => setSmtpHost(e.target.value)}
-                      placeholder="smtp.gmail.com or mail.enterprise.local"
+                      placeholder="smtp.gmail.com or 192.168.1.3"
                       className="w-full px-3 py-2 rounded-lg bg-[var(--color-surface-2)] border border-[var(--color-border)] text-[13px] text-[var(--color-text-primary)] focus:outline-none focus:border-[var(--color-accent)] font-mono"
                     />
                   </div>
@@ -315,7 +315,7 @@ export default function SettingsPage() {
                       type="text"
                       value={smtpUser}
                       onChange={(e) => setSmtpUser(e.target.value)}
-                      placeholder="user@gmail.com or admin@enterprise.local"
+                      placeholder="user@gmail.com"
                       className="w-full px-3 py-2 rounded-lg bg-[var(--color-surface-2)] border border-[var(--color-border)] text-[13px] text-[var(--color-text-primary)] focus:outline-none focus:border-[var(--color-accent)]"
                     />
                   </div>

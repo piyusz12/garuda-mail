@@ -195,7 +195,7 @@ const sendSchema = z.object({
         if (domainFix) {
           clean = `${domainFix[1]}@${domainFix[2]}`;
         } else {
-          clean = `${clean}@enterprise.local`;
+          clean = `${clean}@garudamail.local`;
         }
       }
       return clean;
@@ -210,7 +210,7 @@ const sendSchema = z.object({
         if (domainFix) {
           clean = `${domainFix[1]}@${domainFix[2]}`;
         } else {
-          clean = `${clean}@enterprise.local`;
+          clean = `${clean}@garudamail.local`;
         }
       }
       return clean;
@@ -257,7 +257,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Sender user account not found in database' }, { status: 404 });
     }
 
-    const senderEmail = sender.email || `${sender.name?.toLowerCase().replace(/\s+/g, '') || 'user'}@enterprise.local`;
+    const senderEmail = sender.email || `${sender.name?.toLowerCase().replace(/\s+/g, '') || 'user'}@garudamail.local`;
 
     // ── Apply real AES-256-GCM End-to-End Encryption
     let storedBody = emailBody;
