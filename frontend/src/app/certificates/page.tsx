@@ -28,7 +28,7 @@ export default function CertificatesPage() {
       cert.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
       cert.issuer.toLowerCase().includes(searchTerm.toLowerCase()) ||
       cert.subjectAltNames.some(san => san.toLowerCase().includes(searchTerm.toLowerCase()));
-    
+
     const matchesStatus = statusFilter === 'all' || cert.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -261,7 +261,7 @@ export default function CertificatesPage() {
 
                 {/* Modal Scroll Content */}
                 <div className="p-6 overflow-y-auto space-y-5 text-[12px]">
-                  
+
                   {/* Status Banner */}
                   <div className={clsx(
                     'p-3.5 rounded-lg border flex items-center justify-between',

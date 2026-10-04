@@ -194,7 +194,7 @@ export default function InvestigationsPage() {
 
               {/* Linked Evidence: Findings & Sessions */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                
+
                 {/* Linked Findings */}
                 <div className="space-y-2">
                   <div className="text-[11px] uppercase font-bold tracking-wider text-[var(--color-text-dim)] flex items-center gap-1.5">

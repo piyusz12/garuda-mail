@@ -75,7 +75,7 @@ export default function ReportsPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            
+
             {/* Target Analysis Run */}
             <div className="space-y-1.5">
               <label className="text-[12px] font-semibold text-[var(--color-text-primary)]">
@@ -269,7 +269,7 @@ export default function ReportsPage() {
 
                 {/* Printable Document Body */}
                 <div className="p-8 overflow-y-auto space-y-6 bg-white text-slate-900 font-sans">
-                  
+
                   {/* Document Header */}
                   <div className="border-b-2 border-slate-900 pb-5 flex items-start justify-between">
                     <div>

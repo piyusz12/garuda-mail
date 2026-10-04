@@ -6,7 +6,7 @@ import prisma from '@/lib/db';
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
-  
+
   session: {
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 days
@@ -69,14 +69,21 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
     async redirect({ url, baseUrl }) {
-      // Keep redirects relative so multi-device browsers on LAN stay on their connecting IP/host
-      if (url.startsWith('/')) return url;
+      if (url.startsWith('/')) {
+        return `${baseUrl}${url}`;
+      }
+
       try {
         const parsed = new URL(url);
-        return parsed.pathname + parsed.search;
+
+        if (parsed.origin === baseUrl) {
+          return url;
+        }
       } catch {
-        return '/inbox';
+        // Fall through to the base URL
       }
+
+      return baseUrl;
     },
   },
 

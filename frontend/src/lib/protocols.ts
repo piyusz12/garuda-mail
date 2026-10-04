@@ -8,12 +8,12 @@
  * - Inbound IMAP4rev1 (Port 993 SSL) & POP3 (Port 995 SSL)
  */
 
-export type ProtocolType = 
-  | 'auto' 
-  | 'smtp-starttls' 
-  | 'smtps' 
-  | 'smtp-direct' 
-  | 'p2p-mesh' 
+export type ProtocolType =
+  | 'auto'
+  | 'smtp-starttls'
+  | 'smtps'
+  | 'smtp-direct'
+  | 'p2p-mesh'
   | 'imap-sync';
 
 export interface ProtocolSpec {

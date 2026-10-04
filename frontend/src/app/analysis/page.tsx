@@ -3,29 +3,29 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Upload, FileText, Play, CheckCircle2, AlertCircle, Clock,
-  ArrowRight, Shield, Brain, Layers, RefreshCw, Download,
-  Sliders, Cpu, Database, Sparkles, Check, ChevronRight
+  Upload, FileText, Play, CheckCircle2, ArrowRight, Shield, Brain, Layers,
+  RefreshCw, Sliders, Cpu, Database, Sparkles, Terminal, Activity, FileSearch, Check
 } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
-import { SeverityBadge, RiskScore, StatusBadge } from '@/components/ui/shared';
+import { SeverityBadge, StatusBadge, RiskScore } from '@/components/ui/shared';
 import { mockAnalyses } from '@/lib/mock/data';
-import { formatBytes, formatDateTime, formatDuration } from '@/lib/formatters';
+import { formatBytes, formatDateTime } from '@/lib/formatters';
 import Link from 'next/link';
 import clsx from 'clsx';
 
 const PIPELINE_STAGES = [
-  { id: 'validating', label: 'PCAP Validation', desc: 'Checking magic bytes, packet headers & timestamps' },
-  { id: 'reconstructing', label: 'Session Reconstruction', desc: 'Reassembling TCP streams & flow state tracking' },
-  { id: 'identifying', label: 'Protocol Identification', desc: 'Classifying SMTP, IMAP, POP3 and STARTTLS commands' },
-  { id: 'analyzing_tls', label: 'TLS Cryptographic Audit', desc: 'Parsing Client/Server Hello, ciphers & extensions' },
-  { id: 'analyzing_certs', label: 'Certificate Chain Validation', desc: 'Evaluating X.509 chains, expiration & trust roots' },
-  { id: 'running_rules', label: 'Deterministic Rule Engine', desc: 'Evaluating security policies & CVE/weakness checks' },
-  { id: 'running_ai', label: 'AI Anomaly Detection', desc: 'Isolation Forest & Autoencoder behavioral scoring' },
-  { id: 'calculating_risk', label: 'Risk Assessment & Scoring', desc: 'Synthesizing evidence, confidence & severity ratings' },
+  { id: 'validating', label: 'PCAP Validation', desc: 'Checking magic bytes, headers & timestamps' },
+  { id: 'reconstructing', label: 'Session Reconstruction', desc: 'Reassembling TCP streams & tracking state' },
+  { id: 'identifying', label: 'Protocol Identification', desc: 'Classifying SMTP, IMAP, POP3 and STARTTLS' },
+  { id: 'analyzing_tls', label: 'TLS Cryptographic Audit', desc: 'Parsing Client/Server Hello & cipher suites' },
+  { id: 'analyzing_certs', label: 'Certificate Chain Validation', desc: 'Evaluating X.509 chains & trust roots' },
+  { id: 'running_rules', label: 'Deterministic Rule Engine', desc: 'Evaluating CVE & weakness policies' },
+  { id: 'running_ai', label: 'AI Anomaly Detection', desc: 'Isolation Forest & Autoencoder scoring' },
+  { id: 'calculating_risk', label: 'Risk Assessment & Scoring', desc: 'Synthesizing evidence & severity ratings' },
 ];
 
 const fadeUp = { initial: { opacity: 0, y: 12 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.3 } };
+const stagger = { animate: { transition: { staggerChildren: 0.05 } } };
 
 export default function AnalysisPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -34,6 +34,7 @@ export default function AnalysisPage() {
   const [progress, setProgress] = useState(0);
   const [completedAnalysis, setCompletedAnalysis] = useState<any | null>(null);
   const [consoleLogs, setConsoleLogs] = useState<string[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
 
   // Analysis options
   const [enableAi, setEnableAi] = useState(true);
@@ -59,7 +60,6 @@ export default function AnalysisPage() {
         setActiveStageIndex(stage);
         setProgress(Math.round(((stage + 1) / PIPELINE_STAGES.length) * 100));
 
-        // Add contextual simulated logs
         const stageLogs: Record<number, string[]> = {
           1: [
             `[00:00.410] Reassembling 248 TCP bidirectional flows...`,
@@ -107,15 +107,26 @@ export default function AnalysisPage() {
         setIsAnalyzing(false);
         setCompletedAnalysis(mockAnalyses[0]);
       }
-    }, 700);
+    }, 800);
   };
 
   const handleFileDrop = (e: React.DragEvent) => {
     e.preventDefault();
+    setIsDragging(false);
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const file = e.dataTransfer.files[0];
       setSelectedFile(file);
     }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
   };
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -125,25 +136,35 @@ export default function AnalysisPage() {
   };
 
   return (
-    <AppShell
-      title="Analysis & Ingestion"
-      description="Upload email network PCAP captures to execute multi-stage cryptographic forensic inspection"
-    >
-      <div className="space-y-6">
+    <AppShell title="Telemetry Analysis" description="Upload network captures for forensic session and security analysis">
+      <motion.div initial="initial" animate="animate" variants={stagger} className="max-w-[1400px] mx-auto pb-12 space-y-6">
+
+        {/* ── Context Header ── */}
+        <motion.div variants={fadeUp} className="card p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-[var(--color-surface-1)] border border-[var(--color-border)] shadow-sm rounded-xl relative overflow-hidden">
+          <div className="z-10">
+            <h1 className="text-[22px] font-bold text-[var(--color-text-primary)] tracking-tight flex items-center gap-2">
+              <Activity size={22} className="text-[var(--color-accent)]" />
+              Telemetry Ingestion
+            </h1>
+            <p className="text-[13px] text-[var(--color-text-muted)] mt-1 ml-8">Upload network captures for forensic cryptographic session extraction and security analysis.</p>
+          </div>
+          <div className="absolute -top-32 -right-10 w-64 h-64 bg-[var(--color-accent)] opacity-[0.03] rounded-full blur-3xl pointer-events-none" />
+        </motion.div>
 
         {/* ── Top Upload & Control Grid ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <motion.div variants={fadeUp} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
           {/* Upload Zone (2 cols) */}
-          <div className="lg:col-span-2 space-y-4">
+          <div className="lg:col-span-2 space-y-4 flex flex-col h-full">
             <div
-              onDragOver={(e) => e.preventDefault()}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
               onDrop={handleFileDrop}
               className={clsx(
-                'card p-8 border-2 border-dashed transition-all duration-200 flex flex-col items-center justify-center text-center cursor-pointer',
-                selectedFile
-                  ? 'border-[var(--color-accent)] bg-[rgba(56,189,248,0.03)]'
-                  : 'border-[var(--color-border)] hover:border-[var(--color-border-hover)] bg-[var(--color-surface-1)]'
+                'card p-10 border border-dashed transition-all duration-300 flex flex-col items-center justify-center text-center cursor-pointer flex-1 rounded-xl relative overflow-hidden group',
+                isDragging ? 'border-[var(--color-accent)] bg-[var(--color-accent-dim)]' :
+                selectedFile ? 'border-[var(--color-accent)] bg-[var(--color-surface-1)]' :
+                'border-[var(--color-border)] hover:border-[var(--color-border-hover)] bg-[var(--color-surface-1)] hover:bg-[var(--color-surface-2)]'
               )}
               onClick={() => document.getElementById('pcap-upload-input')?.click()}
             >
@@ -155,18 +176,24 @@ export default function AnalysisPage() {
                 onChange={handleFileInput}
               />
 
-              <div className="w-14 h-14 rounded-2xl bg-[var(--color-surface-2)] border border-[var(--color-border)] flex items-center justify-center mb-4 text-[var(--color-accent)] shadow-sm">
-                <Upload size={26} strokeWidth={2} />
+              {/* Ambient Glow */}
+              <div className={clsx("absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full blur-3xl pointer-events-none transition-opacity duration-500", (isDragging || selectedFile) ? "opacity-20 bg-[var(--color-accent)]" : "opacity-0")} />
+
+              <div className={clsx("w-16 h-16 rounded-2xl flex items-center justify-center mb-5 border transition-colors shadow-sm z-10",
+                 selectedFile ? "bg-[var(--color-surface-2)] border-[var(--color-accent)]/30 text-[var(--color-accent)]" :
+                 "bg-[var(--color-surface-3)] border-[var(--color-border)] text-[var(--color-text-muted)] group-hover:text-[var(--color-accent)] group-hover:border-[var(--color-accent)]/30"
+              )}>
+                <Upload size={28} strokeWidth={2} />
               </div>
 
               {selectedFile ? (
-                <div>
-                  <div className="text-[15px] font-semibold text-[var(--color-text-primary)] mb-1 flex items-center justify-center gap-2">
-                    <FileText size={16} className="text-[var(--color-accent)]" />
-                    {selectedFile.name}
+                <div className="z-10 w-full max-w-sm">
+                  <div className="text-[14px] font-bold text-[var(--color-text-primary)] mb-1 flex items-center justify-center gap-2 truncate px-4 py-2 bg-[var(--color-surface-2)] rounded border border-[var(--color-border-subtle)]">
+                    <FileText size={16} className="text-[var(--color-accent)] shrink-0" />
+                    <span className="truncate">{selectedFile.name}</span>
                   </div>
-                  <div className="text-[12px] text-[var(--color-text-muted)] mb-4">
-                    {formatBytes(selectedFile.size)} • PCAP Network Capture
+                  <div className="text-[12px] font-bold text-[var(--color-text-muted)] mt-4 mb-6 uppercase tracking-widest text-mono">
+                    {formatBytes(selectedFile.size)} • PCAP Telemetry
                   </div>
                   <button
                     type="button"
@@ -175,46 +202,42 @@ export default function AnalysisPage() {
                       startAnalysis(selectedFile.name, selectedFile.size);
                     }}
                     disabled={isAnalyzing}
-                    className="btn btn-primary px-5 py-2 inline-flex items-center gap-2 text-[13px]"
+                    className="w-full flex items-center justify-center gap-2 px-6 py-3 text-[13px] font-bold rounded-lg border border-[var(--color-accent)]/30 bg-[var(--color-accent-dim)] text-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-[#000] transition-all shadow-sm active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
                   >
                     {isAnalyzing ? (
-                      <>
-                        <RefreshCw size={15} className="animate-spin" /> Analyzing Capture...
-                      </>
+                      <><RefreshCw size={16} className="animate-spin" /> Ingesting Telemetry...</>
                     ) : (
-                      <>
-                        <Play size={15} /> Execute Analysis Pipeline
-                      </>
+                      <><Play size={16} /> Execute Analysis Pipeline</>
                     )}
                   </button>
                 </div>
               ) : (
-                <div>
-                  <h3 className="text-[15px] font-semibold text-[var(--color-text-primary)] mb-1">
-                    Drop PCAP / PCAPNG capture file here
+                <div className="z-10">
+                  <h3 className="text-[15px] font-bold text-[var(--color-text-primary)] mb-2">
+                    {isDragging ? 'Drop PCAP to Ingest' : 'Select or drop PCAP/PCAPNG telemetry'}
                   </h3>
-                  <p className="text-[12px] text-[var(--color-text-muted)] max-w-sm mb-4">
-                    Supports Wireshark, tcpdump, and network tap captures containing SMTP (25, 587, 465), IMAP (143, 993), and POP3 (110, 995) traffic.
+                  <p className="text-[13px] text-[var(--color-text-muted)] max-w-md mx-auto mb-6">
+                    Supports Wireshark, tcpdump, and tap captures containing SMTP, IMAP, POP3, and TLS handshake traffic.
                   </p>
-                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-2)] text-[12px] font-medium text-[var(--color-text-secondary)]">
-                    Browse Local File
+                  <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-2)] text-[12px] font-bold text-[var(--color-text-primary)] hover:bg-[var(--color-surface-3)] transition-colors shadow-sm">
+                    <FileSearch size={16} className="text-[var(--color-text-muted)]" /> Browse Local Files
                   </div>
                 </div>
               )}
             </div>
 
             {/* Quick Demo Sample Action */}
-            <div className="card p-4 flex items-center justify-between bg-[var(--color-surface-1)]">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-[rgba(56,189,248,0.08)] border border-[rgba(56,189,248,0.2)] flex items-center justify-center text-[var(--color-accent)]">
+            <div className="card p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-[var(--color-surface-1)] border-[var(--color-border-subtle)] rounded-xl shrink-0">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-lg bg-[var(--color-accent-dim)] border border-[var(--color-accent)]/20 flex items-center justify-center text-[var(--color-accent)] shrink-0">
                   <Sparkles size={18} />
                 </div>
                 <div>
-                  <div className="text-[13px] font-semibold text-[var(--color-text-primary)]">
-                    Want to test without a capture file?
+                  <div className="text-[13px] font-bold text-[var(--color-text-primary)]">
+                    Load Demonstration Telemetry
                   </div>
-                  <div className="text-[11px] text-[var(--color-text-muted)]">
-                    Load pre-packaged capture: <span className="text-mono text-[var(--color-text-secondary)]">enterprise_mail_q3.pcap</span> (128 MB, 248 sessions)
+                  <div className="text-[11px] text-[var(--color-text-muted)] font-medium mt-0.5">
+                    Test the pipeline with: <span className="text-mono font-bold text-[var(--color-text-secondary)]">enterprise_mail_q3.pcap</span> (128 MB)
                   </div>
                 </div>
               </div>
@@ -222,312 +245,313 @@ export default function AnalysisPage() {
                 type="button"
                 onClick={() => startAnalysis('enterprise_mail_q3.pcap', 134217728)}
                 disabled={isAnalyzing}
-                className="btn btn-secondary text-[12px] py-1.5 px-3 flex items-center gap-1.5"
+                className="w-full sm:w-auto px-4 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-2)] text-[12px] font-bold text-[var(--color-text-primary)] hover:bg-[var(--color-surface-3)] transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                <Play size={13} /> Load Sample
+                <Play size={14} className="text-[var(--color-accent)]" /> Load Sample
               </button>
             </div>
           </div>
 
           {/* Analysis Settings (1 col) */}
-          <div className="card p-5 space-y-4">
-            <div className="flex items-center gap-2 pb-3 border-b border-[var(--color-border)]">
+          <div className="card p-6 flex flex-col h-full bg-[var(--color-surface-1)] border-[var(--color-border)] rounded-xl">
+            <div className="flex items-center gap-2 pb-4 border-b border-[var(--color-border-subtle)] mb-5">
               <Sliders size={16} className="text-[var(--color-accent)]" />
-              <h3 className="text-[13px] font-semibold text-[var(--color-text-primary)] uppercase tracking-wider">
+              <h3 className="text-[11px] font-bold text-[var(--color-text-primary)] uppercase tracking-widest">
                 Inspection Parameters
               </h3>
             </div>
 
-            <div className="space-y-3">
-              <label className="flex items-start gap-3 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={enableAi}
-                  onChange={(e) => setEnableAi(e.target.checked)}
-                  className="mt-1 rounded bg-[var(--color-surface-3)] border-[var(--color-border)] text-[var(--color-accent)] focus:ring-0"
-                />
-                <div>
-                  <div className="text-[12px] font-medium text-[var(--color-text-primary)] flex items-center gap-1.5">
-                    <Brain size={13} className="text-[var(--color-accent)]" /> AI Anomaly Detection
-                  </div>
-                  <div className="text-[11px] text-[var(--color-text-dim)]">
-                    Behavioral scoring against enterprise traffic baseline
-                  </div>
-                </div>
-              </label>
-
-              <label className="flex items-start gap-3 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={deepTls}
-                  onChange={(e) => setDeepTls(e.target.checked)}
-                  className="mt-1 rounded bg-[var(--color-surface-3)] border-[var(--color-border)] text-[var(--color-accent)] focus:ring-0"
-                />
-                <div>
-                  <div className="text-[12px] font-medium text-[var(--color-text-primary)] flex items-center gap-1.5">
-                    <Shield size={13} className="text-[var(--color-accent)]" /> Deep TLS Handshake Audit
-                  </div>
-                  <div className="text-[11px] text-[var(--color-text-dim)]">
-                    Inspect cipher suites, extensions & JA4 fingerprints
-                  </div>
-                </div>
-              </label>
-
-              <label className="flex items-start gap-3 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={checkMtaSts}
-                  onChange={(e) => setCheckMtaSts(e.target.checked)}
-                  className="mt-1 rounded bg-[var(--color-surface-3)] border-[var(--color-border)] text-[var(--color-accent)] focus:ring-0"
-                />
-                <div>
-                  <div className="text-[12px] font-medium text-[var(--color-text-primary)] flex items-center gap-1.5">
-                    <Database size={13} className="text-[var(--color-accent)]" /> MTA-STS & DANE Verification
-                  </div>
-                  <div className="text-[11px] text-[var(--color-text-dim)]">
-                    Cross-check DNS TLSA records and policy compliance
-                  </div>
-                </div>
-              </label>
-
-              <label className="flex items-start gap-3 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={rawPackets}
-                  onChange={(e) => setRawPackets(e.target.checked)}
-                  className="mt-1 rounded bg-[var(--color-surface-3)] border-[var(--color-border)] text-[var(--color-accent)] focus:ring-0"
-                />
-                <div>
-                  <div className="text-[12px] font-medium text-[var(--color-text-primary)] flex items-center gap-1.5">
-                    <Layers size={13} className="text-[var(--color-accent)]" /> Retain Raw Packet Traces
-                  </div>
-                  <div className="text-[11px] text-[var(--color-text-dim)]">
-                    Store packet evidence for forensic court-ready records
-                  </div>
-                </div>
-              </label>
+            <div className="space-y-4 flex-1">
+              <ParameterToggle
+                icon={Brain}
+                title="AI Anomaly Detection"
+                desc="Behavioral scoring against traffic baseline"
+                checked={enableAi}
+                onChange={setEnableAi}
+              />
+              <ParameterToggle
+                icon={Shield}
+                title="Deep TLS Handshake Audit"
+                desc="Inspect cipher suites & JA4 fingerprints"
+                checked={deepTls}
+                onChange={setDeepTls}
+              />
+              <ParameterToggle
+                icon={Database}
+                title="MTA-STS & DANE Verification"
+                desc="Cross-check DNS TLSA records & policy"
+                checked={checkMtaSts}
+                onChange={setCheckMtaSts}
+              />
+              <ParameterToggle
+                icon={Layers}
+                title="Retain Raw Packet Traces"
+                desc="Store packet evidence for forensic records"
+                checked={rawPackets}
+                onChange={setRawPackets}
+              />
             </div>
 
-            <div className="pt-3 border-t border-[var(--color-border)] text-[11px] text-[var(--color-text-muted)] flex items-center gap-2">
-              <Cpu size={14} className="text-[var(--color-text-dim)] flex-shrink-0" />
-              Analysis Engine: Multi-threaded Rust Core + Scapy Reconstructor
+            <div className="pt-4 border-t border-[var(--color-border-subtle)] mt-5 flex items-center justify-center gap-2">
+               <Cpu size={14} className="text-[var(--color-text-dim)]" />
+               <span className="text-[10px] text-[var(--color-text-muted)] font-mono uppercase tracking-widest font-bold text-center">Multi-threaded Rust Engine</span>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* ── Active Pipeline Stage Visualizer ── */}
         {(isAnalyzing || completedAnalysis) && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.99 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="card p-6 border-[rgba(56,189,248,0.2)] bg-[var(--color-surface-1)] shadow-xl space-y-6"
+            initial={{ opacity: 0, scale: 0.98, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className="card border border-[var(--color-accent)]/20 bg-[var(--color-surface-1)] shadow-lg rounded-xl overflow-hidden relative"
           >
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div>
-                <div className="flex items-center gap-2.5">
-                  <h3 className="text-base font-semibold text-[var(--color-text-primary)]">
-                    Forensic Pipeline Execution
-                  </h3>
-                  {isAnalyzing ? (
-                    <span className="badge-critical text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 animate-pulse">
-                      Processing ({progress}%)
-                    </span>
-                  ) : (
-                    <span className="badge-healthy text-[10px] uppercase font-bold tracking-wider px-2 py-0.5">
-                      Completed 100%
-                    </span>
-                  )}
-                </div>
-                <p className="text-[12px] text-[var(--color-text-muted)] mt-0.5">
-                  Real-time pipeline orchestration and telemetry extraction
-                </p>
-              </div>
-
-              {completedAnalysis && (
-                <div className="flex items-center gap-2">
-                  <Link
-                    href="/dashboard"
-                    className="btn btn-primary text-[12px] py-1.5 px-3 flex items-center gap-1.5"
-                  >
-                    Explore Dashboard <ArrowRight size={14} />
-                  </Link>
-                  <Link
-                    href="/sessions"
-                    className="btn btn-secondary text-[12px] py-1.5 px-3 flex items-center gap-1.5"
-                  >
-                    View Sessions
-                  </Link>
-                </div>
-              )}
+            {/* Top processing bar */}
+            <div className="h-1 w-full bg-[var(--color-surface-3)] relative overflow-hidden">
+               <motion.div
+                 className={clsx("absolute top-0 bottom-0 left-0", isAnalyzing ? "bg-[var(--color-accent)]" : "bg-[var(--color-severity-healthy)]")}
+                 initial={{ width: 0 }}
+                 animate={{ width: `${progress}%` }}
+                 transition={{ duration: 0.3 }}
+               />
             </div>
 
-            {/* Pipeline progress bar */}
-            <div className="w-full bg-[var(--color-surface-3)] h-2 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-hover)] transition-all duration-300 rounded-full"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-
-            {/* 8-Stage Step Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              {PIPELINE_STAGES.map((st, idx) => {
-                const isPast = idx < activeStageIndex;
-                const isCurrent = idx === activeStageIndex;
-                return (
-                  <div
-                    key={st.id}
-                    className={clsx(
-                      'p-3 rounded-lg border transition-all duration-200 flex items-start gap-2.5',
-                      isPast && 'border-[rgba(34,197,94,0.3)] bg-[rgba(34,197,94,0.03)]',
-                      isCurrent && 'border-[var(--color-accent)] bg-[rgba(56,189,248,0.06)] ring-1 ring-[var(--color-accent)]',
-                      idx > activeStageIndex && 'border-[var(--color-border)] bg-[var(--color-surface-2)] opacity-50'
+            <div className="p-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 mb-8">
+                <div>
+                  <div className="flex items-center gap-3">
+                    <h3 className="text-[18px] font-bold text-[var(--color-text-primary)]">
+                      Orchestrating Pipeline
+                    </h3>
+                    {isAnalyzing ? (
+                      <span className="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded border border-[var(--color-accent)]/30 bg-[var(--color-accent-dim)] text-[var(--color-accent)] flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-accent)] animate-pulse" />
+                        Processing ({progress}%)
+                      </span>
+                    ) : (
+                      <span className="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded border border-[var(--color-severity-healthy)]/30 bg-[var(--color-severity-healthy)]/10 text-[var(--color-severity-healthy)] flex items-center gap-1.5">
+                        <Check size={12} />
+                        Completed
+                      </span>
                     )}
-                  >
-                    <div className="mt-0.5 flex-shrink-0">
-                      {isPast ? (
-                        <CheckCircle2 size={16} className="text-[var(--color-severity-healthy)]" />
-                      ) : isCurrent ? (
-                        <RefreshCw size={16} className="text-[var(--color-accent)] animate-spin" />
-                      ) : (
-                        <div className="w-4 h-4 rounded-full border border-[var(--color-text-dim)] flex items-center justify-center text-[9px] text-[var(--color-text-dim)]">
-                          {idx + 1}
-                        </div>
-                      )}
-                    </div>
-                    <div className="min-w-0">
-                      <div className={clsx(
-                        'text-[12px] font-semibold truncate',
-                        isPast ? 'text-[var(--color-text-primary)]' : isCurrent ? 'text-[var(--color-accent)]' : 'text-[var(--color-text-muted)]'
-                      )}>
-                        {st.label}
-                      </div>
-                      <div className="text-[10px] text-[var(--color-text-dim)] leading-tight mt-0.5">
-                        {st.desc}
-                      </div>
-                    </div>
                   </div>
-                );
-              })}
-            </div>
-
-            {/* Live Terminal Output */}
-            <div className="bg-[#05080f] rounded-lg border border-[var(--color-border)] p-4 font-mono text-[11px] space-y-1 max-h-48 overflow-y-auto">
-              <div className="text-[var(--color-text-dim)] border-b border-[var(--color-border)] pb-1 mb-2 flex items-center justify-between">
-                <span>[PIPELINE_ORCHESTRATOR_LOGS]</span>
-                <span className="text-[10px] text-[var(--color-accent)]">STREAM ACTIVE</span>
-              </div>
-              {consoleLogs.map((log, i) => (
-                <div
-                  key={i}
-                  className={clsx(
-                    'leading-relaxed',
-                    log.includes('ALERT') ? 'text-[var(--color-severity-critical)] font-semibold' :
-                    log.includes('Triggered') ? 'text-[var(--color-severity-high)]' :
-                    log.includes('complete') || log.includes('Identified') ? 'text-[var(--color-severity-healthy)]' :
-                    'text-[var(--color-text-muted)]'
-                  )}
-                >
-                  {log}
+                  <p className="text-[12px] font-medium text-[var(--color-text-muted)] mt-1">
+                    Real-time PCAP extraction and cryptographic session synthesis.
+                  </p>
                 </div>
-              ))}
+
+                {completedAnalysis && (
+                  <div className="flex items-center gap-3 w-full sm:w-auto">
+                    <Link
+                      href="/dashboard"
+                      className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-[var(--color-accent)]/30 bg-[var(--color-accent-dim)] text-[var(--color-accent)] text-[12px] font-bold hover:bg-[var(--color-accent)] hover:text-[#000] transition-colors"
+                    >
+                      Security Posture <ArrowRight size={14} />
+                    </Link>
+                    <Link
+                      href="/sessions"
+                      className="flex-1 sm:flex-none flex items-center justify-center px-4 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-2)] text-[12px] font-bold text-[var(--color-text-primary)] hover:bg-[var(--color-surface-3)] transition-colors"
+                    >
+                      Network Sessions
+                    </Link>
+                  </div>
+                )}
+              </div>
+
+              {/* 8-Stage Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 mb-8">
+                {PIPELINE_STAGES.map((st, idx) => {
+                  const isPast = idx < activeStageIndex;
+                  const isCurrent = idx === activeStageIndex;
+                  const isFuture = idx > activeStageIndex;
+
+                  return (
+                    <div
+                      key={st.id}
+                      className={clsx(
+                        'p-4 rounded-lg border flex items-center gap-3 transition-colors',
+                        isPast ? 'bg-[var(--color-severity-healthy)]/5 border-[var(--color-severity-healthy)]/20' :
+                        isCurrent ? 'bg-[var(--color-accent-dim)] border-[var(--color-accent)]/40 shadow-[0_0_15px_rgba(56,189,248,0.1)]' :
+                        'bg-[var(--color-surface-2)] border-[var(--color-border-subtle)] opacity-50'
+                      )}
+                    >
+                      <div className="flex-shrink-0">
+                        {isPast ? (
+                          <div className="w-6 h-6 rounded flex items-center justify-center bg-[var(--color-severity-healthy)]/20 text-[var(--color-severity-healthy)]">
+                            <Check size={14} strokeWidth={3} />
+                          </div>
+                        ) : isCurrent ? (
+                          <div className="w-6 h-6 rounded flex items-center justify-center bg-[var(--color-accent)]/20 text-[var(--color-accent)]">
+                            <RefreshCw size={14} className="animate-spin" />
+                          </div>
+                        ) : (
+                          <div className="w-6 h-6 rounded flex items-center justify-center border border-[var(--color-text-dim)]/50 text-[10px] font-mono font-bold text-[var(--color-text-dim)]">
+                            {idx + 1}
+                          </div>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <div className={clsx(
+                          'text-[12px] font-bold truncate',
+                          isPast ? 'text-[var(--color-severity-healthy)]' : isCurrent ? 'text-[var(--color-accent)]' : 'text-[var(--color-text-muted)]'
+                        )}>
+                          {st.label}
+                        </div>
+                        <div className="text-[10px] text-[var(--color-text-dim)] font-medium leading-tight mt-0.5 truncate">
+                          {st.desc}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Pseudo-Terminal Output */}
+              <div className="bg-[#05080f] rounded-lg border border-[var(--color-border)] overflow-hidden shadow-inner flex flex-col">
+                <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--color-border-subtle)] bg-[#080a10]">
+                  <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-[var(--color-text-dim)]">
+                    <Terminal size={12} /> Execution Log
+                  </div>
+                  <div className="flex items-center gap-1.5 text-[9px] font-mono font-bold">
+                    <span className={clsx("w-1.5 h-1.5 rounded-full", isAnalyzing ? "bg-[var(--color-accent)] animate-pulse" : "bg-[var(--color-severity-healthy)]")} />
+                    <span className={isAnalyzing ? "text-[var(--color-accent)]" : "text-[var(--color-severity-healthy)]"}>{isAnalyzing ? 'ACTIVE' : 'COMPLETE'}</span>
+                  </div>
+                </div>
+                <div className="p-4 font-mono text-[11px] sm:text-[12px] leading-relaxed space-y-1.5 h-64 overflow-y-auto custom-scrollbar flex flex-col-reverse">
+                  <div className="flex flex-col gap-1.5">
+                    {consoleLogs.map((log, i) => (
+                      <div
+                        key={i}
+                        className={clsx(
+                          'pl-3 border-l-2',
+                          log.includes('ALERT') ? 'border-[var(--color-severity-critical)] text-[var(--color-severity-critical)] font-semibold' :
+                          log.includes('Triggered') ? 'border-[var(--color-severity-high)] text-[var(--color-severity-high)] font-semibold' :
+                          log.includes('complete') || log.includes('Identified') ? 'border-[var(--color-severity-healthy)] text-[var(--color-severity-healthy)]' :
+                          log.includes('Model inference') || log.includes('Computing') ? 'border-[var(--color-accent)] text-[var(--color-accent)]' :
+                          'border-[var(--color-border-subtle)] text-[var(--color-text-secondary)]'
+                        )}
+                      >
+                        {log}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
           </motion.div>
         )}
 
-        {/* ── Historical Ingestions / Analysis Jobs Table ── */}
-        <div className="card p-6 space-y-4">
-          <div className="flex items-center justify-between">
+        {/* ── Historical Ingestions Table ── */}
+        <motion.div variants={fadeUp} className="card p-6 bg-[var(--color-surface-1)] border border-[var(--color-border)] rounded-xl shadow-sm">
+          <div className="flex items-center gap-3 mb-6 pb-4 border-b border-[var(--color-border-subtle)]">
+            <div className="w-8 h-8 rounded-lg bg-[var(--color-surface-2)] border border-[var(--color-border-subtle)] flex items-center justify-center">
+              <Database size={14} className="text-[var(--color-text-secondary)]" />
+            </div>
             <div>
-              <h3 className="text-base font-semibold text-[var(--color-text-primary)]">
-                Analysis History
+              <h3 className="text-[14px] font-bold text-[var(--color-text-primary)]">
+                Telemetry Vault
               </h3>
-              <p className="text-[12px] text-[var(--color-text-muted)]">
-                Previously ingested PCAP network captures and resulting forensic intelligence
+              <p className="text-[11px] text-[var(--color-text-muted)] font-medium mt-0.5">
+                Previously ingested cryptographic captures
               </p>
             </div>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-[13px]">
+          <div className="overflow-x-auto hide-scrollbar">
+            <table className="w-full text-left min-w-[900px]">
               <thead>
-                <tr className="border-b border-[var(--color-border)] text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">
-                  <th className="py-2.5 px-3">Job ID</th>
-                  <th className="py-2.5 px-3">Capture File</th>
-                  <th className="py-2.5 px-3">File Size</th>
-                  <th className="py-2.5 px-3">Sessions</th>
-                  <th className="py-2.5 px-3">Findings</th>
-                  <th className="py-2.5 px-3">Risk Rating</th>
-                  <th className="py-2.5 px-3">Status</th>
-                  <th className="py-2.5 px-3">Analyzed At</th>
-                  <th className="py-2.5 px-3 text-right">Actions</th>
+                <tr className="border-b border-[var(--color-border-subtle)] text-[10px] font-bold text-[var(--color-text-dim)] uppercase tracking-widest bg-[var(--color-surface-2)]">
+                  <th className="py-3.5 px-4">Job ID</th>
+                  <th className="py-3.5 px-4">Capture File</th>
+                  <th className="py-3.5 px-4">Size</th>
+                  <th className="py-3.5 px-4">Sessions</th>
+                  <th className="py-3.5 px-4">Findings</th>
+                  <th className="py-3.5 px-4 text-center">Risk Index</th>
+                  <th className="py-3.5 px-4">Status</th>
+                  <th className="py-3.5 px-4">Ingested At</th>
+                  <th className="py-3.5 px-4 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--color-border-subtle)]">
                 {mockAnalyses.map((job) => (
-                  <tr key={job.id} className="hover:bg-[var(--color-surface-2)] transition-colors">
-                    <td className="py-3 px-3 text-mono font-medium text-[var(--color-accent)]">
+                  <tr key={job.id} className="hover:bg-[var(--color-surface-2)] transition-colors group">
+                    <td className="py-3 px-4 text-[12px] text-mono font-bold text-[var(--color-accent)]">
                       {job.id}
                     </td>
-                    <td className="py-3 px-3 font-medium text-[var(--color-text-primary)]">
+                    <td className="py-3 px-4 font-bold text-[13px] text-[var(--color-text-primary)]">
                       <div className="flex items-center gap-2">
-                        <FileText size={15} className="text-[var(--color-text-muted)]" />
+                        <FileText size={14} className="text-[var(--color-text-muted)]" />
                         {job.filename}
                       </div>
                     </td>
-                    <td className="py-3 px-3 text-[var(--color-text-secondary)] text-mono">
+                    <td className="py-3 px-4 text-[11px] text-[var(--color-text-secondary)] text-mono font-medium">
                       {formatBytes(job.fileSize)}
                     </td>
-                    <td className="py-3 px-3 text-mono font-medium">
+                    <td className="py-3 px-4 text-[12px] text-[var(--color-text-secondary)] text-mono font-bold">
                       {job.sessionsCount}
                     </td>
-                    <td className="py-3 px-3">
+                    <td className="py-3 px-4">
                       <div className="flex items-center gap-1.5">
-                        <span className="badge-critical text-[10px] px-1.5 py-0.5 rounded font-bold">
-                          {job.criticalCount} crit
+                        <span className="text-[10px] font-bold text-mono px-1.5 py-0.5 rounded bg-[var(--color-severity-critical-bg)] text-[var(--color-severity-critical)] border border-[var(--color-severity-critical)]/30">
+                          {job.criticalCount} C
                         </span>
-                        <span className="badge-high text-[10px] px-1.5 py-0.5 rounded font-bold">
-                          {job.highCount} high
-                        </span>
-                      </div>
-                    </td>
-                    <td className="py-3 px-3">
-                      <div className="flex items-center gap-2">
-                        <span className={clsx(
-                          'text-mono font-bold text-sm',
-                          job.overallRisk >= 75 ? 'text-[var(--color-severity-critical)]' :
-                          job.overallRisk >= 50 ? 'text-[var(--color-severity-high)]' :
-                          'text-[var(--color-severity-medium)]'
-                        )}>
-                          {job.overallRisk}/100
+                        <span className="text-[10px] font-bold text-mono px-1.5 py-0.5 rounded bg-[rgba(245,158,11,0.1)] text-[var(--color-severity-high)] border border-[var(--color-severity-high)]/30">
+                          {job.highCount} H
                         </span>
                       </div>
                     </td>
-                    <td className="py-3 px-3">
+                    <td className="py-3 px-4 text-center">
+                      <RiskScore score={job.overallRisk} size="sm" />
+                    </td>
+                    <td className="py-3 px-4">
                       <StatusBadge status={job.status} />
                     </td>
-                    <td className="py-3 px-3 text-[12px] text-[var(--color-text-dim)]">
+                    <td className="py-3 px-4 text-[11px] text-[var(--color-text-dim)] font-mono">
                       {formatDateTime(job.startedAt)}
                     </td>
-                    <td className="py-3 px-3 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <Link
-                          href="/dashboard"
-                          className="btn btn-ghost text-[11px] py-1 px-2 text-[var(--color-accent)] hover:text-white"
-                          title="View findings and forensic telemetry"
-                        >
-                          View Results
-                        </Link>
-                      </div>
+                    <td className="py-3 px-4 text-right">
+                      <Link
+                        href="/dashboard"
+                        className="inline-flex items-center justify-center text-[11px] font-bold py-1.5 px-3 rounded bg-[var(--color-surface-3)] border border-[var(--color-border-subtle)] text-[var(--color-text-primary)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] transition-colors"
+                      >
+                        Inspect Result
+                      </Link>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-        </div>
+        </motion.div>
 
-      </div>
+      </motion.div>
     </AppShell>
+  );
+}
+
+function ParameterToggle({ icon: Icon, title, desc, checked, onChange }: any) {
+  return (
+    <label className="flex items-start gap-4 p-3 rounded-lg border border-[var(--color-border-subtle)] bg-[var(--color-surface-2)] cursor-pointer select-none hover:border-[var(--color-border)] transition-colors group">
+      <div className="flex items-center justify-center w-8 h-8 rounded bg-[var(--color-surface-1)] border border-[var(--color-border)] shrink-0 group-hover:border-[var(--color-accent)]/30 transition-colors">
+         <Icon size={14} className={clsx("transition-colors", checked ? "text-[var(--color-accent)]" : "text-[var(--color-text-dim)] group-hover:text-[var(--color-text-secondary)]")} />
+      </div>
+      <div className="flex-1">
+        <div className="text-[12px] font-bold text-[var(--color-text-primary)] leading-none mb-1 group-hover:text-[var(--color-accent)] transition-colors">
+          {title}
+        </div>
+        <div className="text-[11px] text-[var(--color-text-dim)] font-medium leading-tight">
+          {desc}
+        </div>
+      </div>
+      <div className="shrink-0 pt-1">
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={(e) => onChange(e.target.checked)}
+          className="rounded bg-[var(--color-surface-3)] border-[var(--color-border)] text-[var(--color-accent)] focus:ring-0 focus:ring-offset-0 w-4 h-4 cursor-pointer"
+        />
+      </div>
+    </label>
   );
 }
