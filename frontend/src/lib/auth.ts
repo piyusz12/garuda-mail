@@ -69,10 +69,11 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
     async redirect({ url, baseUrl }) {
-      // Keep redirects relative so multi-device browsers on LAN stay on their connecting IP/host
+      if (!url) return '/inbox';
       if (url.startsWith('/')) return url;
       try {
-        const parsed = new URL(url);
+        const base = baseUrl || process.env.NEXTAUTH_URL || 'http://localhost:3000';
+        const parsed = new URL(url, base);
         return parsed.pathname + parsed.search;
       } catch {
         return '/inbox';
