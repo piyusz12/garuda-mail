@@ -120,7 +120,7 @@ export async function DELETE(request: NextRequest, { params }: Params) {
   }
 
   const { id } = await params;
-  const { searchParams } = new URL(request.url);
+  const searchParams = request.nextUrl.searchParams;
   const permanent = searchParams.get('permanent') === 'true';
   const userEmail = session.user.email?.toLowerCase().trim();
 
