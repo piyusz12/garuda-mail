@@ -99,16 +99,82 @@ function ComposeForm() {
     if (qProto && SUPPORTED_PROTOCOLS[qProto]) setProtocol(qProto);
   }, [searchParams]);
 
-  // Helper to extract clean email addresses
-  const parseAddresses = (raw: string) => {
-    return raw
-      .split(/[,;\s]+/)
-      .map(s => {
-        const match = s.match(/<([^>]+)>/);
-        return match ? match[1].trim() : s.trim();
-      })
-      .filter(s => s.length > 0 && s.includes('@'))
-      .map(email => ({ email: email.toLowerCase() }));
+  // Bulletproof address resolver: handles standard emails, names with brackets, usernames, and LAN peers
+  const resolveRecipientAddresses = (raw: string, directory: DirectoryUser[] = []): { email: string; name?: string }[] => {
+    if (!raw || !raw.trim()) return [];
+
+    const emailRegex = /([a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+)/gi;
+    const parts = raw.split(/[,;\n\r]+/).map(p => p.trim()).filter(Boolean);
+    const results: { email: string; name?: string }[] = [];
+    const seen = new Set<string>();
+
+    for (const part of parts) {
+      // 1. Check for "Name" <email@domain>
+      const angleMatch = part.match(/<([^>]+)>/);
+      let candidate = angleMatch ? angleMatch[1].trim() : '';
+      const displayName = angleMatch ? part.replace(/<[^>]+>/, '').trim().replace(/^["']|["']$/g, '') : undefined;
+
+      // 2. Check for raw email match inside the part
+      if (!candidate) {
+        const matches = part.match(emailRegex);
+        if (matches && matches.length > 0) {
+          candidate = matches[0];
+        }
+      }
+
+      // 3. If candidate has @, register it
+      if (candidate && candidate.includes('@')) {
+        const clean = candidate.toLowerCase().trim();
+        if (!seen.has(clean)) {
+          seen.add(clean);
+          results.push({ email: clean, name: displayName || undefined });
+        }
+        continue;
+      }
+
+      // 4. If no @ found, check directoryUsers for exact or fuzzy match
+      const query = part.toLowerCase().replace(/[@<>'"]/g, '').trim();
+      if (query) {
+        const matchedUser = directory.find(u =>
+          (u.email && u.email.toLowerCase().includes(query)) ||
+          (u.name && u.name.toLowerCase().includes(query)) ||
+          (u.email && u.email.split('@')[0].toLowerCase() === query)
+        );
+        if (matchedUser?.email) {
+          const clean = matchedUser.email.toLowerCase().trim();
+          if (!seen.has(clean)) {
+            seen.add(clean);
+            results.push({ email: clean, name: matchedUser.name || undefined });
+          }
+          continue;
+        }
+
+        // 5. Plain single-word fallback -> resolve to enterprise LAN user
+        if (!query.includes(' ')) {
+          const synthesized = `${query}@enterprise.local`;
+          if (!seen.has(synthesized)) {
+            seen.add(synthesized);
+            results.push({ email: synthesized });
+          }
+        }
+      }
+    }
+
+    // Fallback: search entire raw string for any email if still empty
+    if (results.length === 0) {
+      const allMatches = raw.match(emailRegex);
+      if (allMatches) {
+        for (const m of allMatches) {
+          const clean = m.toLowerCase().trim();
+          if (!seen.has(clean)) {
+            seen.add(clean);
+            results.push({ email: clean });
+          }
+        }
+      }
+    }
+
+    return results;
   };
 
   const selectedSpec: ProtocolSpec = SUPPORTED_PROTOCOLS[protocol] || SUPPORTED_PROTOCOLS['auto'];
@@ -116,20 +182,18 @@ function ComposeForm() {
   const handleSend = async () => {
     setError('');
 
-    // Validation
-    const toParsed = parseAddresses(to);
+    // Parse and resolve recipients
+    const toParsed = resolveRecipientAddresses(to, directoryUsers);
     if (toParsed.length === 0) {
-      setError('Please provide at least one valid recipient email address (e.g. user@enterprise.local or someone@gmail.com).');
+      setError('Please provide at least one recipient email address (e.g. bob@enterprise.local or bhaskar).');
+      const inputEl = document.getElementById('recipient-input');
+      inputEl?.focus();
       return;
     }
-    if (!subject.trim()) {
-      setError('Subject is required before dispatching message.');
-      return;
-    }
-    if (!body.trim()) {
-      setError('Email message body cannot be empty.');
-      return;
-    }
+
+    // Default subject and body gracefully if empty
+    const finalSubject = subject.trim() || '(No Subject)';
+    const finalBody = body.trim() || '(No content)';
 
     setSending(true);
     setShowTransmissionModal(true);
@@ -138,7 +202,7 @@ function ComposeForm() {
     ]);
 
     try {
-      const ccParsed = cc ? parseAddresses(cc) : [];
+      const ccParsed = cc ? resolveRecipientAddresses(cc, directoryUsers) : [];
 
       // Step 2 simulation
       setTimeout(() => {
@@ -148,7 +212,7 @@ function ComposeForm() {
             ? `[2/4] Encrypting message body via authenticated AES-256-GCM (12-byte IV + 128-bit MAC)...`
             : `[2/4] Preparing transport-level cryptographic envelope...`,
         ]);
-      }, 350);
+      }, 250);
 
       // Step 3 simulation
       setTimeout(() => {
@@ -156,7 +220,7 @@ function ComposeForm() {
           ...prev,
           `[3/4] Establishing ${selectedSpec.encryption} socket over ${selectedSpec.shortName} (Port ${customHost ? customPort : selectedSpec.defaultPort})...`,
         ]);
-      }, 700);
+      }, 500);
 
       const customSmtpPayload = showCustomSmtp && customHost ? {
         host: customHost,
@@ -171,8 +235,8 @@ function ComposeForm() {
         body: JSON.stringify({
           to: toParsed,
           cc: ccParsed,
-          subject: subject.trim(),
-          body: body.trim(),
+          subject: finalSubject,
+          body: finalBody,
           draft: false,
           protocol,
           encrypted,
@@ -196,11 +260,12 @@ function ComposeForm() {
       setTimeout(() => {
         setShowTransmissionModal(false);
         router.push('/sent');
-      }, 1500);
+      }, 1200);
     } catch (err: any) {
       setSending(false);
       setShowTransmissionModal(false);
-      setError(err.message || 'Error sending message. Check recipient email format.');
+      const isAuthErr = err.message?.toLowerCase().includes('unauthorized') || err.message?.includes('401');
+      setError(isAuthErr ? 'You are not signed in. Please log in before sending.' : (err.message || 'Error sending message. Check recipient email format.'));
     }
   };
 
@@ -425,15 +490,27 @@ function ComposeForm() {
           )}
 
           {/* Form Fields */}
-          <div className="divide-y divide-[var(--color-border-subtle)]">
+          <div
+            className="divide-y divide-[var(--color-border-subtle)]"
+            onKeyDown={e => {
+              if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                handleSend();
+              }
+            }}
+          >
             {/* To Field */}
             <div className="flex items-center gap-3 px-4 py-2.5">
-              <label className="text-[12px] font-medium text-[var(--color-text-muted)] w-12 flex-shrink-0">To</label>
+              <label htmlFor="recipient-input" className="text-[12px] font-medium text-[var(--color-text-muted)] w-12 flex-shrink-0 cursor-pointer">To</label>
               <input
+                id="recipient-input"
                 type="text"
                 value={to}
-                onChange={e => setTo(e.target.value)}
-                placeholder="bob@enterprise.local, bhaskarthalendra@gmail.com, etc."
+                onChange={e => {
+                  setTo(e.target.value);
+                  if (error) setError('');
+                }}
+                placeholder="bob@enterprise.local, bhaskarthalendra@gmail.com, or LAN peer name"
                 className="flex-1 text-[13px] bg-transparent text-[var(--color-text-primary)] placeholder:text-[var(--color-text-dim)] outline-none"
               />
               <button
@@ -456,9 +533,10 @@ function ComposeForm() {
                   type="button"
                   onClick={() => addRecipient(u.email || '')}
                   className="px-2.5 py-0.5 rounded text-[10px] bg-[var(--color-surface-2)] text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] hover:bg-[var(--color-accent-dim)] border border-[var(--color-border-subtle)] transition-colors flex items-center gap-1 flex-shrink-0"
+                  title={`Add ${u.email || u.name} to recipients`}
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-severity-healthy)]" />
-                  <span>{u.name || u.email?.split('@')[0]}</span>
+                  <span className="font-medium">{u.name || u.email?.split('@')[0]}</span>
                   <span className="text-[var(--color-text-dim)]">({u.email})</span>
                 </button>
               ))}
@@ -484,8 +562,11 @@ function ComposeForm() {
               <input
                 type="text"
                 value={subject}
-                onChange={e => setSubject(e.target.value)}
-                placeholder="Message subject line"
+                onChange={e => {
+                  setSubject(e.target.value);
+                  if (error) setError('');
+                }}
+                placeholder="Message subject line (optional)"
                 className="flex-1 text-[13px] bg-transparent text-[var(--color-text-primary)] placeholder:text-[var(--color-text-dim)] outline-none font-medium"
               />
             </div>
@@ -495,8 +576,11 @@ function ComposeForm() {
           <div className="px-4 pt-3 pb-4">
             <textarea
               value={body}
-              onChange={e => setBody(e.target.value)}
-              placeholder="Write your email message here... When dispatched, the message will immediately sync across all PCs and mail servers."
+              onChange={e => {
+                setBody(e.target.value);
+                if (error) setError('');
+              }}
+              placeholder="Write your email message here... When dispatched, the message will immediately sync across all PCs and mail servers. (Press Ctrl+Enter to send)"
               rows={12}
               className="w-full text-[13px] leading-relaxed bg-transparent text-[var(--color-text-secondary)] placeholder:text-[var(--color-text-dim)] outline-none resize-none font-sans"
             />
@@ -512,44 +596,58 @@ function ComposeForm() {
           </div>
 
           {/* Send / Action Bar */}
-          <div className="flex items-center justify-between px-4 py-3 border-t border-[var(--color-border)] bg-[var(--color-surface-2)]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-3 border-t border-[var(--color-border)] bg-[var(--color-surface-2)]">
             <div className="flex items-center gap-2 text-[11px] text-[var(--color-text-muted)]">
-              <Shield size={13} className="text-[var(--color-accent)]" />
-              <span>Multi-device synchronization active • Instant cross-PC delivery</span>
+              <Shield size={13} className="text-[var(--color-accent)] flex-shrink-0" />
+              <span>Multi-device synchronization active • Press <kbd className="px-1 py-0.5 bg-[var(--color-surface-3)] rounded border border-[var(--color-border)] font-mono text-[10px]">Ctrl+Enter</kbd> to Send</span>
             </div>
-            <div className="flex items-center gap-2">
+
+            {/* Inline Error if present */}
+            {error && (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-[var(--color-severity-critical-bg)] border border-[rgba(239,68,68,0.3)] text-[11px] text-[var(--color-severity-critical)] sm:max-w-xs">
+                <AlertCircle size={13} className="flex-shrink-0" />
+                <span className="line-clamp-2">{error}</span>
+              </div>
+            )}
+
+            <div className="flex items-center gap-2 self-end sm:self-auto">
               <button
                 type="button"
                 onClick={handleDiscard}
-                className="px-4 py-1.5 text-[12px] font-medium text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-3)] rounded-md transition-colors border border-[var(--color-border)]"
+                className="px-4 py-2 text-[12px] font-medium text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-3)] rounded-md transition-colors border border-[var(--color-border)]"
               >
                 Discard
               </button>
               <button
                 type="button"
+                id="send-email-btn"
                 onClick={handleSend}
                 disabled={sending || sent}
                 className={clsx(
-                  'flex items-center gap-2 px-5 py-2 text-[12px] font-semibold rounded-md transition-all duration-200 shadow-md',
+                  'flex items-center gap-2 px-6 py-2 text-[13px] font-bold rounded-md transition-all duration-200 shadow-md cursor-pointer',
                   sent
                     ? 'bg-[var(--color-severity-healthy)] text-white'
-                    : 'bg-[var(--color-accent)] text-[#0B0D10] hover:bg-[#5ccbfc] hover:shadow-[0_0_15px_rgba(56,189,248,0.3)] disabled:opacity-50'
+                    : 'bg-[var(--color-accent)] text-[#0B0D10] hover:bg-[#5ccbfc] hover:shadow-[0_0_18px_rgba(56,189,248,0.4)] disabled:opacity-50'
                 )}
+                title="Send Email now (Ctrl+Enter)"
               >
                 {sending ? (
                   <>
                     <div className="w-3.5 h-3.5 border-2 border-[#0B0D10]/30 border-t-[#0B0D10] rounded-full animate-spin" />
-                    Dispatching via {selectedSpec.shortName}...
+                    <span>Sending ({selectedSpec.shortName})...</span>
                   </>
                 ) : sent ? (
                   <>
-                    <CheckCircle2 size={14} />
-                    Dispatched!
+                    <CheckCircle2 size={15} />
+                    <span>Sent Successfully!</span>
                   </>
                 ) : (
                   <>
-                    <Send size={13} />
-                    Dispatch via {selectedSpec.shortName}
+                    <Send size={14} />
+                    <span>Send Email</span>
+                    <span className="text-[10px] font-mono opacity-80 uppercase px-1.5 py-0.5 rounded bg-black/10">
+                      {selectedSpec.shortName}
+                    </span>
                   </>
                 )}
               </button>

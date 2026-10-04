@@ -188,15 +188,21 @@ export async function GET(request: NextRequest) {
 
 const sendSchema = z.object({
   to: z.array(z.object({
-    email: z.string().transform(s => s.toLowerCase().trim()),
+    email: z.string().min(1).transform(s => {
+      const clean = s.toLowerCase().trim();
+      return clean.includes('@') ? clean : `${clean}@enterprise.local`;
+    }),
     name: z.string().optional(),
   })).min(1, 'At least one recipient required'),
   cc: z.array(z.object({
-    email: z.string().transform(s => s.toLowerCase().trim()),
+    email: z.string().transform(s => {
+      const clean = s.toLowerCase().trim();
+      return clean.includes('@') ? clean : `${clean}@enterprise.local`;
+    }),
     name: z.string().optional(),
   })).optional().default([]),
-  subject: z.string().min(1, 'Subject is required').max(500),
-  body: z.string().min(1, 'Message body is required'),
+  subject: z.string().optional().default('(No Subject)').transform(s => (s && s.trim()) ? s.trim() : '(No Subject)'),
+  body: z.string().optional().default('').transform(s => (s && s.trim()) ? s.trim() : '(Empty message body)'),
   draft: z.boolean().optional().default(false),
   threadId: z.string().optional(),
   inReplyTo: z.string().optional(),
@@ -213,7 +219,7 @@ const sendSchema = z.object({
 export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: 'Unauthorized. Please sign in to your Garuda Mail account.' }, { status: 401 });
   }
 
   try {
@@ -232,8 +238,10 @@ export async function POST(request: NextRequest) {
     });
 
     if (!sender) {
-      return NextResponse.json({ error: 'Sender not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Sender user account not found in database' }, { status: 404 });
     }
+
+    const senderEmail = sender.email || `${sender.name?.toLowerCase().replace(/\s+/g, '') || 'user'}@enterprise.local`;
 
     // ── Apply real AES-256-GCM End-to-End Encryption
     let storedBody = emailBody;
@@ -283,7 +291,7 @@ export async function POST(request: NextRequest) {
     let dispatchResult: any = null;
     if (!draft) {
       dispatchResult = await sendEmail({
-        from: { name: sender.name || 'Garuda Mail User', email: sender.email! },
+        from: { name: sender.name || 'Garuda Mail User', email: senderEmail },
         to: to,
         cc: cc,
         subject,
