@@ -50,4 +50,18 @@ export interface EmailMessage {
   threadId: string;
   /** Labels for categorization */
   labels: string[];
+  /** Cryptographic End-to-End Encryption metadata */
+  isEncrypted?: boolean;
+  rawCiphertext?: string | null;
+  cryptoMetadata?: {
+    format: string;
+    algorithm: string;
+    pqcShield: string;
+    iv: string;
+    authTag: string;
+    ciphertext: string;
+    hmac: string;
+    keyFingerprint: string;
+    timestamp: string;
+  } | null;
 }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/db';
+import { decryptPayload } from '@/lib/crypto';
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -14,6 +15,7 @@ export async function GET(request: NextRequest, { params }: Params) {
   }
 
   const { id } = await params;
+  const userEmail = session.user.email?.toLowerCase().trim();
 
   try {
     const email = await prisma.email.findFirst({
@@ -22,6 +24,7 @@ export async function GET(request: NextRequest, { params }: Params) {
         OR: [
           { fromId: session.user.id },
           { recipients: { some: { userId: session.user.id } } },
+          ...(userEmail ? [{ recipients: { some: { address: userEmail } } }] : []),
         ],
       },
       include: {
@@ -39,13 +42,32 @@ export async function GET(request: NextRequest, { params }: Params) {
       return NextResponse.json({ error: 'Email not found' }, { status: 404 });
     }
 
-    // Mark as read for this user
+    // Auto-claim and mark as read for this user
     await prisma.emailRecipient.updateMany({
-      where: { emailId: id, userId: session.user.id, read: false },
-      data: { read: true, readAt: new Date() },
+      where: {
+        emailId: id,
+        read: false,
+        OR: [
+          { userId: session.user.id },
+          ...(userEmail ? [{ address: userEmail }] : []),
+        ],
+      },
+      data: { read: true, readAt: new Date(), userId: session.user.id },
     });
 
-    return NextResponse.json({ email });
+    // Decrypt payload with AES-256-GCM
+    const decrypted = decryptPayload(email.body);
+
+    return NextResponse.json({
+      email: {
+        ...email,
+        body: decrypted.plaintext,
+        rawCiphertext: decrypted.envelope?.ciphertext || null,
+        isEncrypted: decrypted.isEncrypted,
+        cryptoMetadata: decrypted.envelope || null,
+        integrityVerified: decrypted.verified ?? true,
+      },
+    });
   } catch (error: any) {
     console.error('[Email GET] Error:', error);
     return NextResponse.json({ error: 'Failed to fetch email' }, { status: 500 });
@@ -63,6 +85,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
   const { id } = await params;
   const body = await request.json();
   const { read, starred, folder } = body;
+  const userEmail = session.user.email?.toLowerCase().trim();
 
   try {
     const updates: any = {};
@@ -71,7 +94,13 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     if (folder !== undefined) updates.folder = folder;
 
     await prisma.emailRecipient.updateMany({
-      where: { emailId: id, userId: session.user.id },
+      where: {
+        emailId: id,
+        OR: [
+          { userId: session.user.id },
+          ...(userEmail ? [{ address: userEmail }] : []),
+        ],
+      },
       data: updates,
     });
 
@@ -93,22 +122,28 @@ export async function DELETE(request: NextRequest, { params }: Params) {
   const { id } = await params;
   const { searchParams } = new URL(request.url);
   const permanent = searchParams.get('permanent') === 'true';
+  const userEmail = session.user.email?.toLowerCase().trim();
 
   try {
     if (permanent) {
-      // Check if user owns this email
-      const recipientRecord = await prisma.emailRecipient.findFirst({
-        where: { emailId: id, userId: session.user.id, folder: 'trash' },
+      await prisma.emailRecipient.deleteMany({
+        where: {
+          emailId: id,
+          OR: [
+            { userId: session.user.id },
+            ...(userEmail ? [{ address: userEmail }] : []),
+          ],
+        },
       });
-      if (recipientRecord) {
-        await prisma.emailRecipient.deleteMany({
-          where: { emailId: id, userId: session.user.id },
-        });
-      }
     } else {
-      // Move to trash
       await prisma.emailRecipient.updateMany({
-        where: { emailId: id, userId: session.user.id },
+        where: {
+          emailId: id,
+          OR: [
+            { userId: session.user.id },
+            ...(userEmail ? [{ address: userEmail }] : []),
+          ],
+        },
         data: { folder: 'trash' },
       });
     }

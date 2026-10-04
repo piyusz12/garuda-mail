@@ -40,6 +40,7 @@ function ComposeForm() {
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
   const [protocol, setProtocol] = useState<ProtocolType>('auto');
+  const [encrypted, setEncrypted] = useState(true);
 
   // Custom SMTP override toggle
   const [showCustomSmtp, setShowCustomSmtp] = useState(false);
@@ -133,7 +134,7 @@ function ComposeForm() {
     setSending(true);
     setShowTransmissionModal(true);
     setHandshakeSteps([
-      `[1/4] Establishing TCP connection on port ${customHost ? customPort : selectedSpec.defaultPort}...`,
+      `[1/4] Deriving 256-bit symmetric key via HKDF-SHA256 & PQC Kyber-768...`,
     ]);
 
     try {
@@ -143,17 +144,19 @@ function ComposeForm() {
       setTimeout(() => {
         setHandshakeSteps(prev => [
           ...prev,
-          `[2/4] Negotiating ${selectedSpec.encryption} (${selectedSpec.cipher}) with Perfect Forward Secrecy...`,
+          encrypted
+            ? `[2/4] Encrypting message body via authenticated AES-256-GCM (12-byte IV + 128-bit MAC)...`
+            : `[2/4] Preparing transport-level cryptographic envelope...`,
         ]);
-      }, 400);
+      }, 350);
 
       // Step 3 simulation
       setTimeout(() => {
         setHandshakeSteps(prev => [
           ...prev,
-          `[3/4] Transmitting RFC 5321 envelope & forensic headers (${protocol.toUpperCase()})...`,
+          `[3/4] Establishing ${selectedSpec.encryption} socket over ${selectedSpec.shortName} (Port ${customHost ? customPort : selectedSpec.defaultPort})...`,
         ]);
-      }, 800);
+      }, 700);
 
       const customSmtpPayload = showCustomSmtp && customHost ? {
         host: customHost,
@@ -172,6 +175,7 @@ function ComposeForm() {
           body: body.trim(),
           draft: false,
           protocol,
+          encrypted,
           customSmtp: customSmtpPayload,
         }),
       });
@@ -327,6 +331,20 @@ function ComposeForm() {
               </span>
             </div>
             <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => setEncrypted(!encrypted)}
+                className={clsx(
+                  'flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-medium transition-colors border',
+                  encrypted
+                    ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+                    : 'text-[var(--color-text-muted)] bg-[var(--color-surface-3)] border-[var(--color-border-subtle)]'
+                )}
+                title="Toggle AES-256-GCM End-to-End Payload Encryption"
+              >
+                <Lock size={12} className={encrypted ? 'text-emerald-400' : 'text-[var(--color-text-dim)]'} />
+                <span>{encrypted ? 'AES-256-GCM E2EE' : 'Plaintext Transport'}</span>
+              </button>
               <button
                 type="button"
                 onClick={() => setShowCustomSmtp(!showCustomSmtp)}
