@@ -1,9 +1,8 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "cd frontend && npm install && npm run build",
+  "outputDirectory": "frontend/.next",
   "framework": "nextjs",
-  "rootDirectory": "frontend",
-  "buildCommand": "npm run build",
-  "installCommand": "npm install",
-  "outputDirectory": ".next",
   "env": {
     "NEXT_PUBLIC_USE_MOCK_DATA": "true",
     "NEXTAUTH_SECRET": "garuda-mail-super-secret-production-jwt-2026-key",
