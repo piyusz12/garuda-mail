@@ -37,9 +37,9 @@ Available Commands:
   phase23           Run Phase 23 Autonomous Threat Hunting & Detection demo
   phase24           Run Phase 24 Autonomous Incident Response & SOAR demo
   phase25           Run Phase 25 Autonomous Security Operations & Closed-Loop Defense demo
-  web               Launch the interactive Vite Forensic Telemetry Dashboard (port 5173)
-  next              Launch the Next.js Enterprise Findings & Session Portal (port 3000)
+  web, next, frontend Launch the Next.js Enterprise Portal (port 3000)
   test              Run the pytest test suite across all forensic phases
+
 """)
 
 def main():
@@ -94,10 +94,7 @@ def main():
     elif cmd == "phase25":
         run_cmd([sys.executable, "phase_25_autonomous_security_operations.py", "demo"])
 
-    elif cmd == "web":
-        run_cmd(["npm", "run", "dev"], cwd=ROOT_DIR)
-
-    elif cmd == "next":
+    elif cmd in ("web", "next", "frontend"):
         run_cmd(["npm", "run", "dev"], cwd=FRONTEND_DIR)
 
     elif cmd == "test":

@@ -15,7 +15,7 @@
 **Garuda Mail** is a dual-tier passive network forensics and response orchestration platform engineered for enterprise mail transfer agents (MTAs), webmail services, and mail client infrastructures (SMTP, IMAP, POP3). 
 
 The platform merges:
-1. **Interactive Client Telemetry Dashboard (`garuda-mail/`)**: In-browser PCAP parsing, TCP stream reassembly, TLS handshake dissection, JA4+ fingerprinting, real-time Chart.js posture analytics, and SOAR Incident Operations Center.
+1. **Enterprise Findings & Forensics Portal (`frontend/`)**: Next.js 16 Webmail with real-time sync, cryptographic posture analytics, CBOM catalog, AI anomalies, session reassembly, and SOAR Incident Operations Center.
 2. **Autonomous Python Forensic Engine (`email-forensic-framework/`)**: An end-to-end passive forensic pipeline spanning **Phases 1 through 30**, culminating in autonomous threat hunting, continuous detection engineering, lakehouse backtesting, automated hypothesis testing, SOAR response playbooks, Zero Trust enforcement, Cloud Workload Defence, Data Security & DLP, and Enterprise AI Security (AI Agent Security Graph, Digital Twin simulation, Secrets scanning, and SOAR playbooks for AI incidents).
 
 ```
@@ -239,19 +239,19 @@ garuda-mail/
 ## 5. Quick Start Guide
 
 ### 5.1 Web Application Setup
-
+ 
 ```bash
-# Web app files live at the repository root (index.html, src/, package.json)
-cd "garuda mail"
+# Web application files live in frontend/
+cd "frontend"
 
-# Install dependencies (Vite, Chart.js, jsPDF)
+# Install dependencies (Next.js, Tailwind, Prisma, Lucide)
 npm install
 
-# Start local development server
+# Start local Next.js development server (port 3000)
 npm run dev
 
-# Build production bundle
-npm run build
+# Or start from the root runner
+python run.py web
 ```
 
 ### 5.2 Python Forensic Engine Setup
