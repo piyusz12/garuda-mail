@@ -16,7 +16,7 @@ export interface UserRecord {
   updatedAt: Date;
 }
 
-const SECRET = process.env.NEXTAUTH_SECRET || 'garuda-mail-development-secret';
+const SECRET = process.env.NEXTAUTH_SECRET || 'garuda-mail-super-secret-production-jwt-2026-key';
 
 // Precomputed bcrypt hash of 'password123'
 const DEFAULT_PASSWORD_HASH = '$2b$10$hi/Il7vn75r1yktS//xhWeqhqACFTVG7Aw2PVZ5i8p4YjjJ6cZJNu';
