@@ -128,7 +128,7 @@ export default function RegisterPage() {
         )}
 
         <div className="card p-6">
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" suppressHydrationWarning>
             {/* Name */}
             <div className="space-y-1.5">
               <label className="text-[12px] font-medium text-[var(--color-text-muted)] uppercase tracking-wider">
@@ -143,6 +143,7 @@ export default function RegisterPage() {
                   placeholder="John Analyst"
                   required
                   autoComplete="name"
+                  suppressHydrationWarning
                   className="w-full h-10 pl-9 pr-4 text-[13px] rounded-md bg-[var(--color-surface-2)] border border-[var(--color-border)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-dim)] focus:outline-none focus:border-[var(--color-accent)] transition-colors"
                 />
               </div>
@@ -162,6 +163,7 @@ export default function RegisterPage() {
                   placeholder="you@example.com"
                   required
                   autoComplete="email"
+                  suppressHydrationWarning
                   className="w-full h-10 pl-9 pr-4 text-[13px] rounded-md bg-[var(--color-surface-2)] border border-[var(--color-border)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-dim)] focus:outline-none focus:border-[var(--color-accent)] transition-colors"
                 />
               </div>
@@ -181,11 +183,13 @@ export default function RegisterPage() {
                   placeholder="Min. 8 characters"
                   required
                   autoComplete="new-password"
+                  suppressHydrationWarning
                   className="w-full h-10 pl-9 pr-10 text-[13px] rounded-md bg-[var(--color-surface-2)] border border-[var(--color-border)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-dim)] focus:outline-none focus:border-[var(--color-accent)] transition-colors"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
+                  suppressHydrationWarning
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-dim)] hover:text-[var(--color-text-secondary)]"
                 >
                   {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
@@ -224,6 +228,7 @@ export default function RegisterPage() {
                   placeholder="Repeat password"
                   required
                   autoComplete="new-password"
+                  suppressHydrationWarning
                   className="w-full h-10 pl-9 pr-4 text-[13px] rounded-md bg-[var(--color-surface-2)] border border-[var(--color-border)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-dim)] focus:outline-none focus:border-[var(--color-accent)] transition-colors"
                   style={{ borderColor: confirmPassword && confirmPassword !== password ? '#ef4444' : '' }}
                 />
@@ -249,6 +254,7 @@ export default function RegisterPage() {
             <button
               id="register-submit"
               type="submit"
+              suppressHydrationWarning
               disabled={loading || success || !name || !email || !password || !confirmPassword}
               className="w-full h-10 flex items-center justify-center gap-2 text-[13px] font-semibold rounded-md bg-[var(--color-accent)] text-[#0B0D10] hover:bg-[#5ccbfc] disabled:opacity-50 disabled:pointer-events-none transition-all duration-200 active:scale-[0.98]"
             >

@@ -98,7 +98,7 @@ function LoginForm() {
             Sign in to your account
           </h2>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" suppressHydrationWarning>
             {/* Email */}
             <div className="space-y-1.5">
               <label className="text-[12px] font-medium text-[var(--color-text-muted)] uppercase tracking-wider">
@@ -114,6 +114,7 @@ function LoginForm() {
                   placeholder="you@example.com"
                   required
                   autoComplete="email"
+                  suppressHydrationWarning
                   className="w-full h-10 pl-9 pr-4 text-[13px] rounded-md bg-[var(--color-surface-2)] border border-[var(--color-border)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-dim)] focus:outline-none focus:border-[var(--color-accent)] transition-colors"
                 />
               </div>
@@ -134,11 +135,13 @@ function LoginForm() {
                   placeholder="••••••••"
                   required
                   autoComplete="current-password"
+                  suppressHydrationWarning
                   className="w-full h-10 pl-9 pr-10 text-[13px] rounded-md bg-[var(--color-surface-2)] border border-[var(--color-border)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-dim)] focus:outline-none focus:border-[var(--color-accent)] transition-colors"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
+                  suppressHydrationWarning
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-dim)] hover:text-[var(--color-text-secondary)] transition-colors"
                 >
                   {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
@@ -162,6 +165,7 @@ function LoginForm() {
             <button
               id="login-submit"
               type="submit"
+              suppressHydrationWarning
               disabled={loading || !email || !password}
               className="w-full h-10 flex items-center justify-center gap-2 text-[13px] font-semibold rounded-md bg-[var(--color-accent)] text-[#0B0D10] hover:bg-[#5ccbfc] disabled:opacity-50 disabled:pointer-events-none transition-all duration-200 active:scale-[0.98]"
             >
