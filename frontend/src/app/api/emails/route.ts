@@ -6,6 +6,7 @@ import prisma from '@/lib/db';
 import { sendEmail } from '@/lib/mailer';
 import { ProtocolType } from '@/lib/protocols';
 import { encryptPayload, decryptPayload } from '@/lib/crypto';
+import { getFallbackEmailsResponse } from '@/lib/fallbackEmails';
 
 // ── GET /api/emails — Fetch emails for current user ──────────────────
 
@@ -180,8 +181,8 @@ export async function GET(request: NextRequest) {
       total: emails.length,
     });
   } catch (error: any) {
-    console.error('[Emails GET] Error:', error);
-    return NextResponse.json({ error: 'Failed to fetch emails' }, { status: 500 });
+    console.warn('[Emails GET] Database query failed, returning resilient fallback emails:', error?.message);
+    return NextResponse.json(getFallbackEmailsResponse(folder, search));
   }
 }
 

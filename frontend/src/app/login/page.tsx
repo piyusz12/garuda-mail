@@ -21,8 +21,9 @@ function LoginForm() {
   const rawCallback = searchParams.get('callbackUrl') || '/inbox';
   const callbackUrl = rawCallback.startsWith('/') ? rawCallback : '/inbox';
   const registered = searchParams.get('registered') === 'true';
+  const emailParam = searchParams.get('email') || '';
 
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(emailParam);
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -175,7 +176,7 @@ function LoginForm() {
             </button>
           </form>
 
-          {/* Quick Sign In for Real Registered People */}
+          {/* Quick Sign In for Enterprise Profiles */}
           <div className="mt-5 pt-4 border-t border-[var(--color-border-subtle)]">
             <div className="text-[10px] uppercase font-mono tracking-wider text-[var(--color-text-dim)] mb-2 text-center">
               Quick Sign In
@@ -203,9 +204,31 @@ function LoginForm() {
                 <div className="font-semibold text-[var(--color-text-primary)]">Piyush Tembhurkar</div>
                 <div className="text-[10px] text-[var(--color-text-dim)] truncate">piyushtembhurkar12@gmail.com</div>
               </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail('analyst@enterprise.local');
+                  setPassword('password123');
+                }}
+                className="p-2 rounded bg-[var(--color-surface-2)] hover:bg-[var(--color-surface-3)] border border-[var(--color-border-subtle)] hover:border-[var(--color-accent)] text-left transition-colors"
+              >
+                <div className="font-semibold text-[var(--color-text-primary)]">Garuda Analyst</div>
+                <div className="text-[10px] text-[var(--color-text-dim)] truncate">analyst@enterprise.local</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail('security@enterprise.local');
+                  setPassword('password123');
+                }}
+                className="p-2 rounded bg-[var(--color-surface-2)] hover:bg-[var(--color-surface-3)] border border-[var(--color-border-subtle)] hover:border-[var(--color-accent)] text-left transition-colors"
+              >
+                <div className="font-semibold text-[var(--color-text-primary)]">Security Operations</div>
+                <div className="text-[10px] text-[var(--color-text-dim)] truncate">security@enterprise.local</div>
+              </button>
             </div>
             <div className="text-[10px] text-center text-[var(--color-text-dim)] mt-2">
-              Default password: <span className="text-mono text-[var(--color-text-secondary)]">password123</span>
+              Default password: <span className="font-mono text-[var(--color-text-secondary)]">password123</span>
             </div>
           </div>
         </div>

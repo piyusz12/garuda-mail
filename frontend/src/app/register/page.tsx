@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 import { motion } from 'framer-motion';
 import { User, Mail, Lock, Eye, EyeOff, AlertCircle, Loader2, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
@@ -46,21 +47,38 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
+      const cleanEmail = email.toLowerCase().trim();
       const res = await fetch('/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim(), email: email.toLowerCase().trim(), password }),
+        body: JSON.stringify({ name: name.trim(), email: cleanEmail, password }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
         setError(data.error || 'Registration failed');
+        setLoading(false);
+        return;
+      }
+
+      setSuccess(true);
+
+      // Auto sign-in with newly created account
+      const authResult = await signIn('credentials', {
+        email: cleanEmail,
+        password,
+        redirect: false,
+      });
+
+      if (authResult && !authResult.error) {
+        router.push('/inbox');
+        router.refresh();
       } else {
-        setSuccess(true);
+        // Fallback to login page with pre-filled email
         setTimeout(() => {
-          router.push('/login?registered=true');
-        }, 1500);
+          router.push(`/login?registered=true&email=${encodeURIComponent(cleanEmail)}`);
+        }, 1200);
       }
     } catch {
       setError('Network error. Please try again.');

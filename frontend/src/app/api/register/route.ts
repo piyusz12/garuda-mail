@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import bcrypt from 'bcryptjs';
 import { z } from 'zod';
-import prisma from '@/lib/db';
+import { findUserByEmail, registerUser } from '@/lib/users';
 
 const registerSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').max(100),
@@ -15,20 +14,19 @@ export async function POST(request: NextRequest) {
     const validation = registerSchema.safeParse(body);
 
     if (!validation.success) {
-      const errMsg = validation.error.issues?.[0]?.message || (validation.error as any).errors?.[0]?.message || 'Invalid registration data';
-      return NextResponse.json(
-        { error: errMsg },
-        { status: 400 }
-      );
+      const errMsg =
+        validation.error.issues?.[0]?.message ||
+        (validation.error as any).errors?.[0]?.message ||
+        'Invalid registration data';
+      return NextResponse.json({ error: errMsg }, { status: 400 });
     }
 
     const { name, email, password } = validation.data;
     const normalizedEmail = email.toLowerCase().trim();
 
-    // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email: normalizedEmail },
-    });
+    // Check if user already exists across DB, memory, or builtins
+    const cookieHeader = request.headers.get('cookie');
+    const existingUser = await findUserByEmail(normalizedEmail, cookieHeader);
 
     if (existingUser) {
       return NextResponse.json(
@@ -37,41 +35,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 12);
+    // Register user across all stores (Prisma + Memory + /tmp + Signed fallback cookie)
+    const { user, cookieToken } = await registerUser(name, normalizedEmail, password);
 
-    // Create user
-    const user = await prisma.user.create({
-      data: {
-        name: name.trim(),
-        email: normalizedEmail,
-        password: hashedPassword,
-        role: 'analyst',
-        avatarColor: getRandomColor(),
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        createdAt: true,
-      },
-    });
-
-    return NextResponse.json(
+    const response = NextResponse.json(
       { message: 'Account created successfully', user },
       { status: 201 }
     );
+
+    if (cookieToken) {
+      response.cookies.set('garuda_usr_reg', cookieToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+        maxAge: 30 * 24 * 60 * 60, // 30 days
+      });
+    }
+
+    return response;
   } catch (error: any) {
     console.error('[Register] Error:', error);
     return NextResponse.json(
-      { error: 'Failed to create account. Please try again.' },
+      { error: error?.message || 'Failed to create account. Please try again.' },
       { status: 500 }
     );
   }
-}
-
-function getRandomColor(): string {
-  const colors = ['#38BDF8', '#34D399', '#A78BFA', '#F472B6', '#FB923C', '#FACC15'];
-  return colors[Math.floor(Math.random() * colors.length)];
 }

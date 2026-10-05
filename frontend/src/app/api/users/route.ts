@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import prisma from '@/lib/db';
+import { listAllUsers } from '@/lib/users';
 
 export async function GET(request: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -10,20 +10,10 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const users = await prisma.user.findMany({
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        department: true,
-        avatarColor: true,
-      },
-      orderBy: { name: 'asc' },
-    });
-
+    const users = await listAllUsers();
     return NextResponse.json({ users });
   } catch (error: any) {
+    console.error('[Users GET] Error:', error);
     return NextResponse.json({ error: 'Failed to fetch users' }, { status: 500 });
   }
 }
