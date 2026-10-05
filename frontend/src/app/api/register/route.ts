@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { findUserByEmail, registerUser } from '@/lib/users';
 
+export const runtime = 'nodejs';
+
 const registerSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').max(100),
   email: z.string().email('Invalid email address'),
@@ -57,7 +59,7 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error('[Register] Error:', error);
     return NextResponse.json(
-      { error: error?.message || 'Failed to create account. Please try again.' },
+      { error: 'Failed to create account. Please try again.' },
       { status: 500 }
     );
   }
