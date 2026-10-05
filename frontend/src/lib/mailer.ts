@@ -32,6 +32,16 @@ export interface SendResult {
   error?: string;
 }
 
+function escapeHtml(text: string): string {
+  if (!text) return '';
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 /**
  * Build dynamic Nodemailer transporter based on protocol & config
  */
@@ -95,7 +105,7 @@ export async function sendEmail(opts: SendEmailOptions): Promise<SendResult> {
             <span style="color: #94a3b8; font-size: 11px; margin-left: 12px; background: rgba(56,189,248,0.15); color: #38bdf8; padding: 2px 8px; border-radius: 4px; font-weight: 600;">SECURED VIA ${spec.shortName}</span>
           </div>
           <div style="padding: 24px; background: #ffffff;">
-            <pre style="white-space: pre-wrap; font-family: inherit; font-size: 14px; color: #334155;">${opts.body}</pre>
+            <pre style="white-space: pre-wrap; font-family: inherit; font-size: 14px; color: #334155;">${escapeHtml(opts.body)}</pre>
           </div>
           <div style="background: #f8fafc; padding: 12px 20px; border-top: 1px solid #e2e8f0; font-size: 11px; color: #64748b; display: flex; justify-content: space-between;">
             <span>Protocol: ${spec.name} (${spec.rfc})</span>

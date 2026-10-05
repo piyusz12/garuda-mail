@@ -135,8 +135,16 @@ export async function DELETE(request: NextRequest, { params }: Params) {
           ],
         },
       });
+      // Clean up drafts owned by the user
+      await prisma.email.deleteMany({
+        where: {
+          id,
+          fromId: session.user.id,
+          draft: true,
+        },
+      });
     } else {
-      await prisma.emailRecipient.updateMany({
+      const updated = await prisma.emailRecipient.updateMany({
         where: {
           emailId: id,
           OR: [
@@ -146,6 +154,17 @@ export async function DELETE(request: NextRequest, { params }: Params) {
         },
         data: { folder: 'trash' },
       });
+
+      // If it's an un-dispatched draft owned by this user, delete it directly
+      if (updated.count === 0) {
+        await prisma.email.deleteMany({
+          where: {
+            id,
+            fromId: session.user.id,
+            draft: true,
+          },
+        });
+      }
     }
 
     return NextResponse.json({ message: permanent ? 'Deleted permanently' : 'Moved to trash' });

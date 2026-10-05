@@ -28,15 +28,16 @@ export async function GET(request: NextRequest) {
   try {
     // ── Auto-claim: Reconcile any unassigned incoming emails sent to this user's email address
     if (userEmail) {
-      await prisma.emailRecipient.updateMany({
-        where: {
-          address: userEmail,
-          userId: null,
-        },
-        data: {
-          userId: userId,
-        },
+      const hasUnassigned = await prisma.emailRecipient.findFirst({
+        where: { address: userEmail, userId: null },
+        select: { id: true },
       });
+      if (hasUnassigned) {
+        await prisma.emailRecipient.updateMany({
+          where: { address: userEmail, userId: null },
+          data: { userId: userId },
+        });
+      }
     }
 
     let rawEmails: any[] = [];

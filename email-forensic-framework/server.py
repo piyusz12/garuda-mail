@@ -7,6 +7,7 @@ Serves cryptographic posture, sessions, findings, CBOM, threat hunting, and live
 
 import sys
 import os
+import re
 import time
 import uuid
 import hashlib
@@ -32,10 +33,16 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Enable CORS for Next.js (port 3000) and Vite (port 5173)
+# Enable secure CORS for Next.js (port 3000) and local clients
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+    ],
+    allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -492,20 +499,40 @@ def get_ja4():
         {"fingerprint": "t10d1516h2_8daaf6152771_b2a1c3d4e5f6", "client": "Legacy Exchange 2010 Relay", "tlsVersion": "TLS 1.0", "ciphersCount": 6, "extensionsCount": 4, "riskScore": 89, "classification": "deprecated_legacy"}
     ]
 
+MAX_UPLOAD_SIZE = 50 * 1024 * 1024  # 50 MB
+ALLOWED_EXTENSIONS = {".pcap", ".pcapng", ".cap"}
+
 @app.post("/api/pcap/upload", tags=["Upload"])
 async def upload_pcap(file: UploadFile = File(...)):
-    """Receives an uploaded PCAP, saves it, and schedules forensic parsing."""
-    filename = file.filename or "uploaded.pcap"
-    dest_path = PCAPS_DIR / filename
+    """Receives an uploaded PCAP, validates path security, saves it, and schedules forensic parsing."""
+    raw_filename = file.filename or "uploaded.pcap"
+    # Prevent path traversal: extract filename only (strip directory components)
+    safe_basename = Path(raw_filename).name
+    # Sanitize characters to prevent injection
+    clean_name = re.sub(r"[^a-zA-Z0-9._-]", "_", safe_basename)
+    suffix = Path(clean_name).suffix.lower()
+    if suffix not in ALLOWED_EXTENSIONS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid file extension '{suffix}'. Allowed formats: .pcap, .pcapng, .cap"
+        )
     
-    contents = await file.read()
+    dest_path = (PCAPS_DIR / clean_name).resolve()
+    # Path traversal verification
+    if not str(dest_path).startswith(str(PCAPS_DIR.resolve())):
+        raise HTTPException(status_code=400, detail="Invalid destination path detected.")
+    
+    contents = await file.read(MAX_UPLOAD_SIZE + 1)
+    if len(contents) > MAX_UPLOAD_SIZE:
+        raise HTTPException(status_code=413, detail="File too large. Maximum permitted size is 50MB.")
+        
     with open(dest_path, "wb") as f:
         f.write(contents)
         
     job_id = f"AN-{uuid.uuid4().hex[:6].upper()}"
     return {
         "id": job_id,
-        "filename": filename,
+        "filename": clean_name,
         "fileSize": len(contents),
         "status": "completed",
         "progress": 100,

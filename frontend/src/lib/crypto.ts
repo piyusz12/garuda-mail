@@ -82,7 +82,17 @@ export function decryptPayload(rawBody: string, secret?: string): {
 
     // Verify HMAC digest first
     const expectedHmac = crypto.createHmac('sha256', key).update(envelope.ciphertext).digest('hex');
-    const verified = crypto.timingSafeEqual(Buffer.from(envelope.hmac, 'hex'), Buffer.from(expectedHmac, 'hex'));
+    const hmacBuf = Buffer.from(envelope.hmac || '', 'hex');
+    const expectedBuf = Buffer.from(expectedHmac, 'hex');
+    const verified = hmacBuf.length === expectedBuf.length && crypto.timingSafeEqual(hmacBuf, expectedBuf);
+    if (!verified) {
+      return {
+        plaintext: '[Encrypted Payload - Integrity Check Failed]',
+        isEncrypted: true,
+        envelope,
+        verified: false,
+      };
+    }
 
     // Decrypt AES-256-GCM
     const iv = Buffer.from(envelope.iv, 'hex');
