@@ -61,6 +61,8 @@ export default function TrashPage() {
 
   useEffect(() => {
     fetchTrash();
+    const interval = setInterval(() => fetchTrash(), 2000);
+    return () => clearInterval(interval);
   }, [fetchTrash]);
 
   const handleRestore = async (id: string) => {

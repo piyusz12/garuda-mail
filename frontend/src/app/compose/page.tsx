@@ -22,6 +22,16 @@ interface DirectoryUser {
   department: string | null;
 }
 
+interface PendingAttachment {
+  filename: string;
+  mimeType: string;
+  size: number;
+  data: string;
+}
+
+const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
+const MAX_TOTAL_ATTACHMENT_BYTES = 25 * 1024 * 1024;
+
 export default function ComposePage() {
   return (
     <Suspense fallback={<div className="p-8 text-[var(--color-text-dim)]">Loading compose...</div>}>
@@ -58,6 +68,7 @@ function ComposeForm() {
   const [savingDraft, setSavingDraft] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState('');
+  const [attachments, setAttachments] = useState<PendingAttachment[]>([]);
 
   // Fetch directory users and protocols info
   useEffect(() => {
@@ -214,6 +225,7 @@ function ComposeForm() {
           draft: false,
           protocol,
           encrypted,
+          attachments,
           customSmtp: customSmtpPayload,
         }),
       });
@@ -250,6 +262,7 @@ function ComposeForm() {
           body: body || '',
           draft: true,
           protocol,
+          attachments,
         }),
       });
 
@@ -263,6 +276,55 @@ function ComposeForm() {
   };
 
   const handleDiscard = () => router.push('/inbox');
+
+  const handleAttachmentChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    if (files.length === 0) return;
+
+    const currentTotal = attachments.reduce((total, attachment) => total + attachment.size, 0);
+    const accepted: File[] = [];
+    let nextTotal = currentTotal;
+
+    for (const file of files) {
+      if (file.size > MAX_ATTACHMENT_BYTES) {
+        setError(`${file.name} is larger than the 10 MB per-file limit.`);
+        continue;
+      }
+      if (nextTotal + file.size > MAX_TOTAL_ATTACHMENT_BYTES) {
+        setError('Attachments cannot exceed 25 MB total.');
+        break;
+      }
+      accepted.push(file);
+      nextTotal += file.size;
+    }
+
+    if (accepted.length > 0) {
+      const loaded = await Promise.all(accepted.map(file => new Promise<PendingAttachment>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          if (typeof reader.result === 'string') {
+            resolve({
+              filename: file.name,
+              mimeType: file.type || 'application/octet-stream',
+              size: file.size,
+              data: reader.result,
+            });
+          } else {
+            reject(new Error(`Could not read ${file.name}`));
+          }
+        };
+        reader.onerror = () => reject(new Error(`Could not read ${file.name}`));
+        reader.readAsDataURL(file);
+      })));
+      setAttachments(previous => [...previous, ...loaded]);
+      setError('');
+    }
+    event.target.value = '';
+  };
+
+  const removeAttachment = (filename: string) => {
+    setAttachments(previous => previous.filter(attachment => attachment.filename !== filename));
+  };
 
   const addRecipient = (email: string) => {
     if (!to) {
@@ -537,6 +599,21 @@ function ComposeForm() {
           </div>
 
           {/* Message Body */}
+          {attachments.length > 0 && (
+            <div className="px-4 pt-3 flex flex-wrap gap-2">
+              {attachments.map(attachment => (
+                <div key={`${attachment.filename}-${attachment.size}`} className="flex items-center gap-2 px-2.5 py-1.5 rounded-md bg-[var(--color-surface-2)] border border-[var(--color-border)] text-[11px]">
+                  {attachment.mimeType.startsWith('image/') ? (
+                    <img src={attachment.data} alt="" className="w-7 h-7 rounded object-cover" />
+                  ) : <Paperclip size={13} className="text-[var(--color-accent)]" />}
+                  <span className="max-w-48 truncate text-[var(--color-text-secondary)]">{attachment.filename}</span>
+                  <button type="button" onClick={() => removeAttachment(attachment.filename)} className="text-[var(--color-text-dim)] hover:text-[var(--color-severity-critical)]" title={`Remove ${attachment.filename}`}>
+                    <X size={13} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
           <div className="px-4 pt-3 pb-4">
             <textarea
               value={body}
@@ -556,7 +633,10 @@ function ComposeForm() {
             <FormatButton icon={Italic} title="Italic" />
             <FormatButton icon={Link2} title="Link" />
             <div className="w-px h-4 bg-[var(--color-border)] mx-1" />
-            <FormatButton icon={Paperclip} title="Attach file" />
+            <input id="compose-attachments" type="file" multiple className="hidden" onChange={handleAttachmentChange} />
+            <label htmlFor="compose-attachments" className="flex items-center justify-center w-7 h-7 rounded text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-3)] transition-colors cursor-pointer" title="Attach photos or files">
+              <Paperclip size={14} />
+            </label>
           </div>
 
           {/* Send / Action Bar */}

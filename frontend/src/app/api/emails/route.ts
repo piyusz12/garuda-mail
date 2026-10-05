@@ -226,6 +226,12 @@ const sendSchema = z.object({
   inReplyTo: z.string().optional(),
   protocol: z.enum(['auto', 'smtp-starttls', 'smtps', 'smtp-direct', 'p2p-mesh', 'imap-sync']).optional().default('auto'),
   encrypted: z.boolean().optional().default(true),
+  attachments: z.array(z.object({
+    filename: z.string().min(1).max(255),
+    mimeType: z.string().min(1).max(255),
+    size: z.number().int().positive().max(10 * 1024 * 1024),
+    data: z.string().regex(/^data:[^;]+;base64,/).max(14 * 1024 * 1024),
+  })).max(10).optional().default([]),
   customSmtp: z.object({
     host: z.string().optional(),
     port: z.number().optional(),
@@ -249,7 +255,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: errMsg }, { status: 400 });
     }
 
-    const { to, cc, subject, body: emailBody, draft, threadId, inReplyTo, protocol, encrypted, customSmtp } = validation.data;
+    const { to, cc, subject, body: emailBody, draft, threadId, inReplyTo, protocol, encrypted, customSmtp, attachments } = validation.data;
+    const totalAttachmentBytes = attachments.reduce((total, attachment) => total + attachment.size, 0);
+    if (totalAttachmentBytes > 25 * 1024 * 1024) {
+      return NextResponse.json({ error: 'Attachments cannot exceed 25 MB total' }, { status: 400 });
+    }
     const sender = await prisma.user.findUnique({
       where: { id: session.user.id },
       select: { id: true, name: true, email: true },
@@ -316,6 +326,11 @@ export async function POST(request: NextRequest) {
         body: emailBody, // Send plaintext over encrypted transport
         protocol: protocol as ProtocolType,
         customSmtp,
+        attachments: attachments.map(attachment => ({
+          filename: attachment.filename,
+          mimeType: attachment.mimeType,
+          data: attachment.data,
+        })),
       });
     }
 
@@ -338,6 +353,14 @@ export async function POST(request: NextRequest) {
         riskScore: 5,
         recipients: {
           create: resolvedRecipients,
+        },
+        attachments: {
+          create: attachments.map(attachment => ({
+            filename: attachment.filename,
+            mimeType: attachment.mimeType,
+            size: attachment.size,
+            url: attachment.data,
+          })),
         },
       },
       include: {

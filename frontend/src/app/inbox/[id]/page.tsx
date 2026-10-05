@@ -365,15 +365,24 @@ export default function EmailDetailPage({ params }: { params: Promise<{ id: stri
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {email.attachments.map((att: any, i: number) => (
-                  <div key={i} className="flex items-center gap-3 p-3 rounded-md bg-[var(--color-surface-2)] border border-[var(--color-border)] hover:border-[var(--color-border-active)] transition-colors cursor-pointer">
+                  <a
+                    key={i}
+                    href={att.url || undefined}
+                    download={att.filename || att.name}
+                    target={att.url?.startsWith('data:image/') ? '_blank' : undefined}
+                    rel="noreferrer"
+                    className="flex items-center gap-3 p-3 rounded-md bg-[var(--color-surface-2)] border border-[var(--color-border)] hover:border-[var(--color-border-active)] transition-colors cursor-pointer"
+                  >
                     <div className="w-8 h-8 rounded bg-[var(--color-surface-3)] flex items-center justify-center">
-                      <Paperclip size={14} className="text-[var(--color-text-muted)]" />
+                      {att.mimeType?.startsWith('image/') && att.url ? (
+                        <img src={att.url} alt="" className="w-8 h-8 rounded object-cover" />
+                      ) : <Paperclip size={14} className="text-[var(--color-text-muted)]" />}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-[12px] font-medium text-[var(--color-text-primary)] truncate">{att.filename || att.name}</div>
                       <div className="text-[10px] text-[var(--color-text-dim)]">{formatBytes(att.size || 1024)}</div>
                     </div>
-                  </div>
+                  </a>
                 ))}
               </div>
             </div>

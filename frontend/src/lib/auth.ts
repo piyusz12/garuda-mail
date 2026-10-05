@@ -67,14 +67,23 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
     async redirect({ url, baseUrl }) {
-      if (!url) return '/inbox';
-      if (url.startsWith('/')) return url;
+      const fallbackOrigin = 'http://localhost:3000';
+      let origin = fallbackOrigin;
+
       try {
-        const base = baseUrl || process.env.NEXTAUTH_URL || 'http://localhost:3000';
-        const parsed = new URL(url, base);
-        return parsed.pathname + parsed.search;
+        origin = new URL(baseUrl || process.env.NEXTAUTH_URL || fallbackOrigin).origin;
       } catch {
-        return '/inbox';
+        origin = fallbackOrigin;
+      }
+
+      if (!url) return `${origin}/inbox`;
+
+      try {
+        const parsed = new URL(url, origin);
+        if (parsed.origin !== origin) return `${origin}/inbox`;
+        return parsed.toString();
+      } catch {
+        return `${origin}/inbox`;
       }
     },
   },

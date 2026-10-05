@@ -138,6 +138,14 @@ export async function DELETE(request: NextRequest, { params }: Params) {
   const userEmail = session.user.email?.toLowerCase().trim();
 
   try {
+      const recipientWhere = {
+        emailId: id,
+        OR: [
+          { userId: session.user.id },
+          ...(userEmail ? [{ address: userEmail }] : []),
+        ],
+      };
+
     if (permanent) {
       await prisma.emailRecipient.deleteMany({
         where: {
@@ -174,15 +182,16 @@ export async function DELETE(request: NextRequest, { params }: Params) {
           where: {
             id,
             fromId: session.user.id,
-            draft: true,
-          },
+        if (result.count === 0) {
+        }
+    } else {
+        const result = await prisma.emailRecipient.updateMany({
+          where: recipientWhere,
+          data: { folder: 'trash' },
         });
-      }
+        if (result.count === 0) {
+          return NextResponse.json({ error: 'Email not found' }, { status: 404 });
+        }
+>>>>>>> 784866f (Update frontend)
     }
 
-    return NextResponse.json({ message: permanent ? 'Deleted permanently' : 'Moved to trash' });
-  } catch (error: any) {
-    console.error('[Email DELETE] Error:', error);
-    return NextResponse.json({ error: 'Failed to delete email' }, { status: 500 });
-  }
-}

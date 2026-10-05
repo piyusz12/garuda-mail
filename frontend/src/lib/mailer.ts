@@ -18,6 +18,7 @@ export interface SendEmailOptions {
   replyTo?: string;
   protocol?: ProtocolType;
   customSmtp?: SmtpConfig;
+  attachments?: { filename: string; mimeType: string; data: string }[];
 }
 
 export interface SendResult {
@@ -63,7 +64,7 @@ export function createDynamicTransporter(protocol: ProtocolType, customConfig?: 
     secure: isImplicitTls,
     auth: { user, pass },
     tls: {
-      rejectUnauthorized: false, // Allow self-signed enterprise certificates
+      rejectUnauthorized: process.env.SMTP_ALLOW_INSECURE_TLS !== 'true',
       ciphers: 'HIGH:!aNULL:!kEDH',
       minVersion: 'TLSv1.2',
     },
@@ -99,6 +100,11 @@ export async function sendEmail(opts: SendEmailOptions): Promise<SendResult> {
         cc: opts.cc?.map(c => c.name ? `"${c.name}" <${c.email}>` : c.email).join(', '),
         subject: opts.subject,
         text: opts.body,
+        attachments: opts.attachments?.map(attachment => ({
+          filename: attachment.filename,
+          content: Buffer.from(attachment.data.split(',')[1] || '', 'base64'),
+          contentType: attachment.mimeType,
+        })),
         html: `<div style="font-family: Inter, system-ui, sans-serif; font-size: 14px; line-height: 1.6; color: #1e293b; max-width: 640px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
           <div style="background: #0f172a; padding: 16px 20px; border-bottom: 1px solid #334155; display: flex; align-items: center;">
             <span style="font-weight: 800; color: #38bdf8; font-size: 16px; letter-spacing: 0.5px;">GARUDA MAIL</span>
@@ -150,7 +156,7 @@ export async function verifySmtpConnection(config: SmtpConfig): Promise<{ succes
       port: config.port || (isPort465 ? 465 : 587),
       secure: isPort465,
       auth: { user: config.user, pass: config.pass },
-      tls: { rejectUnauthorized: false },
+      tls: { rejectUnauthorized: process.env.SMTP_ALLOW_INSECURE_TLS !== 'true' },
     });
 
     await testTransporter.verify();

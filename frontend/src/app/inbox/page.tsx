@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import {
   Inbox as InboxIcon, Star, Paperclip, AlertTriangle,
-  ChevronRight, Lock, LockOpen, Filter, RefreshCw, Network,
+  ChevronRight, Lock, LockOpen, Filter, RefreshCw, Network, Trash2,
 } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
 import Link from 'next/link';
@@ -19,6 +19,7 @@ export default function InboxPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [securityFilter, setSecurityFilter] = useState<SecurityLevel | 'all'>('all');
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
 
   const fetchEmails = useCallback(async (isSilent = false) => {
     if (!isSilent) setRefreshing(true);
@@ -113,6 +114,31 @@ export default function InboxPage() {
     }
   };
 
+  const handleDelete = async (e: React.MouseEvent, emailId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (deletingIds.has(emailId)) return;
+
+    setDeletingIds(previous => new Set(previous).add(emailId));
+    setEmails(previous => previous.filter(email => email.id !== emailId));
+
+    try {
+      const response = await fetch(`/api/emails/${emailId}`, { method: 'DELETE' });
+      if (!response.ok) {
+        throw new Error('Delete failed');
+      }
+    } catch (error) {
+      console.error('Failed to delete email', error);
+      await fetchEmails(true);
+    } finally {
+      setDeletingIds(previous => {
+        const next = new Set(previous);
+        next.delete(emailId);
+        return next;
+      });
+    }
+  };
+
   const filtered = useMemo(() => {
     if (securityFilter === 'all') return emails;
     return emails.filter(e => e.security.level === securityFilter);
@@ -191,6 +217,8 @@ export default function InboxPage() {
                   isHovered={hoveredId === email.id}
                   onHover={setHoveredId}
                   onToggleStar={handleToggleStar}
+                  onDelete={handleDelete}
+                  isDeleting={deletingIds.has(email.id)}
                 />
               ))}
             </div>
@@ -207,12 +235,16 @@ function EmailRow({
   isHovered,
   onHover,
   onToggleStar,
+  onDelete,
+  isDeleting,
 }: {
   email: EmailMessage;
   index: number;
   isHovered: boolean;
   onHover: (id: string | null) => void;
   onToggleStar: (e: React.MouseEvent, id: string, starred: boolean) => void;
+  onDelete: (e: React.MouseEvent, id: string) => void;
+  isDeleting: boolean;
 }) {
   const securityColor = {
     secure: 'var(--color-severity-healthy)',
@@ -328,6 +360,16 @@ function EmailRow({
           {email.security.riskScore !== null && (
             <RiskPill score={email.security.riskScore} />
           )}
+          <button
+            type="button"
+            onClick={event => onDelete(event, email.id)}
+            disabled={isDeleting}
+            className="p-1 rounded text-[var(--color-text-dim)] hover:text-[var(--color-severity-critical)] hover:bg-[var(--color-severity-critical-bg)] disabled:opacity-50"
+            title="Move to trash"
+            aria-label="Move email to trash"
+          >
+            <Trash2 size={13} />
+          </button>
         </div>
       </div>
 

@@ -10,9 +10,10 @@ export async function middleware(req: NextRequest) {
     pathname.startsWith('/register') ||
     pathname.startsWith('/api/auth') ||
     pathname.startsWith('/api/register') ||
+    pathname.startsWith('/api/health') ||
     pathname.startsWith('/_next') ||
     pathname.startsWith('/rootCA.pem') ||
-    pathname.includes('.') // static files like favicon.ico, images, certs
+    pathname.includes('.')
   ) {
     return NextResponse.next();
   }
@@ -38,6 +39,6 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!login|register|api/auth|api/register|_next|static|favicon\\.ico|rootCA\\.pem).*)',
+    '/((?!login|register|api/auth|api/register|api/health|_next|static|favicon\\.ico|rootCA\\.pem).*)',
   ],
 };
