@@ -1,8 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 
-if (!process.env.DATABASE_URL) {
-  process.env.DATABASE_URL = process.env.VERCEL ? 'file:/tmp/dev.db' : 'file:./dev.db';
-}
+const databaseUrl = process.env.DATABASE_URL || (process.env.VERCEL ? 'file:/tmp/dev.db' : 'file:./dev.db');
 
 declare global {
   // eslint-disable-next-line no-var
@@ -12,6 +10,7 @@ declare global {
 const prisma =
   global.prisma ||
   new PrismaClient({
+    datasourceUrl: databaseUrl,
     log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
   });
 
