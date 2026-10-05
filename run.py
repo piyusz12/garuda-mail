@@ -17,7 +17,10 @@ def run_cmd(cmd, cwd=FRAMEWORK_DIR):
     print(f" Executing: {' '.join(cmd)}")
     print(f" Working Directory: {cwd}")
     print(f"=======================================================\n")
-    return subprocess.run(cmd, cwd=str(cwd))
+    resolved_cmd = list(cmd)
+    if sys.platform == "win32" and resolved_cmd and resolved_cmd[0] in ("npm", "npx"):
+        resolved_cmd[0] = f"{resolved_cmd[0]}.cmd"
+    return subprocess.run(resolved_cmd, cwd=str(cwd), shell=(sys.platform == "win32"))
 
 def show_help():
     print("""

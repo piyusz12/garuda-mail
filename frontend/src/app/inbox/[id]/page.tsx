@@ -507,6 +507,41 @@ function SecurityHeader({ email, expanded, onToggle }: {
               />
             )}
 
+            <div className="col-span-2 md:col-span-4 flex items-center gap-2.5 pt-3 border-t border-[rgba(255,255,255,0.06)] flex-wrap">
+              <Link
+                href="/sessions"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium rounded-md text-[var(--color-accent)] bg-[var(--color-accent-dim)] hover:bg-[rgba(56,189,248,0.15)] transition-colors border border-[rgba(56,189,248,0.15)]"
+              >
+                <Network size={12} />
+                Forensic Sessions
+                <ExternalLink size={10} />
+              </Link>
+              <Link
+                href="/findings"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium rounded-md text-[var(--color-severity-critical)] bg-[var(--color-severity-critical-bg)] hover:bg-[rgba(239,68,68,0.12)] transition-colors border border-[rgba(239,68,68,0.15)]"
+              >
+                <AlertTriangle size={12} />
+                Security Findings
+                <ExternalLink size={10} />
+              </Link>
+              <Link
+                href="/crypto"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium rounded-md text-[var(--color-text-secondary)] hover:text-white bg-[var(--color-surface-2)] hover:bg-[var(--color-surface-3)] transition-colors border border-[var(--color-border-subtle)]"
+              >
+                <Shield size={12} />
+                Crypto Posture
+                <ExternalLink size={10} />
+              </Link>
+              <Link
+                href="/analysis"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium rounded-md text-[var(--color-text-muted)] hover:text-white bg-[var(--color-surface-2)] hover:bg-[var(--color-surface-3)] transition-colors border border-[var(--color-border-subtle)]"
+              >
+                <RefreshCw size={12} />
+                PCAP Analysis
+                <ExternalLink size={10} />
+              </Link>
+            </div>
+
           </div>
         </div>
       )}

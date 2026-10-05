@@ -21,7 +21,16 @@ const emailNav = [
 ];
 
 const systemNav = [
+  { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
+  { name: 'Analysis', href: '/analysis', icon: Upload },
+  { name: 'Sessions', href: '/sessions', icon: Network },
+  { name: 'Findings', href: '/findings', icon: AlertTriangle },
+  { name: 'Crypto Posture', href: '/crypto', icon: Shield },
   { name: 'Certificates & CA', href: '/certificates', icon: Award },
+  { name: 'AI Anomalies', href: '/anomalies', icon: Brain },
+  { name: 'Investigations', href: '/investigations', icon: SearchIcon },
+  { name: 'CBOM', href: '/cbom', icon: Layers },
+  { name: 'Reports', href: '/reports', icon: FileText },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
@@ -150,8 +159,8 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
         {!collapsed && (
           <div className="px-2 pb-1.5">
             <span className="text-[10px] uppercase tracking-widest text-[var(--color-text-dim)] font-semibold flex items-center gap-1.5">
-              <Settings size={10} />
-              SYSTEM
+              <Shield size={10} />
+              SYSTEM &amp; FORENSICS
             </span>
           </div>
         )}
@@ -182,11 +191,12 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
       {/* ── System Status ── */}
       {!collapsed && (
         <div className="px-3 py-3 border-t border-default">
-          <div className="text-[10px] uppercase tracking-wider text-[var(--color-text-dim)] font-semibold mb-2">Network Status</div>
+          <div className="text-[10px] uppercase tracking-wider text-[var(--color-text-dim)] font-semibold mb-2">System Status</div>
           <div className="space-y-1.5">
-            <StatusDot label="Mail Dispatcher" status="connected" />
-            <StatusDot label="AES-256-GCM E2EE" status="connected" />
-            <StatusDot label="Multi-PC Sync" status="connected" />
+            <StatusDot label="FastAPI Backend (8000)" status="connected" />
+            <StatusDot label="Analysis Engine" status="connected" />
+            <StatusDot label="AI Forensics Engine" status="connected" />
+            <StatusDot label="E2EE Multi-PC Sync" status="connected" />
           </div>
         </div>
       )}
