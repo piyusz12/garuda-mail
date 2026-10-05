@@ -1,12 +1,12 @@
 // Garuda Mail — Prisma Schema
-// Supports Supabase (PostgreSQL) in production, SQLite for local dev
+// PostgreSQL is required for production persistence.
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
