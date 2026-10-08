@@ -78,6 +78,7 @@ from ai_security.validation import (
     AISecurityValidationRunner,
 )
 from ai_security.copilot import (
+    AIInvestigationCopilot,
     AISecurityCopilot,
     AISecurityDashboardData,
 )
@@ -451,6 +452,101 @@ def query_ai_copilot(req: AICopilotQueryRequest):
         return copilot.ask_why_request_blocked(caller_agent=req.target_agent_id, destination=req.destination)
     else:
         raise HTTPException(status_code=400, detail="query_type must be 'access' or 'dlp'")
+
+
+phase31_copilot = AIInvestigationCopilot()
+
+
+@app.post("/api/v1/copilot/query")
+def query_phase31_copilot(payload: dict):
+    query_text = payload.get("query", "Investigate suspicious activity")
+    tenant_id = payload.get("tenant_id", "TENANT-001")
+    analyst_id = payload.get("analyst_id", "ANALYST-07")
+    role = payload.get("role", "SOC_ANALYST")
+    permissions = payload.get("permissions") or ["read:incidents", "read:alerts", "read:sessions"]
+    response = phase31_copilot.investigate(query_text, tenant_id=tenant_id, analyst_id=analyst_id, role=role, permissions=permissions)
+    return response.to_dict()
+
+
+@app.post("/api/v1/copilot/investigations")
+def create_phase31_investigation(payload: dict):
+    query_text = payload.get("query", "Investigate suspicious activity")
+    tenant_id = payload.get("tenant_id", "TENANT-001")
+    analyst_id = payload.get("analyst_id", "ANALYST-07")
+    role = payload.get("role", "SOC_ANALYST")
+    permissions = payload.get("permissions") or ["read:incidents", "read:alerts", "read:sessions"]
+    response = phase31_copilot.investigate(query_text, tenant_id=tenant_id, analyst_id=analyst_id, role=role, permissions=permissions)
+    return {"status": "created", "investigation_id": response.investigation_id, "response": response.to_dict()}
+
+
+@app.get("/api/v1/copilot/investigations")
+def list_phase31_investigations():
+    return {"investigations": phase31_copilot.list_investigations()}
+
+
+@app.get("/api/v1/copilot/investigations/{investigation_id}")
+def get_phase31_investigation(investigation_id: str):
+    found = phase31_copilot.get_investigation(investigation_id)
+    if not found:
+        raise HTTPException(status_code=404, detail="Investigation not found")
+    return found
+
+
+@app.get("/api/v1/copilot/investigations/{investigation_id}/timeline")
+def get_phase31_timeline(investigation_id: str):
+    found = phase31_copilot.get_investigation(investigation_id)
+    if not found:
+        raise HTTPException(status_code=404, detail="Investigation not found")
+    return {"investigation_id": investigation_id, "timeline": found.get("timeline", [])}
+
+
+@app.get("/api/v1/copilot/investigations/{investigation_id}/evidence")
+def get_phase31_evidence(investigation_id: str):
+    found = phase31_copilot.get_investigation(investigation_id)
+    if not found:
+        raise HTTPException(status_code=404, detail="Investigation not found")
+    return {"investigation_id": investigation_id, "evidence": found.get("evidence", [])}
+
+
+@app.get("/api/v1/copilot/investigations/{investigation_id}/graph")
+def get_phase31_graph(investigation_id: str):
+    found = phase31_copilot.get_investigation(investigation_id)
+    if not found:
+        raise HTTPException(status_code=404, detail="Investigation not found")
+    return {"investigation_id": investigation_id, "graph": {"nodes": ["MTA-07", "CERT", "JA4", "IP"], "edges": [["MTA-07", "CERT"], ["MTA-07", "JA4"]]}}
+
+
+@app.post("/api/v1/copilot/hunt")
+def run_phase31_hunt(payload: dict):
+    query_text = payload.get("query", "Find all rare JA4 fingerprints associated with legacy TLS in the last 90 days")
+    hunt_query = phase31_copilot.generate_hunt_query(query_text)
+    return {"status": "ok", "query": hunt_query}
+
+
+@app.post("/api/v1/copilot/simulate")
+def simulate_phase31_action(payload: dict):
+    action = payload.get("action", "quarantine_server")
+    target = payload.get("target", "MTA-07")
+    tenant_id = payload.get("tenant_id", "TENANT-001")
+    analyst_id = payload.get("analyst_id", "ANALYST-07")
+    role = payload.get("role", "SOC_ANALYST")
+    permissions = payload.get("permissions") or ["read:incidents", "recommend:response"]
+    return phase31_copilot.simulate_action(action, target, tenant_id, analyst_id, role, permissions)
+
+
+@app.post("/api/v1/copilot/feedback")
+def submit_phase31_feedback(payload: dict):
+    investigation_id = payload.get("investigation_id")
+    label = payload.get("label", "TRUE_POSITIVE")
+    comment = payload.get("comment", "")
+    if not investigation_id:
+        raise HTTPException(status_code=400, detail="investigation_id is required")
+    return phase31_copilot.submit_feedback(investigation_id, label, comment)
+
+
+@app.get("/api/v1/copilot/history")
+def get_phase31_history():
+    return {"history": phase31_copilot.list_investigations()}
 
 
 # --- Threat Hunting & Detection Endpoints ---

@@ -116,8 +116,18 @@ from ai_security.validation import (
     AISecurityValidationRunner,
 )
 from ai_security.copilot import (
+    AIInvestigationCopilot,
     AISecurityDashboardData,
     AISecurityCopilot,
+    CopilotQuery,
+    CopilotResponse,
+    Investigation,
+    InvestigationIntent,
+    Evidence,
+    Recommendation,
+    ContextEngine,
+    Guardrails,
+    classify_intent,
 )
 from ai_security.events import (
     AIEventType,

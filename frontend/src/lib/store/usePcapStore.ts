@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { analyzePcap } from '@/lib/forensics/engine';
 
 export interface PacketRecord {
   id: number;
@@ -103,6 +104,10 @@ export interface ForensicState {
   ja4Fingerprints: Ja4Fingerprint[];
   activeJa4Filter: string | null;
   threats: ThreatItem[];
+  protocol: 'SMTP' | 'IMAP' | 'POP3' | 'UNKNOWN';
+  starttls: { offered: boolean; requested: boolean; accepted: boolean; rejected: boolean };
+  tls: { detected: boolean; version: string; cipher: string; keyExchange: string; forwardSecrecy: boolean };
+  streams: Array<{ key: string; clientToServerBytes: number; serverToClientBytes: number; packetCount: number }>;
 
   // Actions
   loadFile: (file: File) => Promise<void>;
@@ -403,6 +408,10 @@ export const usePcapStore = create<ForensicState>((set, get) => ({
   ja4Fingerprints: SAMPLE_JA4,
   activeJa4Filter: null,
   threats: SAMPLE_THREATS,
+  protocol: 'SMTP',
+  starttls: { offered: true, requested: true, accepted: true, rejected: false },
+  tls: { detected: true, version: 'TLS 1.3', cipher: 'TLS_AES_256_GCM_SHA384', keyExchange: 'x25519 + Kyber-768', forwardSecrecy: true },
+  streams: [],
 
   loadFile: async (file: File) => {
     set({
@@ -413,23 +422,26 @@ export const usePcapStore = create<ForensicState>((set, get) => ({
       processingStage: 'Reading raw PCAP bytes in local browser memory...',
     });
 
-    // Zero-network local processing simulation (air-gapped via browser FileReader)
-    await new Promise(r => setTimeout(r, 400));
-    set({ processingProgress: 35, processingStage: 'Reconstructing TCP streams & TLS record layers...' });
-
-    await new Promise(r => setTimeout(r, 600));
+    const result = analyzePcap(await file.arrayBuffer());
+    set({ processingProgress: 45, processingStage: 'Reconstructing TCP streams & TLS record layers...' });
     set({ processingProgress: 70, processingStage: 'Extracting X.509 chains & computing JA4+ fingerprints...' });
-
-    await new Promise(r => setTimeout(r, 400));
     set({ processingProgress: 90, processingStage: 'Running deterministic security rules & AI threat inference...' });
-
-    await new Promise(r => setTimeout(r, 300));
     set({
       isProcessing: false,
       processingProgress: 100,
       processingStage: 'Analysis complete',
-      packetCount: Math.round(file.size / 350) + 120,
+      packetCount: result.packets.length,
       activeStepIndex: 0,
+      packets: result.packets,
+      tlsSteps: result.tlsSteps,
+      certificates: result.certificates,
+      ja4Fingerprints: result.ja4Fingerprints,
+      threats: result.threats,
+      securityScore: result.securityScore,
+      protocol: result.protocol,
+      starttls: result.starttls,
+      tls: result.tls,
+      streams: result.streams,
     });
   },
 
@@ -444,6 +456,10 @@ export const usePcapStore = create<ForensicState>((set, get) => ({
       ja4Fingerprints: SAMPLE_JA4,
       threats: SAMPLE_THREATS,
       securityScore: 82,
+      protocol: 'SMTP',
+      starttls: { offered: true, requested: true, accepted: true, rejected: false },
+      tls: { detected: true, version: 'TLS 1.3', cipher: 'TLS_AES_256_GCM_SHA384', keyExchange: 'x25519 + Kyber-768', forwardSecrecy: true },
+      streams: [],
       isProcessing: false,
     });
   },

@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, Suspense } from 'react';
-import { signIn } from 'next-auth/react';
+import { getSession, signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Mail, Lock, Eye, EyeOff, AlertCircle, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { getProtectedRouteForRole } from '@/lib/roles';
 
 export default function LoginPage() {
   return (
@@ -28,6 +29,7 @@ function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [demoRoleMessage, setDemoRoleMessage] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,10 +49,18 @@ function LoginForm() {
     if (result?.error) {
       setError('Invalid email or password. Please try again.');
     } else {
-      router.push(callbackUrl);
+      const session = await getSession();
+      const role = (session?.user as any)?.role || 'user';
+      router.push(getProtectedRouteForRole(role));
       router.refresh();
     }
   };
+
+  const demoAccounts = [
+    { label: 'Administrator', email: 'admin@garudamail.local', role: 'admin' },
+    { label: 'Authorized User', email: 'officer@garudamail.local', role: 'officer' },
+    { label: 'Normal User', email: 'user@garudamail.local', role: 'user' },
+  ];
 
   return (
     <div className="min-h-screen bg-[var(--color-surface-0)] flex items-center justify-center p-4">
@@ -97,6 +107,28 @@ function LoginForm() {
           <h2 className="text-[15px] font-semibold text-[var(--color-text-primary)] mb-5">
             Sign in to your account
           </h2>
+
+          <div className="mb-4 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-2)] p-3 text-[11px] text-[var(--color-text-muted)]">
+            <div className="font-medium text-[var(--color-text-secondary)] mb-2">Demo access</div>
+            <div className="space-y-2">
+              {demoAccounts.map(account => (
+                <button
+                  key={account.email}
+                  type="button"
+                  onClick={() => {
+                    setEmail(account.email);
+                    setPassword('password123');
+                    setDemoRoleMessage(`${account.label} access selected.`);
+                  }}
+                  className="w-full flex items-center justify-between rounded-md border border-[var(--color-border)] bg-[var(--color-surface-1)] px-2 py-1.5 text-left hover:border-[var(--color-accent)] transition-colors"
+                >
+                  <span className="font-medium text-[var(--color-text-primary)]">{account.label}</span>
+                  <span className="text-[var(--color-text-dim)]">{account.email}</span>
+                </button>
+              ))}
+            </div>
+            {demoRoleMessage && <div className="mt-2 text-[var(--color-accent)]">{demoRoleMessage}</div>}
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-4" suppressHydrationWarning>
             {/* Email */}
@@ -180,61 +212,6 @@ function LoginForm() {
             </button>
           </form>
 
-          {/* Quick Sign In for Enterprise Profiles */}
-          <div className="mt-5 pt-4 border-t border-[var(--color-border-subtle)]">
-            <div className="text-[10px] uppercase font-mono tracking-wider text-[var(--color-text-dim)] mb-2 text-center">
-              Quick Sign In
-            </div>
-            <div className="grid grid-cols-2 gap-2 text-[11px]">
-              <button
-                type="button"
-                onClick={() => {
-                  setEmail('bhaskarthalendra@gmail.com');
-                  setPassword('password123');
-                }}
-                className="p-2 rounded bg-[var(--color-surface-2)] hover:bg-[var(--color-surface-3)] border border-[var(--color-border-subtle)] hover:border-[var(--color-accent)] text-left transition-colors"
-              >
-                <div className="font-semibold text-[var(--color-text-primary)]">Thalendra Bhaskar</div>
-                <div className="text-[10px] text-[var(--color-text-dim)] truncate">bhaskarthalendra@gmail.com</div>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setEmail('piyushtembhurkar12@gmail.com');
-                  setPassword('password123');
-                }}
-                className="p-2 rounded bg-[var(--color-surface-2)] hover:bg-[var(--color-surface-3)] border border-[var(--color-border-subtle)] hover:border-[var(--color-accent)] text-left transition-colors"
-              >
-                <div className="font-semibold text-[var(--color-text-primary)]">Piyush Tembhurkar</div>
-                <div className="text-[10px] text-[var(--color-text-dim)] truncate">piyushtembhurkar12@gmail.com</div>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setEmail('analyst@enterprise.local');
-                  setPassword('password123');
-                }}
-                className="p-2 rounded bg-[var(--color-surface-2)] hover:bg-[var(--color-surface-3)] border border-[var(--color-border-subtle)] hover:border-[var(--color-accent)] text-left transition-colors"
-              >
-                <div className="font-semibold text-[var(--color-text-primary)]">Garuda Analyst</div>
-                <div className="text-[10px] text-[var(--color-text-dim)] truncate">analyst@enterprise.local</div>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setEmail('security@enterprise.local');
-                  setPassword('password123');
-                }}
-                className="p-2 rounded bg-[var(--color-surface-2)] hover:bg-[var(--color-surface-3)] border border-[var(--color-border-subtle)] hover:border-[var(--color-accent)] text-left transition-colors"
-              >
-                <div className="font-semibold text-[var(--color-text-primary)]">Security Operations</div>
-                <div className="text-[10px] text-[var(--color-text-dim)] truncate">security@enterprise.local</div>
-              </button>
-            </div>
-            <div className="text-[10px] text-center text-[var(--color-text-dim)] mt-2">
-              Default password: <span className="font-mono text-[var(--color-text-secondary)]">password123</span>
-            </div>
-          </div>
         </div>
 
         {/* Register link */}

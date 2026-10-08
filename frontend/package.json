@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@next-auth/prisma-adapter": "^1.0.7",
+    "@peculiar/x509": "^2.1.0",
     "@prisma/client": "6.12.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/nodemailer": "^8.0.2",
@@ -28,6 +29,7 @@
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "recharts": "^3.10.1",
+    "reflect-metadata": "^0.2.2",
     "zod": "^4.6.5",
     "zustand": "^5.0.15"
   },

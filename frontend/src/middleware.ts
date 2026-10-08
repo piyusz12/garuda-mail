@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+  const isAdminRoute = pathname === '/admin' || pathname.startsWith('/admin/');
+  const isOfficerRoute = pathname === '/officer' || pathname.startsWith('/officer/');
 
   // Allow public routes and static assets
   if (
@@ -32,6 +34,24 @@ export async function middleware(req: NextRequest) {
     loginUrl.pathname = '/login';
     loginUrl.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(loginUrl);
+  }
+
+  const role = String((token as any)?.role || 'user').toLowerCase();
+
+  if (isAdminRoute && role !== 'admin') {
+    const deniedUrl = req.nextUrl.clone();
+    deniedUrl.pathname = '/login';
+    deniedUrl.searchParams.set('callbackUrl', pathname);
+    deniedUrl.searchParams.set('error', 'admin_required');
+    return NextResponse.redirect(deniedUrl);
+  }
+
+  if (isOfficerRoute && role !== 'officer' && role !== 'admin') {
+    const deniedUrl = req.nextUrl.clone();
+    deniedUrl.pathname = '/login';
+    deniedUrl.searchParams.set('callbackUrl', pathname);
+    deniedUrl.searchParams.set('error', 'officer_required');
+    return NextResponse.redirect(deniedUrl);
   }
 
   return NextResponse.next();

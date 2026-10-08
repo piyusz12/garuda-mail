@@ -1,6 +1,7 @@
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { findUserByEmail, verifyUserPassword } from '@/lib/users';
+import { normalizeUserRole } from '@/lib/roles';
 
 const authSecret =
   process.env.NEXTAUTH_SECRET || 'garuda-mail-super-secret-production-jwt-2026-key';
@@ -58,14 +59,14 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.role = (user as any).role;
+        token.role = normalizeUserRole((user as any).role);
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
-        (session.user as any).role = token.role;
+        (session.user as any).role = normalizeUserRole(token.role as string | undefined);
       }
       return session;
     },
@@ -84,7 +85,10 @@ export const authOptions: NextAuthOptions = {
       try {
         const parsed = new URL(url, origin);
         if (parsed.origin !== origin) return `${origin}/inbox`;
-        return parsed.toString();
+        const nextPath = parsed.pathname;
+        if (nextPath.startsWith('/admin')) return `${origin}/admin`;
+        if (nextPath.startsWith('/officer')) return `${origin}/officer`;
+        return `${origin}/inbox`;
       } catch {
         return `${origin}/inbox`;
       }

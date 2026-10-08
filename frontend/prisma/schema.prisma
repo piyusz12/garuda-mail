@@ -55,7 +55,7 @@ model User {
   emailVerified DateTime?
   image         String?
   password      String?   // hashed with bcrypt
-  role          String    @default("analyst") // analyst | admin
+  role          String    @default("user") // admin | officer | user
   department    String?
   avatarColor   String    @default("#38BDF8")
   createdAt     DateTime  @default(now())

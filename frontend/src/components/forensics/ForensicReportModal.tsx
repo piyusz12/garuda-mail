@@ -23,6 +23,10 @@ export default function ForensicReportModal({ isOpen, onClose }: ForensicReportM
     certificates,
     ja4Fingerprints,
     threats,
+    protocol,
+    starttls,
+    tls,
+    streams,
   } = usePcapStore();
 
   const [copiedJson, setCopiedJson] = useState(false);
@@ -40,6 +44,10 @@ export default function ForensicReportModal({ isOpen, onClose }: ForensicReportM
     },
     executiveSummary: {
       securityScore,
+      protocol,
+      starttls,
+      tls,
+      streams,
       riskLevel: securityScore >= 80 ? 'LOW' : securityScore >= 60 ? 'MODERATE' : 'CRITICAL',
       criticalThreatCount: threats.filter(t => t.severity === 'CRITICAL').length,
       highThreatCount: threats.filter(t => t.severity === 'HIGH').length,
@@ -89,6 +97,14 @@ export default function ForensicReportModal({ isOpen, onClose }: ForensicReportM
     window.print();
   };
 
+  const handleDownloadHtml = () => {
+    const reportHtml = `<!doctype html><html><head><meta charset="utf-8"><title>Garuda Mail Forensic Report</title><style>body{font:14px system-ui;max-width:960px;margin:40px auto;color:#172033}h1{color:#087ea4}table{border-collapse:collapse;width:100%}td,th{border:1px solid #ccd6e0;padding:8px;text-align:left}th{background:#e8f3f7}.critical{color:#b42318}.high{color:#b54708}</style></head><body><h1>Garuda Mail Cryptographic Forensic Report</h1><p>Generated ${new Date().toISOString()}</p><h2>Posture</h2><p>Score: <strong>${securityScore}/100</strong> | Protocol: <strong>${protocol}</strong> | TLS: <strong>${tls.version}</strong></p><h2>Negotiation</h2><p>STARTTLS offered: ${starttls.offered}; requested: ${starttls.requested}; accepted: ${starttls.accepted}; rejected: ${starttls.rejected}</p><h2>Findings</h2><table><tr><th>Severity</th><th>Title</th><th>Description</th><th>Recommendation</th></tr>${threats.map(t => `<tr><td class="${t.severity.toLowerCase()}">${t.severity}</td><td>${t.title}</td><td>${t.description}</td><td>${t.recommendation}</td></tr>`).join('')}</table><h2>Certificates</h2><pre>${JSON.stringify(thisCertificates(), null, 2)}</pre><h2>Evidence</h2><pre>${JSON.stringify({ tls, streams }, null, 2)}</pre></body></html>`;
+    const url = URL.createObjectURL(new Blob([reportHtml], { type: 'text/html' }));
+    const anchor = document.createElement('a'); anchor.href = url; anchor.download = `garuda_forensic_report_${Date.now()}.html`; anchor.click(); URL.revokeObjectURL(url);
+  };
+
+  const thisCertificates = () => certificates.map(c => ({ subject: c.subject, issuer: c.issuer, validFrom: c.validFrom, validTo: c.validTo, key: `${c.keyType} ${c.keySize}`, signature: c.signatureAlgorithm, status: c.status }));
+
   const handleCopyJson = () => {
     navigator.clipboard.writeText(JSON.stringify(reportPayload, null, 2));
     setCopiedJson(true);
@@ -133,6 +149,14 @@ export default function ForensicReportModal({ isOpen, onClose }: ForensicReportM
               >
                 <Download size={12} />
                 <span>JSON Export</span>
+              </button>
+
+              <button
+                onClick={handleDownloadHtml}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded text-[11px] font-medium bg-[var(--color-surface-3)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] border border-[var(--color-border)] transition-colors"
+              >
+                <ExternalLink size={12} />
+                <span>HTML Export</span>
               </button>
 
               <button

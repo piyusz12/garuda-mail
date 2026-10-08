@@ -3,13 +3,14 @@ import crypto from 'crypto';
 import prisma from '@/lib/db';
 import fs from 'fs';
 import path from 'path';
+import { normalizeUserRole, type UserRole } from '@/lib/roles';
 
 export interface UserRecord {
   id: string;
   name: string;
   email: string;
   password: string; // bcrypt hash
-  role: string;
+  role: UserRole;
   department?: string;
   avatarColor: string;
   createdAt: Date;
@@ -19,7 +20,7 @@ export interface UserRecord {
 const SECRET = process.env.NEXTAUTH_SECRET || 'garuda-mail-super-secret-production-jwt-2026-key';
 
 // Precomputed bcrypt hash of 'password123'
-const DEFAULT_PASSWORD_HASH = '$2b$10$hi/Il7vn75r1yktS//xhWeqhqACFTVG7Aw2PVZ5i8p4YjjJ6cZJNu';
+const DEFAULT_PASSWORD_HASH = '$2b$10$rkD7Y3xTi8hdwA85hwCVTuQEA7ZE4AMZN.c6db3PzKAlfoaGLKNxq';
 
 // ── Built-in Seed Users (available immediately in all environments) ────
 export const BUILTIN_USERS: UserRecord[] = [
@@ -46,11 +47,11 @@ export const BUILTIN_USERS: UserRecord[] = [
     updatedAt: new Date('2026-01-01T00:00:00Z'),
   },
   {
-    id: 'user-analyst-003',
-    name: 'Garuda Analyst',
-    email: 'analyst@enterprise.local',
+    id: 'user-officer-003',
+    name: 'Garuda Officer',
+    email: 'officer@garudamail.local',
     password: DEFAULT_PASSWORD_HASH,
-    role: 'analyst',
+    role: 'officer',
     department: 'Cryptographic SOC',
     avatarColor: '#38BDF8',
     createdAt: new Date('2026-01-01T00:00:00Z'),
@@ -72,7 +73,7 @@ export const BUILTIN_USERS: UserRecord[] = [
     name: 'Bob Henderson',
     email: 'bob@enterprise.local',
     password: DEFAULT_PASSWORD_HASH,
-    role: 'analyst',
+    role: 'user',
     department: 'Network Forensics',
     avatarColor: '#10B981',
     createdAt: new Date('2026-01-01T00:00:00Z'),
@@ -83,7 +84,7 @@ export const BUILTIN_USERS: UserRecord[] = [
     name: 'Alice Vance',
     email: 'alice@enterprise.local',
     password: DEFAULT_PASSWORD_HASH,
-    role: 'analyst',
+    role: 'user',
     department: 'Cryptography & CBOM',
     avatarColor: '#8B5CF6',
     createdAt: new Date('2026-01-01T00:00:00Z'),
@@ -105,7 +106,7 @@ export const BUILTIN_USERS: UserRecord[] = [
     name: 'Garuda User',
     email: 'user@garudamail.local',
     password: DEFAULT_PASSWORD_HASH,
-    role: 'analyst',
+    role: 'user',
     department: 'Security Operations',
     avatarColor: '#0EA5E9',
     createdAt: new Date('2026-01-01T00:00:00Z'),
@@ -192,7 +193,7 @@ export function verifyFallbackToken(token: string): UserRecord | null {
       name: payload.name,
       email: payload.email,
       password: payload.password,
-      role: payload.role || 'analyst',
+      role: normalizeUserRole(payload.role),
       department: payload.department,
       avatarColor: payload.avatarColor || '#38BDF8',
       createdAt: new Date(),
@@ -232,7 +233,7 @@ export async function findUserByEmail(
         name: dbUser.name || 'User',
         email: dbUser.email!,
         password: dbUser.password,
-        role: dbUser.role || 'analyst',
+        role: normalizeUserRole(dbUser.role),
         department: dbUser.department || undefined,
         avatarColor: dbUser.avatarColor || '#38BDF8',
         createdAt: dbUser.createdAt,
@@ -312,7 +313,7 @@ export async function registerUser(name: string, email: string, passwordPlain: s
     name: name.trim(),
     email: normalizedEmail,
     password: hashedPassword,
-    role: 'analyst',
+    role: 'user',
     department: 'Cryptographic SOC',
     avatarColor,
     createdAt: new Date(),
