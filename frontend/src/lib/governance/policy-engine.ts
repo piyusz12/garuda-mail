@@ -108,6 +108,17 @@ export const DEFAULT_POLICIES: GovernancePolicy[] = [
     reason: 'Authenticated users may query approved document classifications.',
   },
   {
+    id: 'policy-local-inference',
+    name: 'Approved Local Inference',
+    subjectRoles: ['admin', 'officer', 'user'],
+    actions: ['model.inference'],
+    resources: ['fabric-workload'],
+    dataClasses: ['PUBLIC', 'INTERNAL', 'CONFIDENTIAL'],
+    effect: 'allow',
+    priority: 500,
+    reason: 'Authenticated users may schedule approved local inference for permitted data.',
+  },
+  {
     id: 'policy-admin-restricted-query',
     name: 'Administrator Restricted Query',
     subjectRoles: ['admin', 'officer'],
@@ -117,6 +128,17 @@ export const DEFAULT_POLICIES: GovernancePolicy[] = [
     effect: 'allow',
     priority: 600,
     reason: 'Privileged users may query restricted documents subject to audit.',
+  },
+  {
+    id: 'policy-privileged-restricted-inference',
+    name: 'Privileged Restricted Inference',
+    subjectRoles: ['admin', 'officer'],
+    actions: ['model.inference'],
+    resources: ['fabric-workload'],
+    dataClasses: ['RESTRICTED', 'TOP_SECRET'],
+    effect: 'allow',
+    priority: 600,
+    reason: 'Privileged users may schedule restricted inference on approved local nodes.',
   },
 ];
 
