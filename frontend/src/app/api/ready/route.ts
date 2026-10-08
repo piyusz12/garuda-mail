@@ -7,7 +7,7 @@ export async function GET() {
   try {
     await prisma.$queryRaw`SELECT 1`;
     return NextResponse.json({
-      status: 'healthy',
+      status: 'ready',
       service: 'garuda-mail',
       checks: { database: 'ok' },
       timestamp: new Date().toISOString(),
@@ -15,7 +15,7 @@ export async function GET() {
   } catch {
     return NextResponse.json(
       {
-        status: 'degraded',
+        status: 'not_ready',
         service: 'garuda-mail',
         checks: { database: 'unavailable' },
         timestamp: new Date().toISOString(),

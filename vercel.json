@@ -5,6 +5,8 @@
   "framework": "nextjs",
   "env": {
     "NEXT_PUBLIC_USE_MOCK_DATA": "true",
-    "AUTH_TRUST_HOST": "true"
+    "AUTH_TRUST_HOST": "true",
+    "DEMO_MODE": "true",
+    "AIR_GAPPED_MODE": "false"
   }
 }
