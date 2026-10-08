@@ -392,7 +392,7 @@ export async function listAllUsers(): Promise<Array<Omit<UserRecord, 'password'>
           id: dbu.id,
           name: dbu.name || 'User',
           email: dbu.email,
-          role: dbu.role,
+          role: normalizeUserRole(dbu.role),
           department: dbu.department || undefined,
           avatarColor: dbu.avatarColor || '#38BDF8',
           createdAt: dbu.createdAt,
