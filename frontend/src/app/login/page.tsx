@@ -29,7 +29,6 @@ function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [demoRoleMessage, setDemoRoleMessage] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,17 +49,11 @@ function LoginForm() {
       setError('Invalid email or password. Please try again.');
     } else {
       const session = await getSession();
-      const role = (session?.user as any)?.role || 'user';
+      const role = session?.user?.role || 'user';
       router.push(getProtectedRouteForRole(role));
       router.refresh();
     }
   };
-
-  const demoAccounts = [
-    { label: 'Administrator', email: 'admin@garudamail.local', role: 'admin' },
-    { label: 'Authorized User', email: 'officer@garudamail.local', role: 'officer' },
-    { label: 'Normal User', email: 'user@garudamail.local', role: 'user' },
-  ];
 
   return (
     <div className="min-h-screen bg-[var(--color-surface-0)] flex items-center justify-center p-4">
@@ -107,28 +100,6 @@ function LoginForm() {
           <h2 className="text-[15px] font-semibold text-[var(--color-text-primary)] mb-5">
             Sign in to your account
           </h2>
-
-          <div className="mb-4 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-2)] p-3 text-[11px] text-[var(--color-text-muted)]">
-            <div className="font-medium text-[var(--color-text-secondary)] mb-2">Demo access</div>
-            <div className="space-y-2">
-              {demoAccounts.map(account => (
-                <button
-                  key={account.email}
-                  type="button"
-                  onClick={() => {
-                    setEmail(account.email);
-                    setPassword('password123');
-                    setDemoRoleMessage(`${account.label} access selected.`);
-                  }}
-                  className="w-full flex items-center justify-between rounded-md border border-[var(--color-border)] bg-[var(--color-surface-1)] px-2 py-1.5 text-left hover:border-[var(--color-accent)] transition-colors"
-                >
-                  <span className="font-medium text-[var(--color-text-primary)]">{account.label}</span>
-                  <span className="text-[var(--color-text-dim)]">{account.email}</span>
-                </button>
-              ))}
-            </div>
-            {demoRoleMessage && <div className="mt-2 text-[var(--color-accent)]">{demoRoleMessage}</div>}
-          </div>
 
           <form onSubmit={handleSubmit} className="space-y-4" suppressHydrationWarning>
             {/* Email */}
@@ -216,7 +187,7 @@ function LoginForm() {
 
         {/* Register link */}
         <p className="text-center text-[12px] text-[var(--color-text-muted)]">
-          Don't have an account?{' '}
+          Don&apos;t have an account?{' '}
           <Link href="/register" className="text-[var(--color-accent)] hover:underline font-medium">
             Create account
           </Link>

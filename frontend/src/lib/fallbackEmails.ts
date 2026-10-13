@@ -29,8 +29,8 @@ export interface FallbackEmail {
     read: boolean;
     starred: boolean;
   }>;
-  attachments?: any[];
-  labels?: any[];
+  attachments?: Array<{ id: string; filename: string; size: number; mimeType: string }>;
+  labels?: string[];
 }
 
 export const FALLBACK_EMAILS: FallbackEmail[] = [

@@ -16,10 +16,7 @@ export async function POST(request: NextRequest) {
     const validation = registerSchema.safeParse(body);
 
     if (!validation.success) {
-      const errMsg =
-        validation.error.issues?.[0]?.message ||
-        (validation.error as any).errors?.[0]?.message ||
-        'Invalid registration data';
+      const errMsg = validation.error.issues[0]?.message || 'Invalid registration data';
       return NextResponse.json({ error: errMsg }, { status: 400 });
     }
 
@@ -56,7 +53,7 @@ export async function POST(request: NextRequest) {
     }
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[Register] Error:', error);
     return NextResponse.json(
       { error: 'Failed to create account. Please try again.' },

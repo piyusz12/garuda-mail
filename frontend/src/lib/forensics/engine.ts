@@ -46,7 +46,7 @@ function parseClassicPcap(bytes: Uint8Array): Segment[] {
     const captured = read32(offset + 8);
     if (!captured || offset + 16 + captured > bytes.length) break;
     const frame = bytes.slice(offset + 16, offset + 16 + captured);
-    let ipOffset = linkType === 1 ? 14 : linkType === 101 ? 0 : linkType === 113 ? 16 : -1;
+    const ipOffset = linkType === 1 ? 14 : linkType === 101 ? 0 : linkType === 113 ? 16 : -1;
     if (ipOffset < 0 || ipOffset + 20 > frame.length || (frame[ipOffset] >> 4) !== 4) { offset += 16 + captured; continue; }
     const ihl = (frame[ipOffset] & 15) * 4;
     if (frame[ipOffset + 9] !== 6 || ipOffset + ihl + 20 > frame.length) { offset += 16 + captured; continue; }
@@ -115,7 +115,7 @@ function parseTls(stream: Uint8Array, direction: Direction, baseTime: number): {
           if (certificateOffset + certificateLength > certificateEnd) break;
           try {
             const certificate = new X509Certificate(data.slice(certificateOffset, certificateOffset + certificateLength));
-            const publicKey = certificate.publicKey.algorithm as Record<string, string | number>;
+            const publicKey = certificate.publicKey.algorithm as unknown as Record<string, string | number>;
             const daysRemaining = Math.floor((certificate.notAfter.getTime() - Date.now()) / 86400000);
             const keySize = Number(publicKey.modulusLength || (publicKey.namedCurve === 'P-384' ? 384 : publicKey.namedCurve === 'P-256' ? 256 : 0));
             certificates.push({ id: `cert-${certificates.length}`, subject: certificate.subject, issuer: certificate.issuer, serialNumber: certificate.serialNumber, validFrom: certificate.notBefore.toISOString(), validTo: certificate.notAfter.toISOString(), daysRemaining, keyType: String(publicKey.name || 'Unknown'), keySize, signatureAlgorithm: String((certificate.signatureAlgorithm as { name?: string }).name || 'Unknown'), status: daysRemaining < 0 ? 'expired' : daysRemaining < 30 ? 'expiring' : 'trusted', sanList: [], fingerprintSha256: 'available in certificate evidence' });

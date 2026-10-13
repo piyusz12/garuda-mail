@@ -5,9 +5,13 @@ const prisma = new PrismaClient();
 
 async function runTest() {
   console.log('--- STARTING MULTI-USER EMAIL FLOW VERIFICATION ---');
+  const testPassword = process.env.E2E_TEST_PASSWORD;
+  if (!testPassword) {
+    throw new Error('E2E_TEST_PASSWORD must be configured for this test.');
+  }
 
-  // 1. Verify User 1 (Analyst on PC 1) and User 2 (Bob on PC 2) exist
-  const analyst = await prisma.user.findUnique({ where: { email: 'analyst@enterprise.local' } });
+  // 1. Verify two test users exist
+  const analyst = await prisma.user.findUnique({ where: { email: 'user@garudamail.local' } });
   const bob = await prisma.user.findUnique({ where: { email: 'bob@enterprise.local' } });
 
   if (!analyst || !bob) {
@@ -17,8 +21,8 @@ async function runTest() {
   console.log(`✓ User 2 (PC 2) Verified: ${bob.name} <${bob.email}>`);
 
   // 2. Verify password hashes match
-  const analystPwMatch = await bcrypt.compare('password123', analyst.password);
-  const bobPwMatch = await bcrypt.compare('password123', bob.password);
+  const analystPwMatch = await bcrypt.compare(testPassword, analyst.password);
+  const bobPwMatch = await bcrypt.compare(testPassword, bob.password);
   console.log(`✓ Password authentication check: Analyst=${analystPwMatch}, Bob=${bobPwMatch}`);
 
   // 3. User 1 sends an email to User 2

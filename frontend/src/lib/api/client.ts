@@ -36,8 +36,15 @@ async function apiFetch<T>(path: string, options?: RequestInit & { timeoutMs?: n
   }
 
   try {
+    const defaultHeaders: Record<string, string> = {};
+    // Let the browser set Content-Type for FormData (multipart boundary),
+    // otherwise default to JSON.
+    if (!(init.body instanceof FormData)) {
+      defaultHeaders['Content-Type'] = 'application/json';
+    }
+
     const res = await fetch(`${API_BASE}${path}`, {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { ...defaultHeaders, ...(init.headers as Record<string, string>) },
       ...init,
       signal: controller.signal,
     });
@@ -211,6 +218,6 @@ export const api = {
     }
     const formData = new FormData();
     formData.append('file', file);
-    return apiFetch('/api/pcap/upload', { method: 'POST', body: formData, headers: {} });
+    return apiFetch('/api/pcap/upload', { method: 'POST', body: formData });
   },
 };

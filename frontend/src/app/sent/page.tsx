@@ -75,7 +75,10 @@ export default function SentPage() {
 
   useEffect(() => {
     fetchSent();
-    const interval = setInterval(() => fetchSent(true), 6000);
+    const interval = setInterval(() => {
+      if (typeof document !== 'undefined' && document.hidden) return;
+      fetchSent(true);
+    }, 6000);
     return () => clearInterval(interval);
   }, [fetchSent]);
 

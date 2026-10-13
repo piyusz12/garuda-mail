@@ -408,7 +408,9 @@ class ScenarioRunner:
             outcome=outcome,
             start_time=t0,
             end_time=t_end,
-            duration_seconds=round(t_end - t0, 3),
+            # Very short in-memory scenarios can complete within the platform clock
+            # resolution; preserve a non-zero duration invariant for metrics.
+            duration_seconds=max(0.001, round(t_end - t0, 3)),
             ttv_seconds=ttv,
             ttd_seconds=ttd,
             tta_seconds=tta,

@@ -19,12 +19,12 @@ export default function DraftsPage() {
       if (res.ok) {
         const data = await res.json();
         if (data.emails && Array.isArray(data.emails)) {
-          const mapped: EmailMessage[] = data.emails.map((e: any) => ({
+          const mapped: EmailMessage[] = data.emails.map((e: Record<string, any>) => ({
             id: e.id,
             folder: 'drafts',
             from: { name: 'Me', email: '', domain: '' },
-            to: e.recipients?.map((r: any) => ({
-              name: r.name || r.address,
+            to: (e.recipients as Array<{ name?: string; address?: string }> | undefined)?.map((r) => ({
+              name: r.name || r.address || '',
               email: r.address || '',
               domain: '',
             })) || [],

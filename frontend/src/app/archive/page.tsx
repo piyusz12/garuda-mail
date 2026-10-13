@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Archive as ArchiveIcon, RefreshCw, ChevronRight, RotateCcw } from 'lucide-react';
+import { Archive as ArchiveIcon, RefreshCw, RotateCcw } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
 import Link from 'next/link';
 import type { EmailMessage } from '@/types/email';
@@ -19,7 +19,7 @@ export default function ArchivePage() {
       if (res.ok) {
         const data = await res.json();
         if (data.emails && Array.isArray(data.emails)) {
-          const mapped: EmailMessage[] = data.emails.map((e: any) => ({
+          const mapped: EmailMessage[] = data.emails.map((e: Record<string, any>) => ({
             id: e.id,
             folder: 'archive',
             from: { name: e.from?.name || 'Unknown', email: e.from?.email || '', domain: '' },

@@ -17,13 +17,14 @@ export interface UserRecord {
   updatedAt: Date;
 }
 
-const SECRET = process.env.NEXTAUTH_SECRET || 'garuda-mail-super-secret-production-jwt-2026-key';
+const SECRET = process.env.NEXTAUTH_SECRET || 'development-only-user-token-secret';
 
-// Precomputed bcrypt hash of 'password123'
-const DEFAULT_PASSWORD_HASH = '$2b$10$rkD7Y3xTi8hdwA85hwCVTuQEA7ZE4AMZN.c6db3PzKAlfoaGLKNxq';
+const DEFAULT_PASSWORD_HASH = process.env.BUILTIN_PASSWORD_HASH || '';
 
-// ── Built-in Seed Users (available immediately in all environments) ────
-export const BUILTIN_USERS: UserRecord[] = [
+// ── Built-in Seed Users (development/demo mode only) ──────────────────
+const DEMO_MODE = process.env.DEMO_MODE === 'true' || process.env.NODE_ENV !== 'production';
+
+export const BUILTIN_USERS: UserRecord[] = DEMO_MODE && DEFAULT_PASSWORD_HASH ? [
   {
     id: 'user-thalendra-001',
     name: 'Thalendra Bhaskar',
@@ -112,11 +113,10 @@ export const BUILTIN_USERS: UserRecord[] = [
     createdAt: new Date('2026-01-01T00:00:00Z'),
     updatedAt: new Date('2026-01-01T00:00:00Z'),
   },
-];
+] : [];
 
 // ── In-Memory User Registry across re-evaluations ───────────────────────
 declare global {
-  // eslint-disable-next-line no-var
   var __garudaInMemoryUsers: Map<string, UserRecord> | undefined;
 }
 
@@ -164,7 +164,6 @@ export function createFallbackToken(user: UserRecord): string {
     id: user.id,
     name: user.name,
     email: user.email,
-    password: user.password,
     role: user.role,
     department: user.department,
     avatarColor: user.avatarColor,
@@ -192,7 +191,7 @@ export function verifyFallbackToken(token: string): UserRecord | null {
       id: payload.id,
       name: payload.name,
       email: payload.email,
-      password: payload.password,
+      password: '', // Never stored in cookie token — looked up from DB/memory at auth time
       role: normalizeUserRole(payload.role),
       department: payload.department,
       avatarColor: payload.avatarColor || '#38BDF8',
@@ -240,7 +239,7 @@ export async function findUserByEmail(
         updatedAt: dbUser.updatedAt,
       };
     }
-  } catch (dbErr) {
+  } catch {
     // Database query failed (e.g. SQLite read-only or not connected on Vercel)
     // Safe to fall through to tier 2
   }
@@ -282,15 +281,6 @@ export async function findUserByEmail(
 
 // ── Verify Password ──────────────────────────────────────────────────
 export async function verifyUserPassword(user: UserRecord, passwordInput: string): Promise<boolean> {
-  // Builtin user convenience: permit 'password123' if matching
-  if (
-    passwordInput === 'password123' &&
-    BUILTIN_USERS.some(u => u.email.toLowerCase() === user.email.toLowerCase())
-  ) {
-    return true;
-  }
-
-  // Bcrypt comparison
   try {
     return await bcrypt.compare(passwordInput, user.password);
   } catch {
@@ -333,7 +323,7 @@ export async function registerUser(name: string, email: string, passwordPlain: s
       },
     });
     newUser.id = created.id;
-  } catch (e) {
+  } catch {
     console.warn('[Register] Prisma write unavailable on current environment, saved to fallback stores.');
   }
 
@@ -345,8 +335,21 @@ export async function registerUser(name: string, email: string, passwordPlain: s
   const cookieToken = createFallbackToken(newUser);
 
   // Return public user
-  const { password: _, ...publicUser } = newUser;
+  const publicUser = toPublicUser(newUser);
   return { user: publicUser, cookieToken };
+}
+
+function toPublicUser(u: UserRecord): Omit<UserRecord, 'password'> {
+  return {
+    id: u.id,
+    name: u.name,
+    email: u.email,
+    role: u.role,
+    department: u.department,
+    avatarColor: u.avatarColor,
+    createdAt: u.createdAt,
+    updatedAt: u.updatedAt,
+  };
 }
 
 // ── List All Users ───────────────────────────────────────────────────
@@ -355,21 +358,18 @@ export async function listAllUsers(): Promise<Array<Omit<UserRecord, 'password'>
 
   // Add builtins first
   for (const u of BUILTIN_USERS) {
-    const { password: _, ...pub } = u;
-    userMap.set(u.email, pub);
+    userMap.set(u.email, toPublicUser(u));
   }
 
   // Add in-memory
   for (const [em, u] of inMemoryUsers.entries()) {
-    const { password: _, ...pub } = u;
-    userMap.set(em, pub);
+    userMap.set(em, toPublicUser(u));
   }
 
   // Add tmp users
   const tmp = readTmpUsers();
   for (const [em, u] of Object.entries(tmp)) {
-    const { password: _, ...pub } = u;
-    userMap.set(em, pub);
+    userMap.set(em, toPublicUser(u));
   }
 
   // Add database users if query succeeds

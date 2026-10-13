@@ -61,7 +61,10 @@ export default function TrashPage() {
 
   useEffect(() => {
     fetchTrash();
-    const interval = setInterval(() => fetchTrash(), 2000);
+    const interval = setInterval(() => {
+      if (typeof document !== 'undefined' && document.hidden) return;
+      fetchTrash();
+    }, 15000);
     return () => clearInterval(interval);
   }, [fetchTrash]);
 

@@ -7,7 +7,7 @@ import { hasRoleAccess } from '@/lib/roles';
 export default async function OfficerPage() {
   const session = await getServerSession(authOptions);
 
-  if (!session || !hasRoleAccess((session.user as any)?.role, ['officer', 'admin'])) {
+  if (!session || !hasRoleAccess(session.user?.role, ['officer', 'admin'])) {
     redirect('/login?callbackUrl=/officer');
   }
 

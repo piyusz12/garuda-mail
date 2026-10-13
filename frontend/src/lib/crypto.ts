@@ -12,12 +12,15 @@ export interface EncryptedEnvelope {
   timestamp: string;
 }
 
-const DEFAULT_SECRET = process.env.NEXTAUTH_SECRET || 'garuda-mail-enterprise-e2ee-master-2026';
+const DEFAULT_SECRET = process.env.NEXTAUTH_SECRET || (
+  process.env.NODE_ENV === 'development' ? 'development-only-e2ee-secret' : ''
+);
 
 /**
  * Derive 256-bit symmetric encryption key using PBKDF2
  */
 function deriveKey(secret: string = DEFAULT_SECRET, salt: string = 'garuda-salt-2026'): Buffer {
+  if (!secret) throw new Error('NEXTAUTH_SECRET must be configured for payload encryption.');
   return crypto.pbkdf2Sync(secret, salt, 100000, 32, 'sha256');
 }
 
@@ -109,8 +112,9 @@ export function decryptPayload(rawBody: string, secret?: string): {
       envelope,
       verified,
     };
-  } catch (err: any) {
-    console.error('[Crypto] Decryption error:', err.message);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error('[Crypto] Decryption error:', message);
     return {
       plaintext: '[Encrypted Payload - Authenticated Key Required to Decrypt]',
       isEncrypted: true,

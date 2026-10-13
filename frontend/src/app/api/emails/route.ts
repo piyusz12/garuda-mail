@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { z } from 'zod';
 import prisma from '@/lib/db';
-import { sendEmail } from '@/lib/mailer';
+import { sendEmail, type SendResult } from '@/lib/mailer';
 import { ProtocolType } from '@/lib/protocols';
 import { encryptPayload, decryptPayload } from '@/lib/crypto';
 import { getFallbackEmailsResponse } from '@/lib/fallbackEmails';
@@ -41,11 +41,15 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    let rawEmails: any[] = [];
+    let rawEmails: Array<Record<string, any>> = [];
 
     if (folder === 'sent') {
       // Sent emails
-      const whereClause: any = {
+      const whereClause: {
+        fromId: string;
+        draft: boolean;
+        OR?: Array<{ subject?: { contains: string }; body?: { contains: string } }>;
+      } = {
         fromId: userId,
         draft: false,
       };
@@ -176,13 +180,17 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       emails,
-      unreadCounts: Object.fromEntries(unreadCounts.map((u: any) => [u.folder, u._count])),
+      unreadCounts: Object.fromEntries(unreadCounts.map((u: { folder: string; _count: number }) => [u.folder, u._count])),
       page,
       total: emails.length,
     });
-  } catch (error: any) {
-    console.warn('[Emails GET] Database query failed, returning resilient fallback emails:', error?.message);
-    return NextResponse.json(getFallbackEmailsResponse(folder, search));
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : String(error);
+    console.warn('[Emails GET] Database query failed, returning resilient fallback emails:', errMsg);
+    if (process.env.DEMO_MODE === 'true' || process.env.NODE_ENV !== 'production') {
+      return NextResponse.json(getFallbackEmailsResponse(folder, search));
+    }
+    return NextResponse.json({ error: 'Email service unavailable' }, { status: 503 });
   }
 }
 
@@ -190,7 +198,7 @@ export async function GET(request: NextRequest) {
 
 const sendSchema = z.object({
   to: z.array(z.object({
-    email: z.string().min(1).transform(s => {
+    email: z.string().min(1).refine(s => !/[\r\n]/.test(s), 'Recipient contains invalid characters').transform(s => {
       let clean = s.toLowerCase().trim();
       if (!clean.includes('@')) {
         const domainFix = clean.match(/^([a-zA-Z0-9._%+-]+)((?:gmail|yahoo|outlook|hotmail|icloud|protonmail|proton)\.com)$/i);
@@ -205,7 +213,7 @@ const sendSchema = z.object({
     name: z.string().optional(),
   })).min(1, 'At least one recipient required'),
   cc: z.array(z.object({
-    email: z.string().transform(s => {
+    email: z.string().refine(s => !/[\r\n]/.test(s), 'Recipient contains invalid characters').transform(s => {
       let clean = s.toLowerCase().trim();
       if (!clean.includes('@')) {
         const domainFix = clean.match(/^([a-zA-Z0-9._%+-]+)((?:gmail|yahoo|outlook|hotmail|icloud|protonmail|proton)\.com)$/i);
@@ -227,7 +235,7 @@ const sendSchema = z.object({
   protocol: z.enum(['auto', 'smtp-starttls', 'smtps', 'smtp-direct', 'p2p-mesh', 'imap-sync']).optional().default('auto'),
   encrypted: z.boolean().optional().default(true),
   attachments: z.array(z.object({
-    filename: z.string().min(1).max(255),
+    filename: z.string().min(1).max(255).refine(name => !/[\\/\0\r\n]/.test(name), 'Invalid attachment filename'),
     mimeType: z.string().min(1).max(255),
     size: z.number().int().positive().max(10 * 1024 * 1024),
     data: z.string().regex(/^data:[^;]+;base64,/).max(14 * 1024 * 1024),
@@ -316,7 +324,7 @@ export async function POST(request: NextRequest) {
     ]);
 
     // ── Execute protocol dispatcher ──────────────────────────────────
-    let dispatchResult: any = null;
+    let dispatchResult: SendResult | null = null;
     if (!draft) {
       dispatchResult = await sendEmail({
         from: { name: sender.name || 'Garuda Mail User', email: senderEmail },
@@ -379,8 +387,8 @@ export async function POST(request: NextRequest) {
       },
       { status: 201 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[Emails POST] Error:', error);
-    return NextResponse.json({ error: error.message || 'Failed to dispatch email' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to dispatch email' }, { status: 500 });
   }
 }

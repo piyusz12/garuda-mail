@@ -6,8 +6,11 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('Seeding database...');
 
-  // Hash default password
-  const hashedPassword = await bcrypt.hash('password123', 10);
+  const seedPassword = process.env.SEED_DEFAULT_PASSWORD;
+  if (!seedPassword) {
+    throw new Error('SEED_DEFAULT_PASSWORD must be configured before seeding users.');
+  }
+  const hashedPassword = await bcrypt.hash(seedPassword, 12);
 
   // 1. Create or upsert primary users
   const analyst = await prisma.user.upsert({
@@ -17,7 +20,7 @@ async function main() {
       name: 'Garuda Analyst',
       email: 'analyst@enterprise.local',
       password: hashedPassword,
-      role: 'analyst',
+      role: 'user',
       department: 'Cryptographic SOC',
       avatarColor: '#38BDF8',
     },
@@ -43,7 +46,7 @@ async function main() {
       name: 'Bob Henderson',
       email: 'bob@enterprise.local',
       password: hashedPassword,
-      role: 'analyst',
+      role: 'user',
       department: 'Network Forensics',
       avatarColor: '#10B981',
     },
@@ -56,7 +59,7 @@ async function main() {
       name: 'Alice Vance',
       email: 'alice@enterprise.local',
       password: hashedPassword,
-      role: 'analyst',
+      role: 'user',
       department: 'Cryptography & CBOM',
       avatarColor: '#8B5CF6',
     },

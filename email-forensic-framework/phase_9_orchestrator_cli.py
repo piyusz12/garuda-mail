@@ -206,12 +206,14 @@ if HAS_FASTAPI:
     )
 
     API_KEY_NAME = "X-API-KEY"
-    API_KEY = "super-secure-production-key-2026" # In prod, load from env vars
+    API_KEY = os.environ.get("GARUDA_API_KEY")
     api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
 
     async def get_api_key(api_key_header: str = Depends(api_key_header)):
-        if api_key_header == API_KEY:
+        if API_KEY and api_key_header == API_KEY:
             return api_key_header
+        if not API_KEY:
+            raise HTTPException(status_code=503, detail="API authentication is not configured")
         raise HTTPException(
             status_code=403, 
             detail="Forbidden: Invalid or missing API Key"
@@ -232,9 +234,10 @@ if HAS_FASTAPI:
     @app.post("/api/v1/analyze", tags=["Operations"])
     def trigger_analysis(pcap_path: str, api_key: str = Depends(get_api_key)):
         """Triggers a background analysis job securely."""
-        # Note: In a real architecture, this dispatches to Celery/Redis.
-        # Here we run it synchronously for demonstration, but return a Job ID structure.
-        orchestrator = PipelineOrchestrator(pcap_path)
+        pcap_file = Path(pcap_path).resolve()
+        if not pcap_file.is_file():
+            raise HTTPException(status_code=400, detail="PCAP file does not exist or is not a valid file")
+        orchestrator = PipelineOrchestrator(str(pcap_file))
         manifest = orchestrator.run_pipeline()
         
         JOBS_DB[manifest.analysis_id] = asdict(manifest)

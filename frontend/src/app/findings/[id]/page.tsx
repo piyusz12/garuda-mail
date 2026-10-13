@@ -45,7 +45,7 @@ export default function FindingDetailPage({ params }: { params: Promise<{ id: st
         <div className="flex flex-col items-center justify-center py-20">
           <AlertTriangle size={48} className="text-[var(--color-text-dim)] mb-4" />
           <h2 className="text-lg font-semibold text-[var(--color-text-primary)] mb-2">Finding not found</h2>
-          <p className="text-[13px] text-[var(--color-text-muted)] mb-4">No finding with ID "{id}" exists in the current analysis.</p>
+          <p className="text-[13px] text-[var(--color-text-muted)] mb-4">No finding with ID &quot;{id}&quot; exists in the current analysis.</p>
           <Link href="/findings" className="text-[13px] text-[var(--color-accent)] hover:underline">← Back to Findings</Link>
         </div>
       </AppShell>

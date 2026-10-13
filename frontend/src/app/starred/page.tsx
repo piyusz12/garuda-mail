@@ -71,7 +71,10 @@ export default function StarredPage() {
 
   useEffect(() => {
     fetchStarred();
-    const interval = setInterval(() => fetchStarred(true), 6000);
+    const interval = setInterval(() => {
+      if (typeof document !== 'undefined' && document.hidden) return;
+      fetchStarred(true);
+    }, 6000);
     return () => clearInterval(interval);
   }, [fetchStarred]);
 

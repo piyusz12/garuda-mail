@@ -269,6 +269,25 @@ MOCK_CBOM = [
     {"id": "CBOM-003", "asset": "imap.example.com", "protocol": "IMAP", "tlsVersion": "TLS 1.3", "cipher": "TLS_AES_256_GCM_SHA384", "keyAlgorithm": "ECDSA P-256", "keySize": 256, "certificate": "CERT-EX-001", "ja4": "t13d1517h2_a023bc45d678_f1a2b3c4d5e6", "risk": "low"}
 ]
 
+# ── Shared Constants (used by /api/dashboard, /api/risk, /api/posture) ──
+
+RISK_DIMENSIONS = [
+    {"name": "Protocol Security", "score": 72, "weight": 0.3, "description": "TLS version and cipher strength across all sessions"},
+    {"name": "Certificate Health", "score": 81, "weight": 0.25, "description": "X.509 validity, chain integrity, and key strength"},
+    {"name": "Configuration Compliance", "score": 68, "weight": 0.2, "description": "STARTTLS enforcement and MTA-STS adherence"},
+    {"name": "Behavioral Anomaly", "score": 41, "weight": 0.15, "description": "AI-detected deviations from expected traffic patterns"},
+    {"name": "Cryptographic Posture", "score": 85, "weight": 0.1, "description": "Forward secrecy adoption and key exchange quality"}
+]
+
+POSTURE_METRICS = {
+    "tlsPosture": {"label": "TLS Posture", "score": 74, "status": "warning", "detail": "89% TLS 1.2+, 3 sessions on TLS 1.0"},
+    "certificateHealth": {"label": "Certificate Health", "score": 82, "status": "warning", "detail": "2 certificates expiring within 30 days"},
+    "forwardSecrecy": {"label": "Forward Secrecy", "score": 91, "status": "good", "detail": "91% of sessions use ECDHE or DHE key exchange"},
+    "starttlsAdoption": {"label": "STARTTLS Adoption", "score": 87, "status": "good", "detail": "87% of SMTP sessions initiated STARTTLS upgrade"},
+    "cryptoCompliance": {"label": "Cryptographic Compliance", "score": 69, "status": "warning", "detail": "7 sessions using deprecated cipher suites"},
+    "aiAnomalyActivity": {"label": "AI Anomaly Activity", "score": 34, "status": "critical", "detail": "9 anomalies detected across 248 sessions"}
+}
+
 # ── API ENDPOINTS ──
 
 @app.get("/health", tags=["System"])
@@ -299,25 +318,12 @@ def get_dashboard():
             "aiAnomalyContribution": 41,
             "contextContribution": 28,
             "confidenceContribution": 89,
-            "dimensions": [
-                {"name": "Protocol Security", "score": 72, "weight": 0.3, "description": "TLS version and cipher strength across all sessions"},
-                {"name": "Certificate Health", "score": 81, "weight": 0.25, "description": "X.509 validity, chain integrity, and key strength"},
-                {"name": "Configuration Compliance", "score": 68, "weight": 0.2, "description": "STARTTLS enforcement and MTA-STS adherence"},
-                {"name": "Behavioral Anomaly", "score": 41, "weight": 0.15, "description": "AI-detected deviations from expected traffic patterns"},
-                {"name": "Cryptographic Posture", "score": 85, "weight": 0.1, "description": "Forward secrecy adoption and key exchange quality"}
-            ]
+            "dimensions": RISK_DIMENSIONS
         },
         "findingsSummary": {"critical": 3, "high": 7, "medium": 4, "low": 2, "informational": 1, "total": 17},
         "sessionsAnalyzed": len(MOCK_SESSIONS),
         "affectedAssets": 6,
-        "posture": {
-            "tlsPosture": {"label": "TLS Posture", "score": 74, "status": "warning", "detail": "89% TLS 1.2+, 3 sessions on TLS 1.0"},
-            "certificateHealth": {"label": "Certificate Health", "score": 82, "status": "warning", "detail": "2 certificates expiring within 30 days"},
-            "forwardSecrecy": {"label": "Forward Secrecy", "score": 91, "status": "good", "detail": "91% of sessions use ECDHE or DHE key exchange"},
-            "starttlsAdoption": {"label": "STARTTLS Adoption", "score": 87, "status": "good", "detail": "87% of SMTP sessions initiated STARTTLS upgrade"},
-            "cryptoCompliance": {"label": "Cryptographic Compliance", "score": 69, "status": "warning", "detail": "7 sessions using deprecated cipher suites"},
-            "aiAnomalyActivity": {"label": "AI Anomaly Activity", "score": 34, "status": "critical", "detail": "9 anomalies detected across 248 sessions"}
-        },
+        "posture": POSTURE_METRICS,
         "recentFindings": MOCK_FINDINGS[:5],
         "recentAnalyses": [
             {
@@ -349,27 +355,32 @@ def get_session(session_id: str):
         raise HTTPException(404, detail="Session not found")
     
     return {
-        "session": sess,
+        **sess,
         "timeline": [
-            {"id": "EV-1", "timestamp": sess["timestamp"], "direction": "c2s", "eventType": "CONNECT", "summary": "TCP Connection Established", "protocol": sess["protocol"], "offset": 0},
-            {"id": "EV-2", "timestamp": sess["timestamp"], "direction": "s2c", "eventType": "GREETING", "summary": "220 mail.example.com ESMTP Ready", "protocol": sess["protocol"], "offset": 45},
-            {"id": "EV-3", "timestamp": sess["timestamp"], "direction": "c2s", "eventType": "STARTTLS_REQUEST", "summary": "Client sent STARTTLS upgrade request", "protocol": sess["protocol"], "offset": 120}
+            {"timestamp": sess["timestamp"], "event": "TCP Established", "detail": f"SYN -> SYN-ACK -> ACK with {sess['sourceIp']}:{sess['sourcePort']} -> {sess['destIp']}:{sess['destPort']}", "type": "tcp"},
+            {"timestamp": sess["timestamp"], "event": f"{sess['protocol']} Greeting", "detail": f"220 {sess.get('destHostname', 'mail.example.com')} Ready", "type": "smtp" if sess['protocol'] == "SMTP" else "imap" if sess['protocol'] == "IMAP" else "pop3"},
+            {"timestamp": sess["timestamp"], "event": "STARTTLS Requested", "detail": "Client initiated STARTTLS upgrade", "type": "tls"}
         ],
-        "packets": [
-            {"packetNumber": 1, "timestamp": sess["timestamp"], "sourceIp": sess["sourceIp"], "sourcePort": sess["sourcePort"], "destIp": sess["destIp"], "destPort": sess["destPort"], "protocol": "TCP", "length": 74, "flags": ["SYN"], "summary": "TCP 3-way handshake SYN"},
-            {"packetNumber": 2, "timestamp": sess["timestamp"], "sourceIp": sess["destIp"], "sourcePort": sess["destPort"], "destIp": sess["sourceIp"], "destPort": sess["sourcePort"], "protocol": "TCP", "length": 74, "flags": ["SYN", "ACK"], "summary": "TCP 3-way handshake SYN-ACK"},
-            {"packetNumber": 3, "timestamp": sess["timestamp"], "sourceIp": sess["sourceIp"], "sourcePort": sess["sourcePort"], "destIp": sess["destIp"], "destPort": sess["destPort"], "protocol": "TCP", "length": 66, "flags": ["ACK"], "summary": "TCP 3-way handshake ACK"}
+        "packetRecords": [
+            {"number": 1, "timestamp": sess["timestamp"], "sourceIp": sess["sourceIp"], "sourcePort": sess["sourcePort"], "destIp": sess["destIp"], "destPort": sess["destPort"], "protocol": "TCP", "length": 74, "flags": "SYN", "summary": "TCP 3-way handshake SYN"},
+            {"number": 2, "timestamp": sess["timestamp"], "sourceIp": sess["destIp"], "sourcePort": sess["destPort"], "destIp": sess["sourceIp"], "destPort": sess["sourcePort"], "protocol": "TCP", "length": 74, "flags": "SYN,ACK", "summary": "TCP 3-way handshake SYN-ACK"},
+            {"number": 3, "timestamp": sess["timestamp"], "sourceIp": sess["sourceIp"], "sourcePort": sess["sourcePort"], "destIp": sess["destIp"], "destPort": sess["destPort"], "protocol": "TCP", "length": 66, "flags": "ACK", "summary": "TCP 3-way handshake ACK"}
         ],
         "tls": {
             "version": sess.get("tlsVersion", "TLS 1.2"),
+            "versionNumeric": 0x0303,
             "cipherSuite": "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
             "keyExchange": "ECDHE P-256",
-            "alpn": "smtp",
+            "authentication": "RSA",
+            "encryption": "AES-256-GCM",
+            "hash": "SHA-384",
+            "forwardSecrecy": True,
+            "alpn": ["smtp"],
             "sni": sess.get("destHostname", "mail.example.com"),
-            "resumption": False,
-            "extensions": ["server_name", "elliptic_curves", "ec_point_formats", "signature_algorithms", "alpn"]
+            "extensions": ["server_name", "elliptic_curves", "ec_point_formats", "signature_algorithms", "alpn"],
+            "policyStatus": "compliant" if sess.get("tlsVersion") in ("TLS 1.3", "TLS 1.2") else "deprecated"
         } if sess.get("tlsVersion") else None,
-        "cert": MOCK_CERTIFICATES[0] if sess.get("tlsVersion") else None,
+        "certificate": MOCK_CERTIFICATES[0] if sess.get("tlsVersion") else None,
         "findings": MOCK_FINDINGS[:1],
         "anomalies": []
     }
@@ -408,25 +419,12 @@ def get_risk():
         "aiAnomalyContribution": 41,
         "contextContribution": 28,
         "confidenceContribution": 89,
-        "dimensions": [
-            {"name": "Protocol Security", "score": 72, "weight": 0.3, "description": "TLS version and cipher strength across all sessions"},
-            {"name": "Certificate Health", "score": 81, "weight": 0.25, "description": "X.509 validity, chain integrity, and key strength"},
-            {"name": "Configuration Compliance", "score": 68, "weight": 0.2, "description": "STARTTLS enforcement and MTA-STS adherence"},
-            {"name": "Behavioral Anomaly", "score": 41, "weight": 0.15, "description": "AI-detected deviations from expected traffic patterns"},
-            {"name": "Cryptographic Posture", "score": 85, "weight": 0.1, "description": "Forward secrecy adoption and key exchange quality"}
-        ]
+        "dimensions": RISK_DIMENSIONS
     }
 
 @app.get("/api/posture", tags=["Risk"])
 def get_posture():
-    return {
-        "tlsPosture": {"label": "TLS Posture", "score": 74, "status": "warning", "detail": "89% TLS 1.2+, 3 sessions on TLS 1.0"},
-        "certificateHealth": {"label": "Certificate Health", "score": 82, "status": "warning", "detail": "2 certificates expiring within 30 days"},
-        "forwardSecrecy": {"label": "Forward Secrecy", "score": 91, "status": "good", "detail": "91% of sessions use ECDHE or DHE key exchange"},
-        "starttlsAdoption": {"label": "STARTTLS Adoption", "score": 87, "status": "good", "detail": "87% of SMTP sessions initiated STARTTLS upgrade"},
-        "cryptoCompliance": {"label": "Cryptographic Compliance", "score": 69, "status": "warning", "detail": "7 sessions using deprecated cipher suites"},
-        "aiAnomalyActivity": {"label": "AI Anomaly Activity", "score": 34, "status": "critical", "detail": "9 anomalies detected across 248 sessions"}
-    }
+    return POSTURE_METRICS
 
 @app.get("/api/anomalies", tags=["AI"])
 def get_anomalies():
@@ -491,6 +489,14 @@ def get_investigations():
             "sessionIds": ["IMAP-0088"]
         }
     ]
+
+@app.get("/api/investigations/{inv_id}", tags=["Investigations"])
+def get_investigation(inv_id: str):
+    invs = get_investigations()
+    match = next((i for i in invs if i["id"] == inv_id), None)
+    if not match:
+        raise HTTPException(404, detail="Investigation not found")
+    return match
 
 @app.get("/api/ja4", tags=["Intelligence"])
 def get_ja4():

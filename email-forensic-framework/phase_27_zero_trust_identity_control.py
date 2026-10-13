@@ -243,16 +243,44 @@ def _build_access_context(
         dev_posture_str = "NONCOMPLIANT"
         dev_trust = 0.10
 
-    # 2. Session Risk
-    s_risk = session_risk_engine.evaluate_session(
-        session_id=session_id or f"S-SIM-{int(time.time())}",
-        identity_id=canonical_id,
-        device_id=device_id,
-        service_id=resource_id,
-        ja4=ja4,
-        destination_ip="10.200.1.7",
-        tls_version=tls_version,
-    )
+    # 2. Session Risk. Reuse a known active session when the caller omits a
+    # session id; otherwise a healthy session can be misclassified as a new,
+    # anomalous connection solely because the request arrived at a new hour.
+    known_session = next(
+        (
+            active
+            for active in session_monitor.list_active_sessions()
+            if active.identity_id == canonical_id
+            and active.device_id == device_id
+            and active.service_id == resource_id
+        ),
+        None,
+    ) if session_id is None else None
+    if known_session:
+        session_id = known_session.session_id
+        session_score = known_session.session_risk_score
+        session_level = (
+            SessionRiskLevel.CRITICAL if session_score >= 75 else
+            SessionRiskLevel.HIGH if session_score >= 50 else
+            SessionRiskLevel.MEDIUM if session_score >= 30 else
+            SessionRiskLevel.LOW
+        )
+        s_risk = SessionRiskScore(
+            session_id=session_id,
+            risk_score=session_score,
+            risk_level=session_level,
+            factors=[],
+        )
+    else:
+        s_risk = session_risk_engine.evaluate_session(
+            session_id=session_id or f"S-SIM-{int(time.time())}",
+            identity_id=canonical_id,
+            device_id=device_id,
+            service_id=resource_id,
+            ja4=ja4,
+            destination_ip="10.200.1.7",
+            tls_version=tls_version,
+        )
 
     # 3. Identity Risk
     is_priv = any("ADMIN" in r for r in user.roles) if user else False

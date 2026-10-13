@@ -1,7 +1,7 @@
 /* ─── Garuda Mail — Extended Mock Data (Detail Views) ──────────── */
 
 import type {
-  SessionDetail, SessionTimelineEvent, PacketRecord,
+  SessionDetail, SessionRecord, SessionTimelineEvent, PacketRecord,
   TlsAnalysis, Investigation, Ja4Fingerprint,
 } from '@/types';
 import { mockSessions, mockFindings, mockAnomalies, mockCertificates } from './data';
@@ -102,12 +102,12 @@ export const mockJa4Fingerprints: Ja4Fingerprint[] = [
 // ── Session Detail Builder ──
 
 export function buildSessionDetail(sessionId: string): SessionDetail | null {
-  const session = mockSessions.find((s: any) => s.id === sessionId);
+  const session = mockSessions.find((s) => s.id === sessionId);
   if (!session) return null;
 
-  const findings = mockFindings.filter((f: any) => f.relatedSessionIds.includes(sessionId));
-  const anomalies = mockAnomalies.filter((a: any) => a.sessionId === sessionId);
-  const cert = mockCertificates.find((c: any) => c.relatedSessionIds.includes(sessionId)) || null;
+  const findings = mockFindings.filter((f) => f.relatedSessionIds.includes(sessionId));
+  const anomalies = mockAnomalies.filter((a) => a.sessionId === sessionId);
+  const cert = mockCertificates.find((c) => c.relatedSessionIds.includes(sessionId)) || null;
 
   return {
     ...session,
@@ -133,13 +133,15 @@ export function buildSessionDetail(sessionId: string): SessionDetail | null {
   };
 }
 
-function generateBasicTimeline(session: any): SessionTimelineEvent[] {
+function generateBasicTimeline(session: SessionRecord): SessionTimelineEvent[] {
   const ts = session.timestamp;
   const events: SessionTimelineEvent[] = [
     { timestamp: ts, event: 'TCP Established', detail: `${session.sourceIp}:${session.sourcePort} → ${session.destIp}:${session.destPort}`, type: 'tcp' },
   ];
   if (session.protocol !== 'UNKNOWN') {
-    events.push({ timestamp: ts, event: `${session.protocol} Greeting`, detail: `Server greeting from ${session.destHostname || session.destIp}`, type: session.protocol.toLowerCase() as any });
+    const protoType = session.protocol.toLowerCase();
+    const eventType: SessionTimelineEvent['type'] = (protoType === 'smtp' || protoType === 'imap' || protoType === 'pop3') ? protoType : 'tcp';
+    events.push({ timestamp: ts, event: `${session.protocol} Greeting`, detail: `Server greeting from ${session.destHostname || session.destIp}`, type: eventType });
   }
   if (session.starttls) {
     events.push({ timestamp: ts, event: 'STARTTLS', detail: 'Client initiated STARTTLS upgrade', type: 'tls' });

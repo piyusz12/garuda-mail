@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ error: 'Unknown action' }, { status: 400 });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message || 'Operation failed' }, { status: 500 });
+  } catch {
+    return NextResponse.json({ error: 'Operation failed' }, { status: 500 });
   }
 }

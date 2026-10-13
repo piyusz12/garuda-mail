@@ -238,10 +238,11 @@ function ComposeForm() {
       setSending(false);
       setSent(true);
       router.push('/sent');
-    } catch (err: any) {
+    } catch (err: unknown) {
       setSending(false);
-      const isAuthErr = err.message?.toLowerCase().includes('unauthorized') || err.message?.includes('401');
-      setError(isAuthErr ? 'You are not signed in. Please log in before sending.' : (err.message || 'Error sending message. Check recipient email format.'));
+      const msg = err instanceof Error ? err.message : String(err);
+      const isAuthErr = msg.toLowerCase().includes('unauthorized') || msg.includes('401');
+      setError(isAuthErr ? 'You are not signed in. Please log in before sending.' : (msg || 'Error sending message. Check recipient email format.'));
     }
   };
 
@@ -269,9 +270,10 @@ function ComposeForm() {
       if (!res.ok) throw new Error('Failed to save draft');
       setSavingDraft(false);
       router.push('/drafts');
-    } catch (err: any) {
+    } catch (err: unknown) {
       setSavingDraft(false);
-      setError(err.message || 'Error saving draft');
+      const msg = err instanceof Error ? err.message : 'Error saving draft';
+      setError(msg || 'Error saving draft');
     }
   };
 

@@ -121,9 +121,10 @@ export async function sendEmail(opts: SendEmailOptions): Promise<SendResult> {
       });
       externalSent = true;
       handshakeLog.push(`[${new Date().toISOString()}] [EXTERNAL-RELAY] Successfully dispatched via SMTP server: ${info.messageId}`);
-    } catch (err: any) {
-      externalError = err.message;
-      handshakeLog.push(`[${new Date().toISOString()}] [EXTERNAL-RELAY] Remote SMTP server response: ${err.message}. Seamlessly delivered through Garuda Internal Mesh Protocol.`);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      externalError = msg;
+      handshakeLog.push(`[${new Date().toISOString()}] [EXTERNAL-RELAY] Remote SMTP server response: ${msg}. Seamlessly delivered through Garuda Internal Mesh Protocol.`);
     }
   } else {
     handshakeLog.push(`[${new Date().toISOString()}] [GARUDA-DISPATCH] Delivered via internal high-speed peer mesh to all connected user mailboxes.`);
@@ -161,8 +162,9 @@ export async function verifySmtpConnection(config: SmtpConfig): Promise<{ succes
 
     await testTransporter.verify();
     return { success: true, message: `Successfully connected to ${config.host}:${config.port || 587} with TLS authentication` };
-  } catch (error: any) {
-    return { success: false, message: error.message || 'SMTP connection failed' };
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : 'SMTP connection failed';
+    return { success: false, message: msg };
   }
 }
 

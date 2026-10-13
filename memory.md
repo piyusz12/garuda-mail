@@ -21,14 +21,14 @@
 - Local development uses SQLite with `DATABASE_URL=file:./dev.db`, creating `frontend/prisma/dev.db`.
 - The validated local Prisma pair is `prisma@6.12.0` and `@prisma/client@6.12.0`.
 - Initialize with `npx prisma db push` and seed with `node prisma/seed.js` from `frontend/`.
-- The seed accounts use the development password `password123`; never reuse those credentials in production.
+- Seeding requires the `SEED_DEFAULT_PASSWORD` environment variable; never commit or reuse seed credentials in production.
 - Production must use a managed database, pooling, migrations, backups, and secret management.
 
 ## Authentication
 
-- NextAuth uses credentials authentication, Prisma adapter, and JWT sessions.
+- NextAuth uses credentials authentication and JWT sessions without the Prisma adapter.
 - Server handlers authorize with `getServerSession(authOptions)`.
-- The auth implementation currently falls back to a development secret if `NEXTAUTH_SECRET` is absent; production must always define and rotate the secret.
+- Production requires `NEXTAUTH_SECRET`; development-only fallbacks must never be used in deployment.
 
 ## Mail Delivery
 

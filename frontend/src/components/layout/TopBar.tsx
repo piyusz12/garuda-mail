@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import {
-  Search, Bell, Wifi, Activity, Check, Clock,
+  Search, Bell, Wifi, Check, Clock,
   ExternalLink, Settings as SettingsIcon, LogOut, Laptop,
 } from 'lucide-react';
 import clsx from 'clsx';
@@ -15,6 +16,7 @@ interface TopBarProps {
 }
 
 export default function TopBar({ title, description }: TopBarProps) {
+  const router = useRouter();
   const { data: session } = useSession();
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -77,7 +79,7 @@ export default function TopBar({ title, description }: TopBarProps) {
                   autoFocus
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && searchQuery.trim()) {
-                      window.location.href = `/inbox?search=${encodeURIComponent(searchQuery.trim())}`;
+                      router.push(`/inbox?search=${encodeURIComponent(searchQuery.trim())}`);
                     }
                   }}
                   onBlur={() => { if (!searchQuery) setSearchOpen(false); }}
@@ -249,7 +251,7 @@ export default function TopBar({ title, description }: TopBarProps) {
               <div className="flex items-center justify-between text-[var(--color-text-muted)] py-1">
                 <span>Account Role:</span>
                 <span className="text-[var(--color-severity-healthy)] font-medium capitalize">
-                  {(session?.user as any)?.role || 'Analyst'}
+                  {session?.user?.role || 'Analyst'}
                 </span>
               </div>
             </div>

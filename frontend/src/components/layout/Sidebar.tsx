@@ -41,7 +41,7 @@ interface SidebarProps {
 
 export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const pathname = usePathname();
-  const [unreadCounts, setUnreadCounts] = useState<{ inbox?: number; drafts?: number }>({ inbox: 0, drafts: 0 });
+  const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>({ inbox: 0, drafts: 0 });
 
   useEffect(() => {
     async function loadCounts() {
@@ -56,7 +56,10 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
       } catch {}
     }
     loadCounts();
-    const interval = setInterval(loadCounts, 8000);
+    const interval = setInterval(() => {
+      if (typeof document !== 'undefined' && document.hidden) return;
+      loadCounts();
+    }, 8000);
     return () => clearInterval(interval);
   }, []);
 
@@ -120,7 +123,7 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
         <div className="space-y-0.5">
           {emailNav.map((item) => {
             const isActive = pathname === item.href;
-            const count = item.countKey ? (unreadCounts as any)[item.countKey] : undefined;
+            const count = item.countKey ? unreadCounts[item.countKey] : undefined;
             return (
               <Link
                 key={item.name}

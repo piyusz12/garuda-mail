@@ -22,10 +22,18 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
+  const configuredSecret = process.env.NEXTAUTH_SECRET;
+  if (!configuredSecret && process.env.NODE_ENV === 'production') {
+    if (pathname.startsWith('/api/')) {
+      return NextResponse.json({ error: 'Authentication is not configured' }, { status: 503 });
+    }
+    return NextResponse.redirect(new URL('/login?error=authentication_unavailable', req.url));
+  }
+
   // Verify JWT session token safely
   const token = await getToken({
     req,
-    secret: process.env.NEXTAUTH_SECRET || 'garuda-mail-super-secret-production-jwt-2026-key',
+    secret: configuredSecret || 'development-only-nextauth-secret',
   });
 
   if (!token) {
@@ -38,7 +46,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  const role = String((token as any)?.role || 'user').toLowerCase();
+  const role = String(token?.role || 'user').toLowerCase();
 
   if (isAdminRoute && role !== 'admin') {
     const deniedUrl = req.nextUrl.clone();

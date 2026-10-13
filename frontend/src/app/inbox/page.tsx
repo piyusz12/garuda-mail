@@ -89,8 +89,9 @@ export default function InboxPage() {
 
   useEffect(() => {
     fetchEmails();
-    // Auto-poll every 2 seconds for instant real-time multi-PC synchronization
+    // Auto-poll every 2 seconds for instant real-time multi-PC synchronization (paused when tab hidden)
     const interval = setInterval(() => {
+      if (typeof document !== 'undefined' && document.hidden) return;
       fetchEmails(true);
     }, 2000);
     return () => clearInterval(interval);
@@ -205,7 +206,7 @@ export default function InboxPage() {
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <InboxIcon size={40} className="text-[var(--color-text-dim)] mb-4" />
               <h3 className="text-[15px] font-semibold text-[var(--color-text-primary)] mb-1">No messages match filter</h3>
-              <p className="text-[13px] text-[var(--color-text-muted)]">Try selecting "All" or send an email to yourself from another PC.</p>
+              <p className="text-[13px] text-[var(--color-text-muted)]">Try selecting &quot;All&quot; or send an email to yourself from another PC.</p>
             </div>
           ) : (
             <div className="divide-y divide-[var(--color-border-subtle)]">

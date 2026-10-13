@@ -90,7 +90,7 @@ export default function CertificateTrustGraph() {
             'shadow-blur': 25,
             'shadow-color': 'rgba(56,189,248,0.7)',
             'shadow-opacity': 0.8,
-          } as any,
+          } as cytoscape.Css.Node,
         },
         {
           selector: 'edge',

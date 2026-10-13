@@ -3,10 +3,8 @@
 
 import type {
   AnalysisJob, SessionRecord, Finding, CertificateRecord,
-  Anomaly, Ja4Fingerprint, RiskAssessment, PostureMetrics,
+  Anomaly, RiskAssessment, PostureMetrics,
   DashboardData, SystemStatus, CbomAsset, Report,
-  Investigation, SessionDetail, SessionTimelineEvent, PacketRecord,
-  TlsAnalysis, Evidence, StandardMapping, FeatureContribution,
 } from '@/types';
 
 // ── Risk Assessment ──

@@ -3,8 +3,13 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import { findUserByEmail, verifyUserPassword } from '@/lib/users';
 import { normalizeUserRole } from '@/lib/roles';
 
-const authSecret =
-  process.env.NEXTAUTH_SECRET || 'garuda-mail-super-secret-production-jwt-2026-key';
+const authSecret = process.env.NEXTAUTH_SECRET || (
+  process.env.NODE_ENV === 'development' ? 'development-only-nextauth-secret' : undefined
+);
+
+if (!authSecret && process.env.NODE_ENV === 'production' && process.env.NEXT_PHASE !== 'phase-production-build') {
+  throw new Error('NEXTAUTH_SECRET must be configured in production.');
+}
 
 export const authOptions: NextAuthOptions = {
   // Using JWT strategy without PrismaAdapter avoids runtime database errors on serverless environments
@@ -59,14 +64,14 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.role = normalizeUserRole((user as any).role);
+        token.role = normalizeUserRole(user.role);
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
-        (session.user as any).role = normalizeUserRole(token.role as string | undefined);
+        session.user.role = normalizeUserRole(token.role);
       }
       return session;
     },

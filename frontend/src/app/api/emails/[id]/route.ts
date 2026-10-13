@@ -69,8 +69,12 @@ export async function GET(request: NextRequest, { params }: Params) {
         integrityVerified: decrypted.verified ?? true,
       },
     });
-  } catch (error: any) {
-    console.warn('[Email GET] Database query failed, returning fallback email:', error?.message);
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : String(error);
+    console.warn('[Email GET] Database query failed, returning fallback email:', errMsg);
+    if (process.env.DEMO_MODE !== 'true' && process.env.NODE_ENV === 'production') {
+      return NextResponse.json({ error: 'Email service unavailable' }, { status: 503 });
+    }
     const fallback = FALLBACK_EMAILS.find(e => e.id === id) || FALLBACK_EMAILS[0];
     if (fallback) {
       return NextResponse.json({
@@ -101,7 +105,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
   const userEmail = session.user.email?.toLowerCase().trim();
 
   try {
-    const updates: any = {};
+    const updates: { read?: boolean; starred?: boolean; folder?: string } = {};
     if (read !== undefined) updates.read = read;
     if (starred !== undefined) updates.starred = starred;
     if (folder !== undefined) updates.folder = folder;
@@ -118,7 +122,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     });
 
     return NextResponse.json({ message: 'Updated' });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[Email PATCH] Error:', error);
     return NextResponse.json({ error: 'Failed to update email' }, { status: 500 });
   }
@@ -181,7 +185,7 @@ export async function DELETE(request: NextRequest, { params }: Params) {
     }
 
     return NextResponse.json({ message: permanent ? 'Deleted permanently' : 'Moved to trash' });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[Email DELETE] Error:', error);
     return NextResponse.json({ error: 'Failed to delete email' }, { status: 500 });
   }

@@ -8,12 +8,7 @@ if (!process.env.DATABASE_URL) {
   process.env.DATABASE_URL = 'postgresql://postgres:postgres@localhost:5432/garuda_mail?schema=public';
 }
 
-// 2. Ensure NEXTAUTH_SECRET is set for production
-if (!process.env.NEXTAUTH_SECRET) {
-  process.env.NEXTAUTH_SECRET = 'garuda-mail-super-secret-production-jwt-2026-key';
-}
-
-// 3. Ensure AUTH_TRUST_HOST is set
+// Ensure AUTH_TRUST_HOST is set for the deployment runtime.
 process.env.AUTH_TRUST_HOST = 'true';
 
 console.log('[Build] Ensuring Prisma Client is generated...');

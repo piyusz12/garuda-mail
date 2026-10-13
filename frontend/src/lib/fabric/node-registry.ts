@@ -27,7 +27,6 @@ export interface NodeHeartbeat {
 }
 
 declare global {
-  // eslint-disable-next-line no-var
   var __garudaFabricNodes: Map<string, FabricNode> | undefined;
 }
 

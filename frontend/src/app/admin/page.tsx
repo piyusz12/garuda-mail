@@ -7,7 +7,7 @@ import { hasRoleAccess } from '@/lib/roles';
 export default async function AdminPage() {
   const session = await getServerSession(authOptions);
 
-  if (!session || !hasRoleAccess((session.user as any)?.role, ['admin'])) {
+  if (!session || !hasRoleAccess(session.user?.role, ['admin'])) {
     redirect('/login?callbackUrl=/admin');
   }
 

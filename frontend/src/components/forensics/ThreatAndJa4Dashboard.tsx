@@ -1,11 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { usePcapStore, ThreatItem, Ja4Fingerprint } from '@/lib/store/usePcapStore';
+import { usePcapStore } from '@/lib/store/usePcapStore';
 import {
-  ShieldAlert, ShieldCheck, AlertTriangle, Brain, Filter,
-  Fingerprint, Sparkles, Terminal, ArrowUpRight, Search,
-  CheckCircle2, AlertOctagon, Info, Shield
+  Brain, Fingerprint, Search, CheckCircle2, AlertOctagon,
 } from 'lucide-react';
 import clsx from 'clsx';
 

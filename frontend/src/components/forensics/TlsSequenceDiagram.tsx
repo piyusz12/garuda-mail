@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import {
   ReactFlow,
   Background,
@@ -12,11 +12,9 @@ import {
   MarkerType,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { motion } from 'framer-motion';
 import {
   Play, Pause, SkipBack, SkipForward, RotateCcw,
-  ShieldCheck, AlertTriangle, Cpu, Terminal, ArrowRight,
-  Layers, Lock, Sparkles, Database, Info, Copy, Check
+  Terminal, ArrowRight, Lock, Sparkles,
 } from 'lucide-react';
 import { usePcapStore, TlsStepNode } from '@/lib/store/usePcapStore';
 import clsx from 'clsx';
@@ -93,7 +91,7 @@ export default function TlsSequenceDiagram() {
 
   // Playback timer loop
   useEffect(() => {
-    let timer: any;
+    let timer: ReturnType<typeof setInterval> | undefined;
     if (isPlaying) {
       timer = setInterval(() => {
         nextStep();
