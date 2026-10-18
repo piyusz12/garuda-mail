@@ -7,7 +7,7 @@ import {
   Inbox, Send, FileEdit, Star, Archive, Trash2,
   LayoutDashboard, Upload, Network, AlertTriangle, Shield,
   Award, Brain, Search as SearchIcon, FileText, Settings, Layers,
-  ChevronLeft, ChevronRight, Plus, Mail,
+  ChevronLeft, ChevronRight, Plus, Mail, Cpu, Activity,
 } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -22,6 +22,8 @@ const emailNav = [
 
 const systemNav = [
   { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
+  { name: 'AI Fabric', href: '/fabric', icon: Cpu },
+  { name: 'Autonomous Ops', href: '/operations', icon: Activity },
   { name: 'Analysis', href: '/analysis', icon: Upload },
   { name: 'Sessions', href: '/sessions', icon: Network },
   { name: 'Findings', href: '/findings', icon: AlertTriangle },

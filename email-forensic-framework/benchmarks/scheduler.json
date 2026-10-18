@@ -1,0 +1,14 @@
+{
+  "test_suite": "Workload Scheduler Optimization Benchmark",
+  "timestamp": 1792341915.0,
+  "scheduling_performance": {
+    "filter_evaluation_latency_avg_ms": 1.4,
+    "scoring_latency_avg_ms": 0.8,
+    "explainability_generation_latency_ms": 1.1,
+    "total_scheduling_decision_time_ms": 3.3,
+    "decisions_evaluated": 100,
+    "fair_scheduling_throttles_enforced": 4,
+    "data_locality_enforcements": 12,
+    "policy_hard_gate_blocks": 6
+  }
+}

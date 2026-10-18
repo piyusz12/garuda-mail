@@ -49,3 +49,5 @@ venv/
 .coverage
 htmlcov/
 .vercel
+.agents/
+skills-lock.json

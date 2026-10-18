@@ -1,0 +1,14 @@
+{
+  "test_suite": "Distributed RAG Pipeline Benchmark",
+  "timestamp": 1792341910.0,
+  "metrics": {
+    "document_parsing_throughput_docs_sec": 380.0,
+    "chunking_time_per_mb_ms": 14.5,
+    "embedding_batch_throughput_chunks_sec": 1420.0,
+    "vector_retrieval_latency_p95_ms": 18.2,
+    "neural_reranking_latency_p95_ms": 24.6,
+    "end_to_end_rag_latency_avg_ms": 85.3,
+    "retrieval_groundedness_score": 0.94,
+    "hallucination_rate_pct": 0.4
+  }
+}

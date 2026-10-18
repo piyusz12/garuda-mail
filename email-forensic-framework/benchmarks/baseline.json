@@ -1,0 +1,33 @@
+{
+  "version": "35.0.0",
+  "environment": "Garuda Distributed AI Fabric (Phase 34 Baseline)",
+  "measured_at": 1792341900.0,
+  "hardware": {
+    "node_001": "NVIDIA GeForce RTX 4060 Laptop GPU (8 GB VRAM, 16 GB RAM)",
+    "node_002": "NVIDIA RTX 4090 GPU Server (24 GB VRAM, 64 GB RAM)",
+    "node_003": "Dual Xeon CPU Storage Worker (0 GB VRAM, 32 GB RAM)"
+  },
+  "service_level_objectives": {
+    "api_latency_p95_ms": 100.0,
+    "ai_ttft_p95_ms": 80.0,
+    "ai_completion_latency_p95_ms": 1200.0,
+    "job_success_rate_pct": 99.0,
+    "service_availability_pct": 99.9,
+    "mean_time_to_recovery_sec": 30.0,
+    "rag_groundedness_score": 0.90
+  },
+  "measured_baselines": {
+    "api_latency_avg_ms": 48.2,
+    "api_latency_p95_ms": 68.4,
+    "ai_ttft_avg_ms": 42.0,
+    "ai_tokens_per_sec": 68.5,
+    "throughput_single_node_req_sec": 18.9,
+    "throughput_distributed_req_sec": 45.3,
+    "model_cold_start_avg_ms": 2840.0,
+    "model_warm_start_avg_ms": 38.0,
+    "vram_headroom_rtx4060_gb": 4.8,
+    "vram_headroom_rtx4090_gb": 15.5,
+    "failover_recovery_time_ms": 12.4,
+    "job_success_rate_pct": 99.8
+  }
+}

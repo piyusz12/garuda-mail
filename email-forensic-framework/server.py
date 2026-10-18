@@ -53,6 +53,13 @@ PCAPS_DIR = BASE_DIR / "pcaps"
 OUTPUT_DIR = BASE_DIR / "output" / "analysis"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
+# Mount Phase 34: Distributed Sovereign AI Fabric
+try:
+    from phase_34_distributed_ai_fabric import app as fabric_app
+    app.include_router(fabric_app.router)
+except Exception as e:
+    print(f"[WARN] Could not mount Phase 34 fabric routes: {e}")
+
 # ── IN-MEMORY DATABASE WITH MOCK & REAL FORENSIC TELEMETRY ──
 
 MOCK_SESSIONS = [

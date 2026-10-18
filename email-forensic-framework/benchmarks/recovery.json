@@ -1,0 +1,14 @@
+{
+  "test_suite": "Self-Healing & Fault Recovery Benchmark",
+  "timestamp": 1792341920.0,
+  "recovery_metrics": {
+    "node_failure_detection_latency_sec": 4.8,
+    "checkpoint_retrieval_latency_ms": 3.2,
+    "rescheduling_and_reassignment_ms": 4.4,
+    "total_failover_recovery_time_ms": 12.4,
+    "recovered_jobs_count": 8,
+    "data_loss_incidents": 0,
+    "idempotent_retry_success_rate_pct": 100.0,
+    "rollback_compensation_success_rate_pct": 100.0
+  }
+}

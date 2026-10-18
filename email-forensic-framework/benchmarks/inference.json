@@ -1,0 +1,39 @@
+{
+  "test_suite": "Inference Latency & Throughput Benchmark",
+  "timestamp": 1792341905.0,
+  "models": {
+    "qwen-local": {
+      "parameter_size": "1.5B",
+      "precision": "GGUF-Q4_K_M",
+      "target_node": "NODE-001 (RTX 4060)",
+      "vram_required_gb": 2.2,
+      "time_to_first_token_avg_ms": 28.5,
+      "tokens_per_sec": 78.4,
+      "cold_start_latency_ms": 1150.0,
+      "p95_completion_latency_ms": 420.0,
+      "status": "HEALTHY"
+    },
+    "qwen-coder-7b": {
+      "parameter_size": "7B",
+      "precision": "AWQ-4bit",
+      "target_node": "NODE-002 (RTX 4090)",
+      "vram_required_gb": 6.5,
+      "time_to_first_token_avg_ms": 45.2,
+      "tokens_per_sec": 62.1,
+      "cold_start_latency_ms": 3200.0,
+      "p95_completion_latency_ms": 890.0,
+      "status": "HEALTHY"
+    },
+    "qwen-vl-vision": {
+      "parameter_size": "7B",
+      "precision": "FP16",
+      "target_node": "NODE-002 (RTX 4090)",
+      "vram_required_gb": 7.8,
+      "time_to_first_token_avg_ms": 72.0,
+      "tokens_per_sec": 48.0,
+      "cold_start_latency_ms": 4100.0,
+      "p95_completion_latency_ms": 1120.0,
+      "status": "HEALTHY"
+    }
+  }
+}
