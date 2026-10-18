@@ -1,8 +1,28 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "regions": ["bom1"],
   "buildCommand": "npm --prefix frontend install && npm --prefix frontend run build",
   "outputDirectory": "frontend/.next",
   "framework": "nextjs",
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET,POST,PUT,DELETE,OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "X-Requested-With,Content-Type,Authorization"
+        }
+      ]
+    }
+  ],
   "env": {
     "NEXT_PUBLIC_USE_MOCK_DATA": "true",
     "AUTH_TRUST_HOST": "true",
@@ -10,6 +30,7 @@
     "NEXTAUTH_SECRET": "garuda-mail-sovereign-production-secret-2026",
     "NEXTAUTH_URL": "https://garuda-mail.vercel.app",
     "BUILTIN_PASSWORD_HASH": "$2b$10$Q7yt/OlFiwCLf0nQ.Qt/7uQsV5ppAOKkKQz584bFbHFsTfxeJs18u",
-    "AIR_GAPPED_MODE": "false"
+    "AIR_GAPPED_MODE": "false",
+    "TZ": "Asia/Kolkata"
   }
 }
