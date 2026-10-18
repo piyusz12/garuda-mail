@@ -140,65 +140,68 @@ export default function AutonomousOperationsPage() {
 
   return (
     <AppShell
-      title="Autonomous AI Operations"
-      description="Phase 35 — Self-Optimization, Predictive Control & Self-Healing Operations"
+      title="Autonomous Operations & System Health"
+      description="Closed-loop telemetry, predictive resource balancing, auto-remediation, and safeguard governance"
     >
       <div className="space-y-8 font-sans">
         {/* ── Header & Mode Switcher ── */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-[#1E293B]">
-        <div>
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-gradient-to-tr from-cyan-500/20 to-blue-600/20 border border-cyan-500/30 text-cyan-400">
-              <Activity className="w-6 h-6 animate-pulse" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-3">
-                Autonomous Operations Center
-                <span className="text-xs px-2.5 py-0.5 rounded-full bg-cyan-950/80 border border-cyan-500/30 text-cyan-300 font-mono">
-                  PHASE 35
-                </span>
-              </h1>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Closed-Loop Telemetry · Workload Forecasting · Self-Healing Recovery · Sovereign Governance Bounds
-              </p>
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-[#1E293B]">
+          <div>
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/25 text-cyan-400">
+                <Activity className="w-6 h-6 animate-pulse" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-3">
+                  Autonomous Operations &amp; Health
+                  <span className="badge badge-accent text-[11px] font-medium">
+                    Self-Healing Active
+                  </span>
+                </h1>
+                <p className="text-xs text-slate-400 mt-1">
+                  Closed-loop node telemetry, workload prediction, and allowlisted automated recovery within strict security boundaries.
+                </p>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Autonomy Mode Selector */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 p-1 bg-[#0F172A] border border-slate-800 rounded-xl w-full lg:w-auto">
-          <button
-            onClick={() => handleModeChange('OBSERVE')}
-            className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all text-center ${
-              mode === 'OBSERVE'
-                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20 font-semibold'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            Mode 1: Observe
-          </button>
-          <button
-            onClick={() => handleModeChange('RECOMMEND_AND_APPROVE')}
-            className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all text-center ${
-              mode === 'RECOMMEND_AND_APPROVE'
-                ? 'bg-amber-600 text-white shadow-lg shadow-amber-500/20 font-semibold'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            Mode 2: Recommend &amp; Approve
-          </button>
-          <button
-            onClick={() => handleModeChange('BOUNDED_AUTOMATION')}
-            className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all text-center ${
-              mode === 'BOUNDED_AUTOMATION'
-                ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/20 font-semibold'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            Mode 3: Bounded Automation
-          </button>
+          {/* Autonomy Mode Selector */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 p-1 bg-[#0F172A] border border-slate-800 rounded-xl w-full lg:w-auto">
+            <button
+              onClick={() => handleModeChange('OBSERVE')}
+              className={`flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+                mode === 'OBSERVE'
+                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20 font-semibold'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <Shield className="w-3.5 h-3.5" />
+              <span>Monitor Only</span>
+            </button>
+            <button
+              onClick={() => handleModeChange('RECOMMEND_AND_APPROVE')}
+              className={`flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+                mode === 'RECOMMEND_AND_APPROVE'
+                  ? 'bg-amber-600 text-white shadow-lg shadow-amber-500/20 font-semibold'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>Guided Approval</span>
+            </button>
+            <button
+              onClick={() => handleModeChange('BOUNDED_AUTOMATION')}
+              className={`flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+                mode === 'BOUNDED_AUTOMATION'
+                  ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/20 font-semibold'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <Zap className="w-3.5 h-3.5" />
+              <span>Auto-Recovery</span>
+            </button>
+          </div>
         </div>
-      </div>
 
       {actionNotice && (
         <div className="p-3 bg-cyan-950/60 border border-cyan-500/40 rounded-xl text-xs text-cyan-200 flex items-center justify-between animate-fadeIn">
@@ -256,12 +259,12 @@ export default function AutonomousOperationsPage() {
         </div>
       </div>
 
-      {/* ── Closed-Loop Architecture Visual Pipeline ── */}
+      {/* ── Autonomous Closed-Loop Feedback Pipeline ── */}
       <div className="p-5 rounded-2xl bg-gradient-to-r from-[#0F172A]/90 via-[#1E293B]/60 to-[#0F172A]/90 border border-slate-800/80">
         <div className="text-xs uppercase tracking-widest text-slate-400 font-semibold mb-4 flex items-center justify-between">
-          <span>Target Architecture — Closed-Loop Optimization Loop (Section 35.2)</span>
+          <span>Continuous Health &amp; Safeguard Lifecycle</span>
           <span className="text-cyan-400 flex items-center gap-1">
-            <RefreshCw className="w-3.5 h-3.5 animate-spin" /> Continuous Telemetry Feedback
+            <RefreshCw className="w-3.5 h-3.5 animate-spin" /> Telemetry Feedback Active
           </span>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-2 text-center text-xs">
@@ -269,7 +272,7 @@ export default function AutonomousOperationsPage() {
             { step: 'OBSERVE', sub: 'Telemetry & Logs', color: 'border-cyan-500/40 text-cyan-400' },
             { step: 'DIAGNOSE', sub: 'Anomaly Detector', color: 'border-blue-500/40 text-blue-400' },
             { step: 'PLAN', sub: 'Forecaster & AI', color: 'border-indigo-500/40 text-indigo-400' },
-            { step: 'CHECK POLICY', sub: 'Phase 33 Gate', color: 'border-purple-500/40 text-purple-400' },
+            { step: 'CHECK POLICY', sub: 'Governance Gate', color: 'border-purple-500/40 text-purple-400' },
             { step: 'AUTHORIZE', sub: 'Autonomy Mode', color: 'border-amber-500/40 text-amber-400' },
             { step: 'EXECUTE', sub: 'Allowlist Executor', color: 'border-emerald-500/40 text-emerald-400' },
             { step: 'VERIFY', sub: 'Health Probe', color: 'border-teal-500/40 text-teal-400' },
@@ -543,32 +546,32 @@ export default function AutonomousOperationsPage() {
         </div>
       </div>
 
-      {/* ── Flagship Demonstration Runner Card (Section 35.22) ── */}
+      {/* ── Live Automated Recovery Verification ── */}
       <div className="p-6 rounded-2xl bg-gradient-to-r from-slate-900 via-slate-900/90 to-slate-950 border border-cyan-500/30 shadow-xl space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h2 className="text-base font-bold text-white flex items-center gap-2">
               <Play className="w-5 h-5 text-cyan-400" />
-              SIH Flagship Demonstration — Automatic Recovery Under GPU Pressure
+              Live Failover &amp; Recovery Simulation
             </h2>
             <p className="text-xs text-slate-400 mt-1 max-w-3xl">
-              Simulates primary worker failure, enforces Phase 33 sovereign eligibility, routes workloads automatically to verified replacement compute, records 20.8% performance delta, and verifies bounded governance invariants.
+              Simulates real-world primary node degradation, checks sovereign policy eligibility, safely routes workloads to verified replacement compute, and verifies 0 data loss under load.
             </p>
           </div>
           <button
             disabled={demoRunning}
             onClick={handleRunSIHDemo}
-            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold text-xs shadow-lg shadow-cyan-500/20 flex items-center gap-2 transition-all active:scale-95 disabled:opacity-50"
+            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold text-xs shadow-lg shadow-cyan-500/20 flex items-center gap-2 transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
           >
             {demoRunning ? (
               <>
                 <RefreshCw className="w-4 h-4 animate-spin" />
-                Executing Scenario...
+                Executing Recovery...
               </>
             ) : (
               <>
                 <Play className="w-4 h-4 fill-current" />
-                Run Live Flagship Demo
+                Run Failover Test
               </>
             )}
           </button>

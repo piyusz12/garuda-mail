@@ -135,7 +135,7 @@ export default function AnalysisPage() {
             )}
           >
             <Network size={14} className={activeTab === 'sequence' ? 'text-[var(--color-accent)]' : ''} />
-            <span>Phase 3: TLS Sequence Flow (React Flow)</span>
+            <span>TLS Protocol Sequence</span>
           </button>
 
           <button
@@ -148,7 +148,7 @@ export default function AnalysisPage() {
             )}
           >
             <Award size={14} className={activeTab === 'certs' ? 'text-[var(--color-accent)]' : ''} />
-            <span>Phase 4: X.509 Trust Graph (Cytoscape)</span>
+            <span>X.509 Trust Chain</span>
           </button>
 
           <button
@@ -161,7 +161,7 @@ export default function AnalysisPage() {
             )}
           >
             <Brain size={14} className={activeTab === 'threats' ? 'text-[var(--color-accent)]' : ''} />
-            <span>Phase 5: AI Posture & JA4+ Hunter</span>
+            <span>AI Threat Posture &amp; JA4+</span>
           </button>
 
           <button
@@ -174,7 +174,7 @@ export default function AnalysisPage() {
             )}
           >
             <Upload size={14} className={activeTab === 'ingestion' ? 'text-[var(--color-accent)]' : ''} />
-            <span>Phase 2: Local PCAP Ingestion</span>
+            <span>PCAP Packet Ingestion</span>
           </button>
         </div>
 

@@ -41,7 +41,7 @@ export default function FindingsPage() {
     <AppShell title="Findings" description={`${mockFindings.length} security findings across all analyses`}>
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
         {/* Summary cards */}
-        <div className="grid grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5 sm:gap-3">
           {(['critical', 'high', 'medium', 'low', 'informational'] as Severity[]).map(sev => {
             const count = mockFindings.filter(f => f.severity === sev).length;
             const colorMap: Record<string, string> = {

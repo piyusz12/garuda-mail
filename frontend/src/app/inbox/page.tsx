@@ -13,6 +13,26 @@ import type { EmailMessage, SecurityLevel } from '@/types/email';
 
 const fadeUp = { initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.25 } };
 
+function getSenderInitials(name: string): string {
+  if (!name) return 'U';
+  const parts = name.trim().split(/\s+/);
+  if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+  return name.slice(0, 2).toUpperCase();
+}
+
+function getSenderColor(name: string): { bg: string; text: string; border: string } {
+  const palette = [
+    { bg: 'rgba(56, 189, 248, 0.15)', text: '#38BDF8', border: 'rgba(56, 189, 248, 0.3)' },
+    { bg: 'rgba(16, 185, 129, 0.15)', text: '#34D399', border: 'rgba(16, 185, 129, 0.3)' },
+    { bg: 'rgba(168, 85, 247, 0.15)', text: '#C084FC', border: 'rgba(168, 85, 247, 0.3)' },
+    { bg: 'rgba(245, 158, 11, 0.15)', text: '#FBBF24', border: 'rgba(245, 158, 11, 0.3)' },
+    { bg: 'rgba(244, 63, 94, 0.15)', text: '#FB7185', border: 'rgba(244, 63, 94, 0.3)' },
+  ];
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  return palette[Math.abs(hash) % palette.length];
+}
+
 export default function InboxPage() {
   const [emails, setEmails] = useState<EmailMessage[]>([]);
   const [loading, setLoading] = useState(true);
@@ -296,6 +316,19 @@ function EmailRow({
           />
         </button>
       </div>
+
+      {/* Deterministic Sender Avatar */}
+      {(() => {
+        const color = getSenderColor(email.from.name);
+        return (
+          <div
+            className="hidden sm:flex items-center justify-center w-8 h-8 rounded-full text-[11px] font-bold flex-shrink-0 transition-transform group-hover:scale-105 select-none"
+            style={{ backgroundColor: color.bg, color: color.text, border: `1px solid ${color.border}` }}
+          >
+            {getSenderInitials(email.from.name)}
+          </div>
+        );
+      })()}
 
       {/* Sender & Content */}
       <div className="flex-1 min-w-0">

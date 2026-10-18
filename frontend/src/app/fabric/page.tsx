@@ -194,7 +194,7 @@ export default function FabricPage() {
   return (
     <AppShell
       title="Distributed AI Fabric"
-      description="Phase 34 — Multi-Node Sovereign AI Orchestration, Resource-Aware Scheduling & Fault Tolerance"
+      description="Sovereign Multi-Node Compute Mesh, Resource-Aware Scheduling & Fault Tolerance"
     >
       <div className="space-y-6">
 
@@ -210,7 +210,7 @@ export default function FabricPage() {
               )} />
               <div>
                 <div className="flex items-center gap-2">
-                  <h2 className="text-lg font-bold text-[var(--color-text-primary)]">GARUDA DISTRIBUTED FABRIC</h2>
+                  <h2 className="text-lg font-bold text-[var(--color-text-primary)]">GARUDA SOVEREIGN COMPUTE MESH</h2>
                   <span className="badge badge-accent text-[10px] font-mono uppercase tracking-wider">Mesh Active</span>
                 </div>
                 <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
@@ -292,10 +292,10 @@ export default function FabricPage() {
         <div className="flex items-center gap-1 border-b border-[var(--color-border)] pb-2 overflow-x-auto">
           {[
             { id: 'mesh', label: 'Cluster Mesh & Node Map', icon: Network },
-            { id: 'scheduler', label: 'Explainable Scheduler', icon: Sliders },
-            { id: 'demos', label: 'SIH Flagship Demos (1-6)', icon: PlayCircle },
+            { id: 'scheduler', label: 'Workload Scheduler', icon: Sliders },
+            { id: 'demos', label: 'Fault-Tolerance Scenarios', icon: PlayCircle },
             { id: 'enrollment', label: `Node Enrollment (${enrollments.length})`, icon: Shield },
-            { id: 'benchmarks', label: 'Performance Benchmark', icon: Gauge },
+            { id: 'benchmarks', label: 'Cluster Benchmarks', icon: Gauge },
           ].map(tab => {
             const Icon = tab.icon;
             const active = activeTab === tab.id;
@@ -688,10 +688,10 @@ export default function FabricPage() {
               <div>
                 <h3 className="text-base font-bold text-[var(--color-text-primary)] flex items-center gap-2">
                   <PlayCircle className="w-4 h-4 text-[var(--color-accent)]" />
-                  SIH Flagship Multi-Node Demonstrations (Sections 34.39–34.45)
+                  Cluster Resilience &amp; Fault-Tolerance Test Suite
                 </h3>
                 <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
-                  Execute live scenarios proving distributed inference, resource-aware placement, data sovereignty, and automatic failover.
+                  Execute live verification scenarios proving distributed inference, resource-aware placement, data sovereignty, and automatic failover.
                 </p>
               </div>
 
@@ -701,7 +701,7 @@ export default function FabricPage() {
                 className="btn btn-accent text-xs flex items-center gap-1.5 font-semibold"
               >
                 <Zap className="w-3.5 h-3.5" />
-                Run All 6 Demos
+                Run All 6 Scenarios
               </button>
             </div>
 
@@ -710,43 +710,43 @@ export default function FabricPage() {
               {[
                 {
                   id: 1,
-                  title: 'Demo 1 — Distributed Inference',
-                  section: '34.40',
+                  title: 'Scenario 1 — Distributed Inference',
+                  scenarioId: 'SCENARIO-01',
                   desc: 'Distributes requests across Node A (RTX 4060) and Node B (RTX 4090) based on queue pressure.',
                   tag: 'Load Balancing',
                 },
                 {
                   id: 2,
-                  title: 'Demo 2 — Resource-Aware Scheduling',
-                  section: '34.41',
+                  title: 'Scenario 2 — Resource-Aware Scheduling',
+                  scenarioId: 'SCENARIO-02',
                   desc: 'Simulates memory saturation on RTX 4060 (7.6/8 GB used) and routes large model to RTX 4090.',
                   tag: 'VRAM Headroom',
                 },
                 {
                   id: 3,
-                  title: 'Demo 3 — Sovereign Data Placement',
-                  section: '34.42',
+                  title: 'Scenario 3 — Sovereign Data Placement',
+                  scenarioId: 'SCENARIO-03',
                   desc: 'Enforces RESTRICTED classification: Node B and Node C are denied; only RESTRICTED_AI Node A approved.',
                   tag: 'Data Locality',
                 },
                 {
                   id: 4,
-                  title: 'Demo 4 — Node Failure & Failover',
-                  section: '34.43',
+                  title: 'Scenario 4 — Node Failure & Failover',
+                  scenarioId: 'SCENARIO-04',
                   desc: 'Simulates worker kernel crash, retrieves durable checkpoints, and resumes seamlessly on Node A.',
                   tag: 'Fault Tolerance',
                 },
                 {
                   id: 5,
-                  title: 'Demo 5 — Air-Gapped Mode',
-                  section: '34.44',
+                  title: 'Scenario 5 — Air-Gapped Mode',
+                  scenarioId: 'SCENARIO-05',
                   desc: 'Blocks external AI APIs while local offline RAG and local models continue running unimpeded.',
                   tag: 'Air-Gap / Offline',
                 },
                 {
                   id: 6,
-                  title: 'Demo 6 — Policy + Scheduler Chain',
-                  section: '34.45',
+                  title: 'Scenario 6 — Policy + Scheduler Chain',
+                  scenarioId: 'SCENARIO-06',
                   desc: 'Complete control plane: Auth -> RBAC -> DataClass -> Policy -> VRAM -> Scheduler -> Audit commit.',
                   tag: 'End-to-End Governance',
                 },
@@ -763,7 +763,7 @@ export default function FabricPage() {
                     <div>
                       <div className="flex items-center justify-between">
                         <span className="text-[10px] font-mono text-[var(--color-accent)] font-semibold">
-                          SECTION {demo.section}
+                          {demo.scenarioId}
                         </span>
                         <span className="badge badge-accent text-[9px] font-mono">{demo.tag}</span>
                       </div>
