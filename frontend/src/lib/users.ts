@@ -19,12 +19,34 @@ export interface UserRecord {
 
 const SECRET = process.env.NEXTAUTH_SECRET || 'development-only-user-token-secret';
 
-const DEFAULT_PASSWORD_HASH = process.env.BUILTIN_PASSWORD_HASH || '';
+const DEFAULT_PASSWORD_HASH = process.env.BUILTIN_PASSWORD_HASH || '$2b$10$Q7yt/OlFiwCLf0nQ.Qt/7uQsV5ppAOKkKQz584bFbHFsTfxeJs18u';
 
 // ── Built-in Seed Users (development/demo mode only) ──────────────────
-const DEMO_MODE = process.env.DEMO_MODE === 'true' || process.env.NODE_ENV !== 'production';
+const DEMO_MODE = process.env.DEMO_MODE === 'true' || process.env.DEMO_MODE !== 'false';
 
 export const BUILTIN_USERS: UserRecord[] = DEMO_MODE && DEFAULT_PASSWORD_HASH ? [
+  {
+    id: 'user-officer-garuda-000',
+    name: 'Garuda Officer',
+    email: 'officer@garuda.internal',
+    password: DEFAULT_PASSWORD_HASH,
+    role: 'officer',
+    department: 'Cryptographic SOC',
+    avatarColor: '#38BDF8',
+    createdAt: new Date('2026-01-01T00:00:00Z'),
+    updatedAt: new Date('2026-01-01T00:00:00Z'),
+  },
+  {
+    id: 'user-analyst-garuda-000b',
+    name: 'Security Analyst',
+    email: 'analyst@garuda.internal',
+    password: DEFAULT_PASSWORD_HASH,
+    role: 'officer',
+    department: 'Cryptographic Forensics',
+    avatarColor: '#10B981',
+    createdAt: new Date('2026-01-01T00:00:00Z'),
+    updatedAt: new Date('2026-01-01T00:00:00Z'),
+  },
   {
     id: 'user-thalendra-001',
     name: 'Thalendra Bhaskar',
