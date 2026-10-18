@@ -97,9 +97,13 @@ export default function SessionsPage() {
                 key={r}
                 onClick={() => setRiskFilter(r)}
                 className={clsx(
-                  'px-3 py-1.5 text-[11px] font-medium rounded-md transition-colors capitalize',
+                  'px-3 py-1.5 text-[11px] font-medium rounded-lg transition-all capitalize',
                   riskFilter === r
-                    ? 'bg-[var(--color-accent-dim)] text-[var(--color-accent)] border border-[rgba(56,189,248,0.15)]'
+                    ? r === 'critical' ? 'bg-rose-500/15 text-rose-400 border border-rose-500/35 font-semibold shadow-[0_0_10px_rgba(244,63,94,0.2)]'
+                    : r === 'high' ? 'bg-amber-500/15 text-amber-400 border border-amber-500/35 font-semibold shadow-[0_0_10px_rgba(245,158,11,0.2)]'
+                    : r === 'medium' ? 'bg-yellow-500/15 text-yellow-400 border border-yellow-500/35 font-semibold'
+                    : r === 'low' ? 'bg-blue-500/15 text-blue-400 border border-blue-500/35 font-semibold shadow-[0_0_10px_rgba(59,130,246,0.2)]'
+                    : 'bg-sky-500/15 text-sky-400 border border-sky-500/35 font-semibold shadow-[0_0_10px_rgba(56,189,248,0.2)]'
                     : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)] border border-transparent'
                 )}
               >

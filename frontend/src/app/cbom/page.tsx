@@ -140,48 +140,48 @@ export default function CbomPage() {
 
         {/* ── Metrics Grid ── */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="card p-5 space-y-1.5">
+          <div className="card p-5 space-y-1.5 border-t-2 border-t-sky-500/80 bg-gradient-to-b from-sky-500/[0.08] to-transparent shadow-lg shadow-sky-500/10 card-hover">
             <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)] flex items-center justify-between">
               <span>Inventoried Assets</span>
-              <Database size={16} className="text-[var(--color-accent)]" />
+              <Database size={16} className="text-sky-400" />
             </div>
-            <div className="text-3xl font-bold text-[var(--color-text-primary)] tabular-nums">
+            <div className="text-3xl font-bold text-sky-400 tabular-nums">
               {mockCbom.length}
             </div>
             <p className="text-[11px] text-[var(--color-text-dim)]">Tracked email server endpoints</p>
           </div>
 
-          <div className="card p-5 space-y-1.5">
+          <div className="card p-5 space-y-1.5 border-t-2 border-t-purple-500/80 bg-gradient-to-b from-purple-500/[0.08] to-transparent shadow-lg shadow-purple-500/10 card-hover">
             <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)] flex items-center justify-between">
               <span>PQC Migration Debt</span>
-              <Sparkles size={16} className="text-[var(--color-severity-critical)]" />
+              <Sparkles size={16} className="text-purple-400" />
             </div>
-            <div className="text-3xl font-bold text-[var(--color-severity-critical)] tabular-nums">
+            <div className="text-3xl font-bold text-purple-400 tabular-nums">
               100%
             </div>
-            <p className="text-[11px] text-[var(--color-severity-critical)] font-medium">All 6 assets rely on classical RSA/ECC</p>
+            <p className="text-[11px] text-purple-400/90 font-medium">All 6 assets rely on classical RSA/ECC</p>
           </div>
 
-          <div className="card p-5 space-y-1.5">
+          <div className="card p-5 space-y-1.5 border-t-2 border-t-rose-500/80 bg-gradient-to-b from-rose-500/[0.08] to-transparent shadow-lg shadow-rose-500/10 card-hover">
             <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)] flex items-center justify-between">
               <span>Non-Compliant Algorithms</span>
-              <AlertTriangle size={16} className="text-[var(--color-severity-high)]" />
+              <AlertTriangle size={16} className="text-rose-400" />
             </div>
-            <div className="text-3xl font-bold text-[var(--color-severity-high)] tabular-nums">
+            <div className="text-3xl font-bold text-rose-400 tabular-nums">
               {mockCbom.filter(c => c.risk === 'critical' || c.risk === 'high').length}
             </div>
-            <p className="text-[11px] text-[var(--color-severity-high)] font-medium">3DES, 1024-bit RSA, or TLS 1.0</p>
+            <p className="text-[11px] text-rose-400 font-medium">3DES, 1024-bit RSA, or TLS 1.0</p>
           </div>
 
-          <div className="card p-5 space-y-1.5">
+          <div className="card p-5 space-y-1.5 border-t-2 border-t-emerald-500/80 bg-gradient-to-b from-emerald-500/[0.08] to-transparent shadow-lg shadow-emerald-500/10 card-hover">
             <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)] flex items-center justify-between">
               <span>Fully Compliant Assets</span>
-              <CheckCircle size={16} className="text-[var(--color-severity-healthy)]" />
+              <CheckCircle size={16} className="text-emerald-400" />
             </div>
-            <div className="text-3xl font-bold text-[var(--color-severity-healthy)] tabular-nums">
+            <div className="text-3xl font-bold text-emerald-400 tabular-nums">
               {mockCbom.filter(c => c.risk === 'low').length}
             </div>
-            <p className="text-[11px] text-[var(--color-severity-healthy)] font-medium">TLS 1.3 + AEAD ciphers</p>
+            <p className="text-[11px] text-emerald-400 font-medium">TLS 1.3 + AEAD ciphers</p>
           </div>
         </div>
 

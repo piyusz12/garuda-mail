@@ -64,22 +64,43 @@ export function MetricCard({
   label: string;
   value: string | number;
   sub?: string;
-  accent?: 'critical' | 'high' | 'accent' | 'healthy';
+  accent?: 'critical' | 'high' | 'accent' | 'healthy' | 'purple';
   className?: string;
 }) {
-  const accentColor = {
-    critical: 'text-[var(--color-severity-critical)]',
-    high: 'text-[var(--color-severity-high)]',
-    accent: 'text-[var(--color-accent)]',
-    healthy: 'text-[var(--color-severity-healthy)]',
+  const styles = {
+    critical: {
+      text: 'text-rose-400',
+      border: 'border-t-2 border-t-rose-500/80',
+      bg: 'bg-gradient-to-b from-rose-500/[0.06] to-transparent',
+    },
+    high: {
+      text: 'text-amber-400',
+      border: 'border-t-2 border-t-amber-500/80',
+      bg: 'bg-gradient-to-b from-amber-500/[0.06] to-transparent',
+    },
+    accent: {
+      text: 'text-sky-400',
+      border: 'border-t-2 border-t-sky-500/80',
+      bg: 'bg-gradient-to-b from-sky-500/[0.06] to-transparent',
+    },
+    healthy: {
+      text: 'text-emerald-400',
+      border: 'border-t-2 border-t-emerald-500/80',
+      bg: 'bg-gradient-to-b from-emerald-500/[0.06] to-transparent',
+    },
+    purple: {
+      text: 'text-purple-400',
+      border: 'border-t-2 border-t-purple-500/80',
+      bg: 'bg-gradient-to-b from-purple-500/[0.06] to-transparent',
+    },
   }[accent || 'accent'];
 
   return (
-    <div className={clsx('card p-4 card-hover', className)}>
+    <div className={clsx('card p-4 card-hover shadow-lg', styles.border, styles.bg, className)}>
       <div className="text-[11px] uppercase tracking-wider text-[var(--color-text-muted)] font-medium mb-1.5">
         {label}
       </div>
-      <div className={clsx('text-2xl font-bold tabular-nums', accentColor)}>
+      <div className={clsx('text-2xl font-bold tabular-nums', styles.text)}>
         {value}
       </div>
       {sub && (

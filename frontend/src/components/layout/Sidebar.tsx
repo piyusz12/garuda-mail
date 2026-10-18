@@ -12,28 +12,28 @@ import {
 import clsx from 'clsx';
 
 const emailNav = [
-  { name: 'Inbox', href: '/inbox', icon: Inbox, countKey: 'inbox' as const },
-  { name: 'Sent', href: '/sent', icon: Send },
-  { name: 'Drafts', href: '/drafts', icon: FileEdit, countKey: 'drafts' as const },
-  { name: 'Starred', href: '/starred', icon: Star },
-  { name: 'Archive', href: '/archive', icon: Archive },
-  { name: 'Trash', href: '/trash', icon: Trash2 },
+  { name: 'Inbox', href: '/inbox', icon: Inbox, countKey: 'inbox' as const, color: 'text-sky-400', activeBg: 'bg-sky-500/15 border-sky-500/30 text-sky-400' },
+  { name: 'Sent', href: '/sent', icon: Send, color: 'text-indigo-400', activeBg: 'bg-indigo-500/15 border-indigo-500/30 text-indigo-400' },
+  { name: 'Drafts', href: '/drafts', icon: FileEdit, countKey: 'drafts' as const, color: 'text-amber-400', activeBg: 'bg-amber-500/15 border-amber-500/30 text-amber-400' },
+  { name: 'Starred', href: '/starred', icon: Star, color: 'text-yellow-400', activeBg: 'bg-yellow-500/15 border-yellow-500/30 text-yellow-400' },
+  { name: 'Archive', href: '/archive', icon: Archive, color: 'text-emerald-400', activeBg: 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400' },
+  { name: 'Trash', href: '/trash', icon: Trash2, color: 'text-rose-400', activeBg: 'bg-rose-500/15 border-rose-500/30 text-rose-400' },
 ];
 
 const systemNav = [
-  { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'AI Fabric', href: '/fabric', icon: Cpu },
-  { name: 'Autonomous Ops', href: '/operations', icon: Activity },
-  { name: 'Analysis', href: '/analysis', icon: Upload },
-  { name: 'Sessions', href: '/sessions', icon: Network },
-  { name: 'Findings', href: '/findings', icon: AlertTriangle },
-  { name: 'Crypto Posture', href: '/crypto', icon: Shield },
-  { name: 'Certificates & CA', href: '/certificates', icon: Award },
-  { name: 'AI Anomalies', href: '/anomalies', icon: Brain },
-  { name: 'Investigations', href: '/investigations', icon: SearchIcon },
-  { name: 'CBOM', href: '/cbom', icon: Layers },
-  { name: 'Reports', href: '/reports', icon: FileText },
-  { name: 'Settings', href: '/settings', icon: Settings },
+  { name: 'Overview', href: '/dashboard', icon: LayoutDashboard, color: 'text-sky-400', activeBg: 'bg-sky-500/15 border-sky-500/30 text-sky-400' },
+  { name: 'AI Fabric', href: '/fabric', icon: Cpu, color: 'text-purple-400', activeBg: 'bg-purple-500/15 border-purple-500/30 text-purple-400' },
+  { name: 'Autonomous Ops', href: '/operations', icon: Activity, color: 'text-cyan-400', activeBg: 'bg-cyan-500/15 border-cyan-500/30 text-cyan-400' },
+  { name: 'Analysis', href: '/analysis', icon: Upload, color: 'text-indigo-400', activeBg: 'bg-indigo-500/15 border-indigo-500/30 text-indigo-400' },
+  { name: 'Sessions', href: '/sessions', icon: Network, color: 'text-blue-400', activeBg: 'bg-blue-500/15 border-blue-500/30 text-blue-400' },
+  { name: 'Findings', href: '/findings', icon: AlertTriangle, color: 'text-amber-400', activeBg: 'bg-amber-500/15 border-amber-500/30 text-amber-400' },
+  { name: 'Crypto Posture', href: '/crypto', icon: Shield, color: 'text-emerald-400', activeBg: 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400' },
+  { name: 'Certificates & CA', href: '/certificates', icon: Award, color: 'text-rose-400', activeBg: 'bg-rose-500/15 border-rose-500/30 text-rose-400' },
+  { name: 'AI Anomalies', href: '/anomalies', icon: Brain, color: 'text-fuchsia-400', activeBg: 'bg-fuchsia-500/15 border-fuchsia-500/30 text-fuchsia-400' },
+  { name: 'Investigations', href: '/investigations', icon: SearchIcon, color: 'text-violet-400', activeBg: 'bg-violet-500/15 border-violet-500/30 text-violet-400' },
+  { name: 'CBOM', href: '/cbom', icon: Layers, color: 'text-teal-400', activeBg: 'bg-teal-500/15 border-teal-500/30 text-teal-400' },
+  { name: 'Reports', href: '/reports', icon: FileText, color: 'text-slate-300', activeBg: 'bg-slate-500/15 border-slate-500/30 text-slate-200' },
+  { name: 'Settings', href: '/settings', icon: Settings, color: 'text-slate-400', activeBg: 'bg-slate-500/15 border-slate-500/30 text-slate-300' },
 ];
 
 interface SidebarProps {
@@ -132,8 +132,8 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onCloseMobile
             href="/compose"
             onClick={onCloseMobile}
             className={clsx(
-              'flex items-center justify-center gap-2 rounded-lg font-medium transition-all duration-200',
-              'bg-[var(--color-accent)] text-[#0B0D10] hover:bg-[#5ccbfc] active:scale-[0.97]',
+              'flex items-center justify-center gap-2 rounded-xl font-semibold transition-all duration-200',
+              'bg-gradient-to-r from-sky-500 via-indigo-500 to-purple-600 hover:from-sky-400 hover:via-indigo-400 hover:to-purple-500 text-white shadow-lg shadow-indigo-500/25 active:scale-[0.97] border border-white/20',
               collapsed ? 'w-full md:w-9 h-9 md:mx-auto' : 'w-full h-9 px-4 text-[13px]'
             )}
           >
@@ -164,19 +164,19 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onCloseMobile
                 onClick={onCloseMobile}
                 title={collapsed ? item.name : undefined}
                 className={clsx(
-                  'flex items-center gap-2.5 px-2.5 py-2 rounded-md text-[13px] font-medium transition-all duration-150',
+                  'flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] font-medium transition-all duration-150',
                   isActive
-                    ? 'bg-[var(--color-accent-dim)] text-[var(--color-accent)] border border-[rgba(56,189,248,0.12)]'
+                    ? clsx(item.activeBg, 'shadow-sm font-semibold')
                     : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)] border border-transparent',
                   collapsed && 'md:justify-center md:px-0'
                 )}
               >
-                <item.icon className={clsx('flex-shrink-0', isActive ? 'text-[var(--color-accent)]' : 'text-[var(--color-text-muted)]')} size={18} strokeWidth={1.8} />
+                <item.icon className={clsx('flex-shrink-0 transition-colors', isActive ? item.color : 'text-[var(--color-text-muted)]')} size={18} strokeWidth={1.8} />
                 {(!collapsed || mobileOpen) && (
                   <>
                     <span className="truncate flex-1">{item.name}</span>
                     {count && count > 0 && (
-                      <span className="text-[10px] font-bold tabular-nums bg-[var(--color-accent)] text-[#0B0D10] rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+                      <span className="text-[10px] font-bold tabular-nums bg-sky-500 text-white rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 shadow-sm shadow-sky-500/30">
                         {count}
                       </span>
                     )}
@@ -211,14 +211,14 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onCloseMobile
                 onClick={onCloseMobile}
                 title={collapsed ? item.name : undefined}
                 className={clsx(
-                  'flex items-center gap-2.5 px-2.5 py-2 rounded-md text-[13px] font-medium transition-all duration-150',
+                  'flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] font-medium transition-all duration-150',
                   isActive
-                    ? 'bg-[var(--color-accent-dim)] text-[var(--color-accent)] border border-[rgba(56,189,248,0.12)]'
+                    ? clsx(item.activeBg, 'shadow-sm font-semibold')
                     : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)] border border-transparent',
                   collapsed && 'md:justify-center md:px-0'
                 )}
               >
-                <item.icon className={clsx('flex-shrink-0', isActive ? 'text-[var(--color-accent)]' : 'text-[var(--color-text-muted)]')} size={18} strokeWidth={1.8} />
+                <item.icon className={clsx('flex-shrink-0 transition-colors', isActive ? item.color : 'text-[var(--color-text-muted)]')} size={18} strokeWidth={1.8} />
                 {(!collapsed || mobileOpen) && <span className="truncate">{item.name}</span>}
               </Link>
             );

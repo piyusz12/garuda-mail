@@ -44,32 +44,27 @@ export default function FindingsPage() {
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5 sm:gap-3">
           {(['critical', 'high', 'medium', 'low', 'informational'] as Severity[]).map(sev => {
             const count = mockFindings.filter(f => f.severity === sev).length;
-            const colorMap: Record<string, string> = {
-              critical: 'border-l-[var(--color-severity-critical)]',
-              high: 'border-l-[var(--color-severity-high)]',
-              medium: 'border-l-[var(--color-severity-medium)]',
-              low: 'border-l-[var(--color-severity-low)]',
-              informational: 'border-l-[var(--color-severity-info)]',
+            const styleMap: Record<string, { border: string; bg: string; text: string }> = {
+              critical: { border: 'border-l-4 border-l-rose-500', bg: 'bg-rose-500/[0.06]', text: 'text-rose-400' },
+              high: { border: 'border-l-4 border-l-amber-500', bg: 'bg-amber-500/[0.06]', text: 'text-amber-400' },
+              medium: { border: 'border-l-4 border-l-yellow-500', bg: 'bg-yellow-500/[0.06]', text: 'text-yellow-400' },
+              low: { border: 'border-l-4 border-l-blue-500', bg: 'bg-blue-500/[0.06]', text: 'text-blue-400' },
+              informational: { border: 'border-l-4 border-l-slate-500', bg: 'bg-slate-500/[0.06]', text: 'text-slate-400' },
             };
-            const textColor: Record<string, string> = {
-              critical: 'text-[var(--color-severity-critical)]',
-              high: 'text-[var(--color-severity-high)]',
-              medium: 'text-[var(--color-severity-medium)]',
-              low: 'text-[var(--color-severity-low)]',
-              informational: 'text-[var(--color-severity-info)]',
-            };
+            const current = styleMap[sev];
             return (
               <button
                 key={sev}
                 onClick={() => setSeverityFilter(severityFilter === sev ? 'all' : sev)}
                 className={clsx(
-                  'card p-3 border-l-2 text-left transition-all',
-                  colorMap[sev],
-                  severityFilter === sev ? 'ring-1 ring-[var(--color-accent)]' : 'card-hover'
+                  'card p-3 text-left transition-all',
+                  current.border,
+                  current.bg,
+                  severityFilter === sev ? 'ring-2 ring-sky-500 shadow-lg' : 'card-hover'
                 )}
               >
-                <div className={clsx('text-xl font-bold tabular-nums', textColor[sev])}>{count}</div>
-                <div className="text-[10px] uppercase tracking-wider text-[var(--color-text-dim)] capitalize">{sev}</div>
+                <div className={clsx('text-xl font-bold tabular-nums', current.text)}>{count}</div>
+                <div className="text-[10px] uppercase tracking-wider text-[var(--color-text-dim)] font-semibold capitalize mt-0.5">{sev}</div>
               </button>
             );
           })}

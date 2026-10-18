@@ -66,48 +66,48 @@ export default function AnomaliesPage() {
 
         {/* ── Top Metrics ── */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="card p-5 space-y-1.5">
+          <div className="card p-5 space-y-1.5 border-t-2 border-t-purple-500/80 bg-gradient-to-b from-purple-500/[0.08] to-transparent shadow-lg shadow-purple-500/10 card-hover">
             <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)] flex items-center justify-between">
               <span>Total Anomalies</span>
-              <Brain size={16} className="text-[var(--color-accent)]" />
+              <Brain size={16} className="text-purple-400" />
             </div>
-            <div className="text-3xl font-bold text-[var(--color-text-primary)] tabular-nums">
+            <div className="text-3xl font-bold text-purple-400 tabular-nums">
               {mockAnomalies.length}
             </div>
             <p className="text-[11px] text-[var(--color-text-dim)]">Deviations exceeding baseline threshold</p>
           </div>
 
-          <div className="card p-5 space-y-1.5">
+          <div className="card p-5 space-y-1.5 border-t-2 border-t-rose-500/80 bg-gradient-to-b from-rose-500/[0.08] to-transparent shadow-lg shadow-rose-500/10 card-hover">
             <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)] flex items-center justify-between">
               <span>High Severity Outliers</span>
-              <AlertTriangle size={16} className="text-[var(--color-severity-critical)]" />
+              <AlertTriangle size={16} className="text-rose-400" />
             </div>
-            <div className="text-3xl font-bold text-[var(--color-severity-critical)] tabular-nums">
+            <div className="text-3xl font-bold text-rose-400 tabular-nums">
               {mockAnomalies.filter(a => a.anomalyScore >= 70).length}
             </div>
-            <p className="text-[11px] text-[var(--color-severity-critical)] font-medium">Score &gt;= 70/100 threshold</p>
+            <p className="text-[11px] text-rose-400 font-medium">Score &gt;= 70/100 threshold</p>
           </div>
 
-          <div className="card p-5 space-y-1.5">
+          <div className="card p-5 space-y-1.5 border-t-2 border-t-sky-500/80 bg-gradient-to-b from-sky-500/[0.08] to-transparent shadow-lg shadow-sky-500/10 card-hover">
             <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)] flex items-center justify-between">
               <span>Unique JA4 Fingerprints</span>
-              <Fingerprint size={16} className="text-[var(--color-accent)]" />
+              <Fingerprint size={16} className="text-sky-400" />
             </div>
-            <div className="text-3xl font-bold text-[var(--color-accent)] tabular-nums">
+            <div className="text-3xl font-bold text-sky-400 tabular-nums">
               {mockJa4Fingerprints.length}
             </div>
             <p className="text-[11px] text-[var(--color-text-dim)]">Distinct client implementations observed</p>
           </div>
 
-          <div className="card p-5 space-y-1.5">
+          <div className="card p-5 space-y-1.5 border-t-2 border-t-amber-500/80 bg-gradient-to-b from-amber-500/[0.08] to-transparent shadow-lg shadow-amber-500/10 card-hover">
             <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)] flex items-center justify-between">
               <span>Rare / Outlier JA4s</span>
-              <AlertTriangle size={16} className="text-[var(--color-severity-high)]" />
+              <AlertTriangle size={16} className="text-amber-400" />
             </div>
-            <div className="text-3xl font-bold text-[var(--color-severity-high)] tabular-nums">
+            <div className="text-3xl font-bold text-amber-400 tabular-nums">
               {mockJa4Fingerprints.filter(j => j.rarity === 'rare').length}
             </div>
-            <p className="text-[11px] text-[var(--color-severity-high)] font-medium">Unusual client TLS configurations</p>
+            <p className="text-[11px] text-amber-400 font-medium">Unusual client TLS configurations</p>
           </div>
         </div>
 

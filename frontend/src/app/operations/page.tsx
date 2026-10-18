@@ -212,15 +212,15 @@ export default function AutonomousOperationsPage() {
 
       {/* ── KPI Overview Cards ── */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <div className="p-4 rounded-xl bg-[#0F172A]/70 border border-slate-800/80 shadow-sm backdrop-blur-sm">
+        <div className="p-4 rounded-xl bg-gradient-to-b from-sky-500/[0.08] to-[#0F172A]/70 border border-slate-800/80 border-t-2 border-t-sky-500/80 shadow-lg shadow-sky-500/10 backdrop-blur-sm card-hover">
           <div className="text-[11px] uppercase tracking-wider text-slate-400 font-medium">Active Jobs</div>
           <div className="text-2xl font-bold text-white mt-1">
             {overview?.active_jobs_count ?? 3}
           </div>
-          <div className="text-[10px] text-cyan-400 mt-1">Across eligible nodes</div>
+          <div className="text-[10px] text-sky-400 font-medium mt-1">Across eligible nodes</div>
         </div>
 
-        <div className="p-4 rounded-xl bg-[#0F172A]/70 border border-slate-800/80 shadow-sm backdrop-blur-sm">
+        <div className="p-4 rounded-xl bg-gradient-to-b from-amber-500/[0.08] to-[#0F172A]/70 border border-slate-800/80 border-t-2 border-t-amber-500/80 shadow-lg shadow-amber-500/10 backdrop-blur-sm card-hover">
           <div className="text-[11px] uppercase tracking-wider text-slate-400 font-medium">Queued Jobs</div>
           <div className="text-2xl font-bold text-amber-400 mt-1">
             {overview?.queued_jobs_count ?? 1}
@@ -228,29 +228,29 @@ export default function AutonomousOperationsPage() {
           <div className="text-[10px] text-slate-400 mt-1">Waiting for capacity</div>
         </div>
 
-        <div className="p-4 rounded-xl bg-[#0F172A]/70 border border-slate-800/80 shadow-sm backdrop-blur-sm">
+        <div className="p-4 rounded-xl bg-gradient-to-b from-purple-500/[0.08] to-[#0F172A]/70 border border-slate-800/80 border-t-2 border-t-purple-500/80 shadow-lg shadow-purple-500/10 backdrop-blur-sm card-hover">
           <div className="text-[11px] uppercase tracking-wider text-slate-400 font-medium">Pending Approvals</div>
-          <div className="text-2xl font-bold text-amber-500 mt-1">
+          <div className="text-2xl font-bold text-purple-400 mt-1">
             {overview?.pending_approvals_count ?? 1}
           </div>
           <div className="text-[10px] text-slate-400 mt-1">Human review gated</div>
         </div>
 
-        <div className="p-4 rounded-xl bg-[#0F172A]/70 border border-slate-800/80 shadow-sm backdrop-blur-sm">
+        <div className="p-4 rounded-xl bg-gradient-to-b from-emerald-500/[0.08] to-[#0F172A]/70 border border-slate-800/80 border-t-2 border-t-emerald-500/80 shadow-lg shadow-emerald-500/10 backdrop-blur-sm card-hover">
           <div className="text-[11px] uppercase tracking-wider text-slate-400 font-medium">Recoveries</div>
           <div className="text-2xl font-bold text-emerald-400 mt-1">2</div>
-          <div className="text-[10px] text-emerald-400 mt-1">Allowlisted self-heals</div>
+          <div className="text-[10px] text-emerald-400 font-medium mt-1">Allowlisted self-heals</div>
         </div>
 
-        <div className="p-4 rounded-xl bg-[#0F172A]/70 border border-slate-800/80 shadow-sm backdrop-blur-sm">
+        <div className="p-4 rounded-xl bg-gradient-to-b from-cyan-500/[0.08] to-[#0F172A]/70 border border-slate-800/80 border-t-2 border-t-cyan-500/80 shadow-lg shadow-cyan-500/10 backdrop-blur-sm card-hover">
           <div className="text-[11px] uppercase tracking-wider text-slate-400 font-medium">GPU VRAM Usage</div>
           <div className="text-2xl font-bold text-white mt-1">
             {metrics?.gpu.used_vram_gb ?? 11.2} <span className="text-xs text-slate-400 font-normal">/ {metrics?.gpu.total_vram_gb ?? 32} GB</span>
           </div>
-          <div className="text-[10px] text-emerald-400 mt-1">Headroom safe (35%)</div>
+          <div className="text-[10px] text-emerald-400 font-medium mt-1">Headroom safe (35%)</div>
         </div>
 
-        <div className="p-4 rounded-xl bg-[#0F172A]/70 border border-slate-800/80 shadow-sm backdrop-blur-sm">
+        <div className="p-4 rounded-xl bg-gradient-to-b from-blue-500/[0.08] to-[#0F172A]/70 border border-slate-800/80 border-t-2 border-t-blue-500/80 shadow-lg shadow-blue-500/10 backdrop-blur-sm card-hover">
           <div className="text-[11px] uppercase tracking-wider text-slate-400 font-medium">P95 TTFT Latency</div>
           <div className="text-2xl font-bold text-cyan-400 mt-1">
             {metrics?.ai_inference.time_to_first_token_avg_ms ?? 36.4} <span className="text-xs text-slate-400 font-normal">ms</span>

@@ -37,7 +37,7 @@ export default function DashboardPage() {
             <MetricCard label="Affected Assets" value={data.affectedAssets} sub="Unique hosts with findings" accent="high" />
           </motion.div>
           <motion.div variants={fadeUp}>
-            <MetricCard label="AI Anomalies" value="9" sub="Across 248 sessions" accent="accent" />
+            <MetricCard label="AI Anomalies" value="9" sub="Across 248 sessions" accent="purple" />
           </motion.div>
         </motion.div>
 
@@ -86,13 +86,13 @@ export default function DashboardPage() {
             />
             <div className="mt-5 grid grid-cols-5 gap-2 text-center">
               {[
-                { label: 'Critical', count: data.findingsSummary.critical, color: 'text-[var(--color-severity-critical)]' },
-                { label: 'High', count: data.findingsSummary.high, color: 'text-[var(--color-severity-high)]' },
-                { label: 'Medium', count: data.findingsSummary.medium, color: 'text-[var(--color-severity-medium)]' },
-                { label: 'Low', count: data.findingsSummary.low, color: 'text-[var(--color-severity-low)]' },
-                { label: 'Info', count: data.findingsSummary.informational, color: 'text-[var(--color-severity-info)]' },
+                { label: 'Critical', count: data.findingsSummary.critical, color: 'text-rose-400', border: 'border-rose-500/30 bg-rose-500/[0.08]' },
+                { label: 'High', count: data.findingsSummary.high, color: 'text-amber-400', border: 'border-amber-500/30 bg-amber-500/[0.08]' },
+                { label: 'Medium', count: data.findingsSummary.medium, color: 'text-yellow-400', border: 'border-yellow-500/30 bg-yellow-500/[0.08]' },
+                { label: 'Low', count: data.findingsSummary.low, color: 'text-blue-400', border: 'border-blue-500/30 bg-blue-500/[0.08]' },
+                { label: 'Info', count: data.findingsSummary.informational, color: 'text-slate-400', border: 'border-slate-500/30 bg-slate-500/[0.08]' },
               ].map(item => (
-                <div key={item.label} className="card p-2.5">
+                <div key={item.label} className={clsx('card p-2.5 border', item.border)}>
                   <div className={clsx('text-xl font-bold tabular-nums', item.color)}>{item.count}</div>
                   <div className="text-[9px] text-[var(--color-text-dim)] uppercase tracking-wider">{item.label}</div>
                 </div>

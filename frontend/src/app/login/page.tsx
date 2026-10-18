@@ -56,10 +56,12 @@ function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--color-surface-0)] flex items-center justify-center p-4">
-      {/* Background glow */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-[var(--color-accent)] opacity-[0.03] rounded-full blur-3xl" />
+    <div className="min-h-screen bg-[var(--color-surface-0)] flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Multi-Color Ambient Glows */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+        <div className="absolute -top-40 -left-40 w-[550px] h-[550px] bg-indigo-500/10 rounded-full blur-[140px]" />
+        <div className="absolute top-1/3 -right-40 w-[500px] h-[500px] bg-sky-500/10 rounded-full blur-[140px]" />
+        <div className="absolute -bottom-40 left-1/3 w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[160px]" />
       </div>
 
       <motion.div
@@ -170,7 +172,7 @@ function LoginForm() {
               type="submit"
               suppressHydrationWarning
               disabled={loading || !email || !password}
-              className="w-full h-10 flex items-center justify-center gap-2 text-[13px] font-semibold rounded-md bg-[var(--color-accent)] text-[#0B0D10] hover:bg-[#5ccbfc] disabled:opacity-50 disabled:pointer-events-none transition-all duration-200 active:scale-[0.98]"
+              className="w-full h-10 flex items-center justify-center gap-2 text-[13px] font-semibold rounded-xl bg-gradient-to-r from-sky-500 via-indigo-500 to-purple-600 hover:from-sky-400 hover:via-indigo-400 hover:to-purple-500 text-white shadow-lg shadow-indigo-500/25 disabled:opacity-50 disabled:pointer-events-none transition-all duration-200 active:scale-[0.98] border border-white/20 cursor-pointer"
             >
               {loading ? (
                 <>

@@ -134,15 +134,15 @@ export default function TopBar({ title, description, onOpenMobileMenu }: TopBarP
             title="Laptop & Mobile Multi-Device Sync"
             onClick={() => setActiveDropdown(activeDropdown === 'api' ? null : 'api')}
             className={clsx(
-              "relative flex items-center justify-center gap-1 h-8 px-2 rounded-md transition-colors",
+              "relative flex items-center justify-center gap-1.5 h-8 px-2.5 rounded-lg transition-all",
               activeDropdown === 'api'
-                ? "bg-[var(--color-surface-3)] text-white"
-                : "text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)]"
+                ? "bg-sky-500/20 text-sky-300 border border-sky-500/40 shadow-sm"
+                : "text-[var(--color-text-muted)] hover:text-sky-300 hover:bg-sky-500/10 border border-transparent"
             )}
           >
-            <Laptop size={14} className="text-[var(--color-accent)] hidden sm:inline" />
+            <Laptop size={14} className="text-sky-400 hidden sm:inline" />
             <Smartphone size={14} className="text-cyan-400" />
-            <span className="text-[10px] font-medium text-cyan-300 hidden lg:inline">Cross-Device</span>
+            <span className="text-[10px] font-semibold text-cyan-300 hidden lg:inline">Cross-Device</span>
           </button>
         </div>
 
@@ -152,28 +152,30 @@ export default function TopBar({ title, description, onOpenMobileMenu }: TopBarP
             title="Security Notifications"
             onClick={() => setActiveDropdown(activeDropdown === 'notifications' ? null : 'notifications')}
             className={clsx(
-              "relative flex items-center justify-center w-8 h-8 rounded-md transition-colors",
+              "relative flex items-center justify-center w-8 h-8 rounded-lg transition-colors",
               activeDropdown === 'notifications' ? "bg-[var(--color-surface-3)] text-white" : "text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)]"
             )}
           >
             <Bell size={16} />
             {unreadCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center w-4 h-4 text-[9px] font-bold text-white bg-[var(--color-severity-critical)] rounded-full animate-pulse">
+              <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center w-4 h-4 text-[9px] font-bold text-white bg-gradient-to-r from-rose-500 to-pink-500 rounded-full shadow-[0_0_8px_rgba(244,63,94,0.5)]">
                 {unreadCount}
               </span>
             )}
           </button>
         </div>
 
-        {/* User Avatar Button */}
+        {/* User Avatar Button with Jewel Gradient Ring */}
         <div className="relative">
           <button
             title={`Logged in as ${userName}`}
             onClick={() => setActiveDropdown(activeDropdown === 'user' ? null : 'user')}
-            className="flex items-center justify-center w-8 h-8 rounded-md hover:bg-[var(--color-surface-2)] transition-colors"
+            className="flex items-center justify-center w-8 h-8 rounded-full hover:ring-2 hover:ring-sky-400/50 transition-all cursor-pointer"
           >
-            <div className="w-7 h-7 rounded-full bg-[var(--color-accent-dim)] border border-[rgba(56,189,248,0.25)] flex items-center justify-center">
-              <span className="text-[10px] font-bold text-[var(--color-accent)]">{userInitials}</span>
+            <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-sky-400 via-indigo-500 to-purple-500 p-[1.5px] shadow-sm">
+              <div className="w-full h-full rounded-full bg-[#0D121F] flex items-center justify-center">
+                <span className="text-[10px] font-bold text-sky-300">{userInitials}</span>
+              </div>
             </div>
           </button>
         </div>

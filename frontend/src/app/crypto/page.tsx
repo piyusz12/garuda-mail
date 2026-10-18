@@ -108,25 +108,25 @@ export default function CryptoPosturePage() {
 
         {/* ── Top Metric Cards ── */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="card p-5 space-y-2">
+          <div className="card p-5 space-y-2 border-t-2 border-t-sky-500/80 bg-gradient-to-b from-sky-500/[0.08] to-transparent shadow-lg shadow-sky-500/10 card-hover">
             <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)] flex items-center justify-between">
               <span>Overall Crypto Health</span>
-              <Shield size={16} className="text-[var(--color-accent)]" />
+              <Shield size={16} className="text-sky-400" />
             </div>
-            <div className="text-3xl font-bold text-[var(--color-accent)] tabular-nums">
+            <div className="text-3xl font-bold text-sky-400 tabular-nums">
               74<span className="text-base text-[var(--color-text-muted)] font-normal">/100</span>
             </div>
-            <p className="text-[11px] text-[var(--color-severity-high)] font-medium">
+            <p className="text-[11px] text-amber-400 font-medium">
               3 non-compliant protocol versions detected
             </p>
           </div>
 
-          <div className="card p-5 space-y-2">
+          <div className="card p-5 space-y-2 border-t-2 border-t-emerald-500/80 bg-gradient-to-b from-emerald-500/[0.08] to-transparent shadow-lg shadow-emerald-500/10 card-hover">
             <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)] flex items-center justify-between">
               <span>Forward Secrecy (PFS)</span>
-              <Lock size={16} className="text-[var(--color-severity-healthy)]" />
+              <Lock size={16} className="text-emerald-400" />
             </div>
-            <div className="text-3xl font-bold text-[var(--color-severity-healthy)] tabular-nums">
+            <div className="text-3xl font-bold text-emerald-400 tabular-nums">
               91.4%
             </div>
             <p className="text-[11px] text-[var(--color-text-dim)]">
@@ -134,12 +134,12 @@ export default function CryptoPosturePage() {
             </p>
           </div>
 
-          <div className="card p-5 space-y-2">
+          <div className="card p-5 space-y-2 border-t-2 border-t-indigo-500/80 bg-gradient-to-b from-indigo-500/[0.08] to-transparent shadow-lg shadow-indigo-500/10 card-hover">
             <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)] flex items-center justify-between">
               <span>TLS 1.2+ Adoption</span>
-              <CheckCircle size={16} className="text-[var(--color-severity-healthy)]" />
+              <CheckCircle size={16} className="text-indigo-400" />
             </div>
-            <div className="text-3xl font-bold text-[var(--color-severity-healthy)] tabular-nums">
+            <div className="text-3xl font-bold text-indigo-400 tabular-nums">
               97.2%
             </div>
             <p className="text-[11px] text-[var(--color-text-dim)]">
@@ -147,12 +147,12 @@ export default function CryptoPosturePage() {
             </p>
           </div>
 
-          <div className="card p-5 space-y-2">
+          <div className="card p-5 space-y-2 border-t-2 border-t-purple-500/80 bg-gradient-to-b from-purple-500/[0.08] to-transparent shadow-lg shadow-purple-500/10 card-hover">
             <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)] flex items-center justify-between">
               <span>PQC Migration Status</span>
-              <Sparkles size={16} className="text-[var(--color-severity-high)]" />
+              <Sparkles size={16} className="text-purple-400" />
             </div>
-            <div className="text-3xl font-bold text-[var(--color-severity-high)] tabular-nums">
+            <div className="text-3xl font-bold text-purple-400 tabular-nums">
               0% <span className="text-sm font-normal text-[var(--color-text-dim)]">PQC Hybrid</span>
             </div>
             <p className="text-[11px] text-[var(--color-text-dim)]">

@@ -183,23 +183,23 @@ export default function InboxPage() {
               <span className="text-[11px] uppercase tracking-wider text-[var(--color-text-muted)] font-medium">Security</span>
             </div>
             {[
-              { id: 'all' as const, label: 'All', count: emails.length },
-              { id: 'critical' as const, label: 'Critical', count: emails.filter(e => e.security.level === 'critical').length },
-              { id: 'warning' as const, label: 'Warning', count: emails.filter(e => e.security.level === 'warning').length },
-              { id: 'secure' as const, label: 'Secure', count: emails.filter(e => e.security.level === 'secure').length },
+              { id: 'all' as const, label: 'All', count: emails.length, activeStyle: 'bg-sky-500/15 text-sky-400 border-sky-500/35 shadow-[0_0_12px_rgba(56,189,248,0.2)]' },
+              { id: 'critical' as const, label: 'Critical', count: emails.filter(e => e.security.level === 'critical').length, activeStyle: 'bg-rose-500/15 text-rose-400 border-rose-500/35 shadow-[0_0_12px_rgba(244,63,94,0.2)]' },
+              { id: 'warning' as const, label: 'Warning', count: emails.filter(e => e.security.level === 'warning').length, activeStyle: 'bg-amber-500/15 text-amber-400 border-amber-500/35 shadow-[0_0_12px_rgba(245,158,11,0.2)]' },
+              { id: 'secure' as const, label: 'Secure', count: emails.filter(e => e.security.level === 'secure').length, activeStyle: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/35 shadow-[0_0_12px_rgba(16,185,129,0.2)]' },
             ].map(f => (
               <button
                 key={f.id}
                 onClick={() => setSecurityFilter(f.id)}
                 className={clsx(
-                  'px-3 py-1.5 text-[11px] font-medium rounded-md transition-colors',
+                  'px-3 py-1.5 text-[11px] font-medium rounded-lg transition-all',
                   securityFilter === f.id
-                    ? 'bg-[var(--color-accent-dim)] text-[var(--color-accent)] border border-[rgba(56,189,248,0.15)]'
+                    ? clsx(f.activeStyle, 'border font-semibold')
                     : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)] border border-transparent'
                 )}
               >
                 {f.label}
-                <span className="ml-1 tabular-nums opacity-60">{f.count}</span>
+                <span className="ml-1 tabular-nums font-bold opacity-80">{f.count}</span>
               </button>
             ))}
           </div>
