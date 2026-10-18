@@ -5,8 +5,16 @@ import { listAllUsers } from '@/lib/users';
 
 export async function GET(request: NextRequest) {
   const session = await getServerSession(authOptions);
-  if (!session) {
+  if (!session?.user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const role = (session.user as { role?: string }).role;
+  if (role !== 'admin' && role !== 'officer') {
+    return NextResponse.json(
+      { error: 'Forbidden: Insufficient privileges to view user directory' },
+      { status: 403 }
+    );
   }
 
   try {

@@ -86,7 +86,7 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onCloseMobile
           collapsed ? 'md:w-[60px]' : 'md:w-[240px]',
           // Mobile responsive placement:
           'w-[280px]',
-          mobileOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:translate-x-0'
+          mobileOpen ? 'translate-x-0 shadow-2xl visible' : '-translate-x-full invisible md:visible md:translate-x-0'
         )}
       >
         {/* ── Logo & Mobile Close ── */}

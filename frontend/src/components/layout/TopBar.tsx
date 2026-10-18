@@ -24,6 +24,7 @@ export default function TopBar({ title, description, onOpenMobileMenu }: TopBarP
   const [searchQuery, setSearchQuery] = useState('');
   const [activeDropdown, setActiveDropdown] = useState<'notifications' | 'api' | 'user' | null>(null);
   const [copied, setCopied] = useState(false);
+  const [syncUrl, setSyncUrl] = useState('https://garuda-mail.vercel.app');
 
   const [notifications, setNotifications] = useState([
     { id: 1, title: 'STARTTLS Downgrade Detected', desc: 'Plaintext IMAP session without TLS on port 143', time: '12m ago', unread: true, sev: 'critical' },
@@ -43,10 +44,17 @@ export default function TopBar({ title, description, onOpenMobileMenu }: TopBarP
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if (!window.location.hostname.includes('localhost') && window.location.hostname !== '127.0.0.1') {
+        setSyncUrl(window.location.origin);
+      }
+    }
+  }, []);
+
   const handleCopyLink = async () => {
     try {
-      const url = typeof window !== 'undefined' ? window.location.origin : 'https://garuda-mail.vercel.app';
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(syncUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {}
@@ -245,8 +253,8 @@ export default function TopBar({ title, description, onOpenMobileMenu }: TopBarP
                 <span className="text-[10px] text-cyan-400 font-mono">Any Device</span>
               </div>
               <div className="flex items-center justify-between gap-2 p-1.5 rounded bg-[var(--color-surface-3)] border border-default">
-                <span className="text-[11px] text-mono text-cyan-300 truncate">
-                  https://garuda-mail.vercel.app
+                <span className="text-[11px] font-mono text-cyan-300 truncate">
+                  {syncUrl}
                 </span>
                 <button
                   type="button"
@@ -266,14 +274,15 @@ export default function TopBar({ title, description, onOpenMobileMenu }: TopBarP
                 <span>Open on Mobile Camera</span>
               </div>
               <div className="inline-block p-2 bg-white rounded-lg shadow-md">
-                {/* Clean inline SVG QR code representing https://garuda-mail.vercel.app */}
-                <svg width="110" height="110" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-24 h-24 mx-auto">
-                  <rect width="25" height="25" fill="white" />
-                  {/* Position detection markers */}
-                  <path fill="#0B0D10" d="M2 2h7v7H2V2zm1 1v5h5V3H3zm1 1h3v3H4V4zM16 2h7v7h-7V2zm1 1v5h5V3h-5zm1 1h3v3h-3V4zM2 16h7v7H2v-7zm1 1v5h5v-5H3zm1 1h3v3H4v-3z" />
-                  {/* Data matrix pattern elements */}
-                  <path fill="#0B0D10" d="M11 2h2v3h-2zM14 4h2v2h-2zM11 7h3v2h-3zM2 11h3v2H2zM7 11h2v3H7zM11 11h3v2h-3zM16 11h2v2h-2zM20 11h3v2h-3zM4 14h2v2H4zM13 13h2v3h-2zM17 14h2v3h-2zM21 14h2v2h-2zM11 16h2v3h-2zM14 18h2v2h-2zM18 18h2v2h-2zM11 21h3v2h-3zM16 21h2v2h-2zM20 20h3v3h-3z" />
-                </svg>
+                {/* Real, scannable QR code linking to current deployment */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(syncUrl)}&format=svg`}
+                  alt="Garuda Mail Mobile Link QR Code"
+                  width="100"
+                  height="100"
+                  className="w-24 h-24 mx-auto block"
+                />
               </div>
               <p className="text-[10px] text-slate-400">
                 Point your phone camera at the QR code to open Garuda Mail immediately.

@@ -20,10 +20,11 @@
     "clsx": "^2.1.1",
     "cytoscape": "^3.34.3",
     "framer-motion": "^13.4.4",
+    "garuda-mail": "file:..",
     "lucide-react": "^1.48.0",
     "next": "^16.4.0",
     "next-auth": "4.24.15",
-    "nodemailer": "^7.0.13",
+    "nodemailer": "^10.1.7",
     "prisma": "6.12.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
@@ -31,6 +32,10 @@
     "reflect-metadata": "^0.2.2",
     "zod": "^4.6.5",
     "zustand": "^5.0.15"
+  },
+  "overrides": {
+    "nodemailer": "^10.1.7",
+    "braces": "^3.0.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
