@@ -7,7 +7,7 @@ import {
   Inbox, Send, FileEdit, Star, Archive, Trash2,
   LayoutDashboard, Upload, Network, AlertTriangle, Shield,
   Award, Brain, Search as SearchIcon, FileText, Settings, Layers,
-  ChevronLeft, ChevronRight, Plus, Mail, Cpu, Activity,
+  ChevronLeft, ChevronRight, Plus, Mail, Cpu, Activity, X,
 } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -39,9 +39,11 @@ const systemNav = [
 interface SidebarProps {
   collapsed: boolean;
   onToggle: () => void;
+  mobileOpen?: boolean;
+  onCloseMobile?: () => void;
 }
 
-export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
+export default function Sidebar({ collapsed, onToggle, mobileOpen, onCloseMobile }: SidebarProps) {
   const pathname = usePathname();
   const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>({ inbox: 0, drafts: 0 });
 
@@ -66,50 +68,79 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
   }, []);
 
   return (
-    <aside
-      className={clsx(
-        'fixed top-0 left-0 z-40 h-screen flex flex-col transition-all duration-300 ease-in-out',
-        'surface-1 border-r border-default',
-        collapsed ? 'w-[60px]' : 'w-[240px]'
+    <>
+      {/* Mobile Drawer Overlay Backdrop */}
+      {mobileOpen && (
+        <div
+          onClick={onCloseMobile}
+          className="fixed inset-0 bg-black/75 backdrop-blur-sm z-40 md:hidden transition-opacity duration-200"
+          aria-hidden="true"
+        />
       )}
-    >
-      {/* ── Logo ── */}
-      <div className="flex items-center h-[56px] px-4 border-b border-default">
-        <Link href="/inbox" className="flex items-center gap-2.5 overflow-hidden">
-          <div className="flex-shrink-0 w-7 h-7 flex items-center justify-center">
-            <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-7 h-7">
-              <path d="M14 2L24 8V20L14 26L4 20V8L14 2Z" stroke="var(--color-accent)" strokeWidth="1.5" fill="none" />
-              <path d="M14 6L20 9.5V16.5L14 20L8 16.5V9.5L14 6Z" stroke="var(--color-accent)" strokeWidth="1" fill="var(--color-accent-dim)" />
-              <path d="M14 10L17 11.75V15.25L14 17L11 15.25V11.75L14 10Z" fill="var(--color-accent)" />
-            </svg>
-          </div>
-          {!collapsed && (
-            <div className="flex flex-col leading-none">
-              <span className="text-[13px] font-bold tracking-wider text-[var(--color-text-primary)]">
-                GARUDA
-              </span>
-              <span className="text-[10px] font-medium tracking-widest text-[var(--color-accent)] uppercase">
-                MAIL
-              </span>
-            </div>
-          )}
-        </Link>
-      </div>
 
-      {/* ── Compose Button ── */}
-      <div className={clsx('px-2 pt-3', collapsed ? 'px-1.5' : 'px-3')}>
-        <Link
-          href="/compose"
-          className={clsx(
-            'flex items-center justify-center gap-2 rounded-lg font-medium transition-all duration-200',
-            'bg-[var(--color-accent)] text-[#0B0D10] hover:bg-[#5ccbfc] active:scale-[0.97]',
-            collapsed ? 'w-9 h-9 mx-auto' : 'w-full h-9 px-4 text-[13px]'
-          )}
-        >
-          <Plus size={16} strokeWidth={2.5} />
-          {!collapsed && <span>Compose</span>}
-        </Link>
-      </div>
+      <aside
+        className={clsx(
+          'fixed top-0 left-0 z-50 h-screen flex flex-col transition-all duration-300 ease-in-out',
+          'surface-1 border-r border-default',
+          // Desktop sizing:
+          collapsed ? 'md:w-[60px]' : 'md:w-[240px]',
+          // Mobile responsive placement:
+          'w-[280px]',
+          mobileOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:translate-x-0'
+        )}
+      >
+        {/* ── Logo & Mobile Close ── */}
+        <div className="flex items-center justify-between h-[56px] px-4 border-b border-default">
+          <Link
+            href="/inbox"
+            onClick={onCloseMobile}
+            className="flex items-center gap-2.5 overflow-hidden"
+          >
+            <div className="flex-shrink-0 w-7 h-7 flex items-center justify-center">
+              <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-7 h-7">
+                <path d="M14 2L24 8V20L14 26L4 20V8L14 2Z" stroke="var(--color-accent)" strokeWidth="1.5" fill="none" />
+                <path d="M14 6L20 9.5V16.5L14 20L8 16.5V9.5L14 6Z" stroke="var(--color-accent)" strokeWidth="1" fill="var(--color-accent-dim)" />
+                <path d="M14 10L17 11.75V15.25L14 17L11 15.25V11.75L14 10Z" fill="var(--color-accent)" />
+              </svg>
+            </div>
+            {(!collapsed || mobileOpen) && (
+              <div className="flex flex-col leading-none">
+                <span className="text-[13px] font-bold tracking-wider text-[var(--color-text-primary)]">
+                  GARUDA
+                </span>
+                <span className="text-[10px] font-medium tracking-widest text-[var(--color-accent)] uppercase">
+                  MAIL
+                </span>
+              </div>
+            )}
+          </Link>
+
+          {/* Close button on mobile */}
+          <button
+            type="button"
+            onClick={onCloseMobile}
+            className="md:hidden p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-white hover:bg-[var(--color-surface-2)] transition-colors"
+            aria-label="Close navigation"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        {/* ── Compose Button ── */}
+        <div className={clsx('px-2 pt-3', collapsed ? 'px-1.5 md:px-1.5' : 'px-3')}>
+          <Link
+            href="/compose"
+            onClick={onCloseMobile}
+            className={clsx(
+              'flex items-center justify-center gap-2 rounded-lg font-medium transition-all duration-200',
+              'bg-[var(--color-accent)] text-[#0B0D10] hover:bg-[#5ccbfc] active:scale-[0.97]',
+              collapsed ? 'w-full md:w-9 h-9 md:mx-auto' : 'w-full h-9 px-4 text-[13px]'
+            )}
+          >
+            <Plus size={16} strokeWidth={2.5} />
+            {(!collapsed || mobileOpen) && <span>Compose</span>}
+          </Link>
+        </div>
 
       {/* ── Navigation ── */}
       <nav className="flex-1 overflow-y-auto py-2 px-2">
@@ -130,17 +161,18 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
               <Link
                 key={item.name}
                 href={item.href}
+                onClick={onCloseMobile}
                 title={collapsed ? item.name : undefined}
                 className={clsx(
                   'flex items-center gap-2.5 px-2.5 py-2 rounded-md text-[13px] font-medium transition-all duration-150',
                   isActive
                     ? 'bg-[var(--color-accent-dim)] text-[var(--color-accent)] border border-[rgba(56,189,248,0.12)]'
                     : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)] border border-transparent',
-                  collapsed && 'justify-center px-0'
+                  collapsed && 'md:justify-center md:px-0'
                 )}
               >
                 <item.icon className={clsx('flex-shrink-0', isActive ? 'text-[var(--color-accent)]' : 'text-[var(--color-text-muted)]')} size={18} strokeWidth={1.8} />
-                {!collapsed && (
+                {(!collapsed || mobileOpen) && (
                   <>
                     <span className="truncate flex-1">{item.name}</span>
                     {count && count > 0 && (
@@ -161,7 +193,7 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
         </div>
 
         {/* System & Tools Section */}
-        {!collapsed && (
+        {(!collapsed || mobileOpen) && (
           <div className="px-2 pb-1.5">
             <span className="text-[10px] uppercase tracking-widest text-[var(--color-text-dim)] font-semibold flex items-center gap-1.5">
               <Shield size={10} />
@@ -176,17 +208,18 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
               <Link
                 key={item.name}
                 href={item.href}
+                onClick={onCloseMobile}
                 title={collapsed ? item.name : undefined}
                 className={clsx(
                   'flex items-center gap-2.5 px-2.5 py-2 rounded-md text-[13px] font-medium transition-all duration-150',
                   isActive
                     ? 'bg-[var(--color-accent-dim)] text-[var(--color-accent)] border border-[rgba(56,189,248,0.12)]'
                     : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)] border border-transparent',
-                  collapsed && 'justify-center px-0'
+                  collapsed && 'md:justify-center md:px-0'
                 )}
               >
                 <item.icon className={clsx('flex-shrink-0', isActive ? 'text-[var(--color-accent)]' : 'text-[var(--color-text-muted)]')} size={18} strokeWidth={1.8} />
-                {!collapsed && <span className="truncate">{item.name}</span>}
+                {(!collapsed || mobileOpen) && <span className="truncate">{item.name}</span>}
               </Link>
             );
           })}
@@ -194,27 +227,28 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
       </nav>
 
       {/* ── System Status ── */}
-      {!collapsed && (
+      {(!collapsed || mobileOpen) && (
         <div className="px-3 py-3 border-t border-default">
           <div className="text-[10px] uppercase tracking-wider text-[var(--color-text-dim)] font-semibold mb-2">System Status</div>
           <div className="space-y-1.5">
             <StatusDot label="FastAPI Backend (8000)" status="connected" />
             <StatusDot label="Analysis Engine" status="connected" />
             <StatusDot label="AI Forensics Engine" status="connected" />
-            <StatusDot label="E2EE Multi-PC Sync" status="connected" />
+            <StatusDot label="Laptop & Mobile Sync" status="connected" />
           </div>
         </div>
       )}
 
-      {/* ── Collapse Toggle ── */}
+      {/* ── Collapse Toggle (Desktop only) ── */}
       <button
         onClick={onToggle}
-        className="flex items-center justify-center h-8 border-t border-default text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)] transition-colors"
+        className="hidden md:flex items-center justify-center h-8 border-t border-default text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)] transition-colors"
         aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
         {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
       </button>
     </aside>
+    </>
   );
 }
 

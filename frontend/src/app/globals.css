@@ -171,4 +171,12 @@ body {
     border-color: var(--color-border-active);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   }
+
+  /* Mobile safe area helpers */
+  .safe-area-pb {
+    padding-bottom: max(env(safe-area-inset-bottom, 0px), 8px);
+  }
+  .safe-area-pt {
+    padding-top: max(env(safe-area-inset-top, 0px), 8px);
+  }
 }

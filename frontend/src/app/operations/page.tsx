@@ -166,10 +166,10 @@ export default function AutonomousOperationsPage() {
         </div>
 
         {/* Autonomy Mode Selector */}
-        <div className="flex items-center gap-2 p-1 bg-[#0F172A] border border-slate-800 rounded-xl">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 p-1 bg-[#0F172A] border border-slate-800 rounded-xl w-full lg:w-auto">
           <button
             onClick={() => handleModeChange('OBSERVE')}
-            className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+            className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all text-center ${
               mode === 'OBSERVE'
                 ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20 font-semibold'
                 : 'text-slate-400 hover:text-white'
@@ -179,7 +179,7 @@ export default function AutonomousOperationsPage() {
           </button>
           <button
             onClick={() => handleModeChange('RECOMMEND_AND_APPROVE')}
-            className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+            className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all text-center ${
               mode === 'RECOMMEND_AND_APPROVE'
                 ? 'bg-amber-600 text-white shadow-lg shadow-amber-500/20 font-semibold'
                 : 'text-slate-400 hover:text-white'
@@ -189,7 +189,7 @@ export default function AutonomousOperationsPage() {
           </button>
           <button
             onClick={() => handleModeChange('BOUNDED_AUTOMATION')}
-            className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+            className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all text-center ${
               mode === 'BOUNDED_AUTOMATION'
                 ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/20 font-semibold'
                 : 'text-slate-400 hover:text-white'
@@ -264,7 +264,7 @@ export default function AutonomousOperationsPage() {
             <RefreshCw className="w-3.5 h-3.5 animate-spin" /> Continuous Telemetry Feedback
           </span>
         </div>
-        <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-2 text-center text-xs">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-2 text-center text-xs">
           {[
             { step: 'OBSERVE', sub: 'Telemetry & Logs', color: 'border-cyan-500/40 text-cyan-400' },
             { step: 'DIAGNOSE', sub: 'Anomaly Detector', color: 'border-blue-500/40 text-blue-400' },

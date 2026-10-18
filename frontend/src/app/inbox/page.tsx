@@ -265,7 +265,7 @@ function EmailRow({
     <Link
       href={`/inbox/${email.id}`}
       className={clsx(
-        'flex items-center gap-4 px-4 py-3.5 transition-all duration-150 group',
+        'flex items-center gap-2.5 sm:gap-4 px-3 sm:px-4 py-3 sm:py-3.5 transition-all duration-150 group',
         !email.read && 'bg-[rgba(56,189,248,0.02)]',
         isHovered && 'bg-[var(--color-surface-2)]',
       )}
@@ -299,61 +299,61 @@ function EmailRow({
 
       {/* Sender & Content */}
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-0.5">
+        <div className="flex items-center gap-1.5 sm:gap-2 mb-0.5 flex-wrap sm:flex-nowrap">
           <span className={clsx(
             'text-[13px] truncate',
             !email.read ? 'font-bold text-[var(--color-text-primary)]' : 'font-medium text-[var(--color-text-secondary)]'
           )}>
             {email.from.name}
           </span>
-          <span className="text-[10px] text-[var(--color-text-dim)] text-mono">{email.from.domain}</span>
+          <span className="text-[10px] text-[var(--color-text-dim)] text-mono truncate max-w-[120px] sm:max-w-none">{email.from.domain}</span>
           {!email.read && (
-            <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-accent)] inline-block ml-1" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-accent)] inline-block ml-0.5" />
           )}
         </div>
         <div className="flex items-center gap-2 mb-0.5">
           <span className={clsx(
-            'text-[13px] truncate',
+            'text-[12px] sm:text-[13px] truncate',
             !email.read ? 'font-semibold text-[var(--color-text-primary)]' : 'text-[var(--color-text-secondary)]'
           )}>
             {email.subject}
           </span>
         </div>
-        <div className="text-[12px] text-[var(--color-text-muted)] truncate">
+        <div className="text-[11px] sm:text-[12px] text-[var(--color-text-muted)] truncate">
           {email.preview}
         </div>
       </div>
 
       {/* Security Badge */}
-      <div className="flex-shrink-0 flex flex-col items-end gap-1.5">
-        <span className="text-[11px] text-[var(--color-text-dim)] tabular-nums whitespace-nowrap">
+      <div className="flex-shrink-0 flex flex-col items-end gap-1 sm:gap-1.5">
+        <span className="text-[10px] sm:text-[11px] text-[var(--color-text-dim)] tabular-nums whitespace-nowrap">
           {formatEmailTime(email.timestamp)}
         </span>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1 sm:gap-1.5">
           {email.attachments.length > 0 && (
             <Paperclip size={12} className="text-[var(--color-text-dim)]" />
           )}
           {email.security.findingsCount > 0 && (
-            <span className="flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded"
+            <span className="flex items-center gap-0.5 text-[9px] sm:text-[10px] font-semibold px-1.5 py-0.5 rounded"
               style={{ color: securityColor, backgroundColor: `${securityColor}15` }}>
               <AlertTriangle size={10} />
               {email.security.findingsCount}
             </span>
           )}
           {email.security.tlsVersion ? (
-            <span className="flex items-center gap-0.5 text-[10px] font-medium text-mono px-1.5 py-0.5 rounded bg-[var(--color-surface-3)]"
+            <span className="flex items-center gap-0.5 text-[9px] sm:text-[10px] font-medium text-mono px-1.5 py-0.5 rounded bg-[var(--color-surface-3)]"
               style={{ color: email.security.tlsVersion === 'TLS 1.3' ? 'var(--color-severity-healthy)' : email.security.tlsVersion === 'TLS 1.2' ? 'var(--color-text-secondary)' : 'var(--color-severity-critical)' }}>
               <Lock size={9} />
               {email.security.tlsVersion}
             </span>
           ) : email.security.level !== 'unknown' ? (
-            <span className="flex items-center gap-0.5 text-[10px] font-semibold text-[var(--color-severity-critical)] px-1.5 py-0.5 rounded bg-[var(--color-severity-critical-bg)]">
+            <span className="flex items-center gap-0.5 text-[9px] sm:text-[10px] font-semibold text-[var(--color-severity-critical)] px-1.5 py-0.5 rounded bg-[var(--color-severity-critical-bg)]">
               <LockOpen size={9} />
               NONE
             </span>
           ) : null}
           {email.security.cipher?.includes('[') && (
-            <span className="flex items-center gap-1 text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-[var(--color-accent-dim)] text-[var(--color-accent)] border border-[rgba(56,189,248,0.2)]">
+            <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-[var(--color-accent-dim)] text-[var(--color-accent)] border border-[rgba(56,189,248,0.2)]">
               <Network size={9} />
               {email.security.cipher.match(/\[([A-Z0-9\/\-]+)\]/)?.[1] || 'SMTP'}
             </span>

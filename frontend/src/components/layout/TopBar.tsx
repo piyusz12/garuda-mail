@@ -6,6 +6,7 @@ import { useSession, signOut } from 'next-auth/react';
 import {
   Search, Bell, Wifi, Check, Clock,
   ExternalLink, Settings as SettingsIcon, LogOut, Laptop,
+  Menu, Smartphone, Copy, CheckCheck, QrCode, Sparkles
 } from 'lucide-react';
 import clsx from 'clsx';
 import Link from 'next/link';
@@ -13,14 +14,16 @@ import Link from 'next/link';
 interface TopBarProps {
   title: string;
   description?: string;
+  onOpenMobileMenu?: () => void;
 }
 
-export default function TopBar({ title, description }: TopBarProps) {
+export default function TopBar({ title, description, onOpenMobileMenu }: TopBarProps) {
   const router = useRouter();
   const { data: session } = useSession();
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeDropdown, setActiveDropdown] = useState<'notifications' | 'api' | 'user' | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const [notifications, setNotifications] = useState([
     { id: 1, title: 'STARTTLS Downgrade Detected', desc: 'Plaintext IMAP session without TLS on port 143', time: '12m ago', unread: true, sev: 'critical' },
@@ -40,6 +43,15 @@ export default function TopBar({ title, description }: TopBarProps) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const handleCopyLink = async () => {
+    try {
+      const url = typeof window !== 'undefined' ? window.location.origin : 'https://garuda-mail.vercel.app';
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {}
+  };
+
   const unreadCount = notifications.filter(n => n.unread).length;
 
   const userName = session?.user?.name || 'User';
@@ -52,13 +64,22 @@ export default function TopBar({ title, description }: TopBarProps) {
     .toUpperCase();
 
   return (
-    <header className="sticky top-0 z-30 h-[56px] flex items-center justify-between px-6 surface-1 border-b border-default backdrop-blur-md">
-      {/* ── Left: Page Context ── */}
-      <div className="flex items-center gap-3 min-w-0">
+    <header className="sticky top-0 z-30 h-[56px] flex items-center justify-between px-3 sm:px-6 surface-1 border-b border-default backdrop-blur-md">
+      {/* ── Left: Mobile Hamburger & Page Context ── */}
+      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+        <button
+          type="button"
+          onClick={onOpenMobileMenu}
+          className="md:hidden flex items-center justify-center w-8 h-8 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)] transition-colors"
+          aria-label="Open navigation menu"
+        >
+          <Menu size={18} />
+        </button>
+
         <div className="min-w-0">
-          <h1 className="text-[15px] font-semibold text-[var(--color-text-primary)] truncate">{title}</h1>
+          <h1 className="text-[14px] sm:text-[15px] font-semibold text-[var(--color-text-primary)] truncate">{title}</h1>
           {description && (
-            <p className="text-[11px] text-[var(--color-text-muted)] truncate">{description}</p>
+            <p className="hidden sm:block text-[11px] text-[var(--color-text-muted)] truncate">{description}</p>
           )}
         </div>
       </div>
@@ -75,7 +96,7 @@ export default function TopBar({ title, description }: TopBarProps) {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search emails, subject, sender..."
+                  placeholder="Search emails, subject..."
                   autoFocus
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && searchQuery.trim()) {
@@ -83,7 +104,7 @@ export default function TopBar({ title, description }: TopBarProps) {
                     }
                   }}
                   onBlur={() => { if (!searchQuery) setSearchOpen(false); }}
-                  className="w-[280px] h-8 pl-8 pr-3 text-[12px] rounded-md bg-[var(--color-surface-2)] border border-default text-[var(--color-text-primary)] placeholder:text-[var(--color-text-dim)] focus:outline-none focus:border-[var(--color-accent)]"
+                  className="w-[160px] sm:w-[220px] md:w-[280px] h-8 pl-8 pr-3 text-[12px] rounded-md bg-[var(--color-surface-2)] border border-default text-[var(--color-text-primary)] placeholder:text-[var(--color-text-dim)] focus:outline-none focus:border-[var(--color-accent)]"
                 />
               </div>
               <kbd className="hidden md:inline-flex items-center px-1.5 h-5 text-[10px] font-mono text-[var(--color-text-dim)] bg-[var(--color-surface-3)] border border-default rounded">
@@ -93,10 +114,11 @@ export default function TopBar({ title, description }: TopBarProps) {
           ) : (
             <button
               onClick={() => setSearchOpen(true)}
-              className="flex items-center gap-2 h-8 px-3 text-[12px] text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] bg-[var(--color-surface-2)] border border-default rounded-md hover:border-[var(--color-border-active)] transition-colors"
+              className="flex items-center gap-1.5 h-8 px-2 sm:px-3 text-[12px] text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] bg-[var(--color-surface-2)] border border-default rounded-md hover:border-[var(--color-border-active)] transition-colors"
+              title="Search emails"
             >
               <Search size={14} />
-              <span className="hidden md:inline">Search emails</span>
+              <span className="hidden sm:inline">Search</span>
               <kbd className="hidden md:inline-flex items-center px-1.5 h-4 text-[10px] font-mono text-[var(--color-text-dim)] bg-[var(--color-surface-3)] border border-[var(--color-border-subtle)] rounded">
                 ⌘K
               </kbd>
@@ -104,19 +126,23 @@ export default function TopBar({ title, description }: TopBarProps) {
           )}
         </div>
 
-        <div className="w-px h-5 bg-[var(--color-border)] mx-2" />
+        <div className="w-px h-5 bg-[var(--color-border)] mx-1 sm:mx-2" />
 
-        {/* Multi-PC / Network Info */}
+        {/* Laptop & Mobile Sync Button */}
         <div className="relative">
           <button
-            title="Multi-PC Connection Diagnostics"
+            title="Laptop & Mobile Multi-Device Sync"
             onClick={() => setActiveDropdown(activeDropdown === 'api' ? null : 'api')}
             className={clsx(
-              "relative flex items-center justify-center w-8 h-8 rounded-md transition-colors",
-              activeDropdown === 'api' ? "bg-[var(--color-surface-3)] text-white" : "text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)]"
+              "relative flex items-center justify-center gap-1 h-8 px-2 rounded-md transition-colors",
+              activeDropdown === 'api'
+                ? "bg-[var(--color-surface-3)] text-white"
+                : "text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)]"
             )}
           >
-            <Laptop size={15} className="text-[var(--color-accent)]" />
+            <Laptop size={14} className="text-[var(--color-accent)] hidden sm:inline" />
+            <Smartphone size={14} className="text-cyan-400" />
+            <span className="text-[10px] font-medium text-cyan-300 hidden lg:inline">Cross-Device</span>
           </button>
         </div>
 
@@ -154,7 +180,7 @@ export default function TopBar({ title, description }: TopBarProps) {
 
         {/* ── Dropdown: Notifications ── */}
         {activeDropdown === 'notifications' && (
-          <div className="absolute right-6 top-[54px] w-80 card bg-[var(--color-surface-1)] border border-[var(--color-border)] shadow-2xl rounded-xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+          <div className="absolute right-2 sm:right-6 top-[54px] w-[calc(100vw-24px)] max-w-sm sm:w-80 card bg-[var(--color-surface-1)] border border-[var(--color-border)] shadow-2xl rounded-xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150">
             <div className="p-3 border-b border-[var(--color-border)] flex items-center justify-between bg-[var(--color-surface-2)]">
               <div className="flex items-center gap-1.5 font-semibold text-[12px] text-[var(--color-text-primary)]">
                 <Bell size={13} className="text-[var(--color-accent)]" /> Security Alerts ({notifications.length})
@@ -194,38 +220,86 @@ export default function TopBar({ title, description }: TopBarProps) {
           </div>
         )}
 
-        {/* ── Dropdown: Multi-PC & Diagnostics ── */}
+        {/* ── Dropdown: Laptop & Mobile Multi-Device Sync ── */}
         {activeDropdown === 'api' && (
-          <div className="absolute right-14 top-[54px] w-80 card bg-[var(--color-surface-1)] border border-[var(--color-border)] shadow-2xl rounded-xl p-4 space-y-3 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+          <div className="absolute right-2 sm:right-10 top-[54px] w-[calc(100vw-24px)] max-w-sm sm:w-84 card bg-[var(--color-surface-1)] border border-[var(--color-border)] shadow-2xl rounded-xl p-4 space-y-3 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
             <div className="flex items-center justify-between pb-2 border-b border-[var(--color-border)]">
-              <span className="text-[12px] font-semibold text-[var(--color-text-primary)] flex items-center gap-1.5">
-                <Wifi size={13} className="text-[var(--color-severity-healthy)]" /> Multi-PC Access Info
-              </span>
-              <span className="inline-flex items-center gap-1 text-[10px] text-[var(--color-severity-healthy)] font-bold">
-                <Check size={12} /> Operational
+              <div className="flex items-center gap-1.5 font-semibold text-[12px] text-[var(--color-text-primary)]">
+                <Laptop size={14} className="text-[var(--color-accent)]" />
+                <Smartphone size={14} className="text-cyan-400" />
+                <span>Laptop &amp; Mobile Sync</span>
+              </div>
+              <span className="inline-flex items-center gap-1 text-[10px] text-[var(--color-severity-healthy)] font-bold bg-emerald-950/60 border border-emerald-500/20 px-1.5 py-0.5 rounded">
+                <Check size={11} /> Cloud Synced
               </span>
             </div>
-            <div className="space-y-2 text-[11px]">
-              <div className="flex justify-between py-1 border-b border-[var(--color-border-subtle)]">
-                <span className="text-[var(--color-text-muted)]">This PC Access</span>
-                <span className="text-mono text-[var(--color-accent)] font-medium">http://localhost:3000</span>
+
+            {/* Live Cloud Link Card */}
+            <div className="p-2.5 rounded-lg bg-[var(--color-surface-2)] border border-[var(--color-border)] space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] uppercase tracking-wider text-[var(--color-text-muted)] font-semibold">
+                  Live Cloud Production URL
+                </span>
+                <span className="text-[10px] text-cyan-400 font-mono">Any Device</span>
               </div>
-              <div className="flex justify-between py-1 border-b border-[var(--color-border-subtle)]">
-                <span className="text-[var(--color-text-muted)]">2nd PC Network URL</span>
-                <span className="text-mono text-[var(--color-severity-healthy)] font-bold">http://192.168.1.3:3000</span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-[var(--color-border-subtle)]">
-                <span className="text-[var(--color-text-muted)]">Database Engine</span>
-                <span className="text-mono text-[var(--color-text-primary)]">SQLite (dev.db synchronized)</span>
-              </div>
-              <div className="flex justify-between py-1">
-                <span className="text-[var(--color-text-muted)]">Session Auth</span>
-                <span className="text-mono text-[var(--color-severity-healthy)]">NextAuth Active</span>
+              <div className="flex items-center justify-between gap-2 p-1.5 rounded bg-[var(--color-surface-3)] border border-default">
+                <span className="text-[11px] text-mono text-cyan-300 truncate">
+                  https://garuda-mail.vercel.app
+                </span>
+                <button
+                  type="button"
+                  onClick={handleCopyLink}
+                  className="flex items-center gap-1 px-2 py-1 text-[10px] font-semibold rounded bg-[var(--color-accent-dim)] text-[var(--color-accent)] hover:bg-[#154c6e] transition-colors flex-shrink-0"
+                >
+                  {copied ? <CheckCheck size={11} /> : <Copy size={11} />}
+                  <span>{copied ? 'Copied!' : 'Copy'}</span>
+                </button>
               </div>
             </div>
-            <p className="text-[10px] text-[var(--color-text-dim)] pt-1">
-              Open the 2nd PC Network URL on your other computer connected to the same Wi-Fi to test cross-device mail.
-            </p>
+
+            {/* Mobile Camera Scan QR Graphic */}
+            <div className="p-3 rounded-lg bg-gradient-to-br from-slate-900 to-[#111827] border border-cyan-500/20 text-center space-y-2">
+              <div className="flex items-center justify-center gap-1.5 text-[11px] font-semibold text-cyan-300">
+                <QrCode size={13} />
+                <span>Open on Mobile Camera</span>
+              </div>
+              <div className="inline-block p-2 bg-white rounded-lg shadow-md">
+                {/* Clean inline SVG QR code representing https://garuda-mail.vercel.app */}
+                <svg width="110" height="110" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-24 h-24 mx-auto">
+                  <rect width="25" height="25" fill="white" />
+                  {/* Position detection markers */}
+                  <path fill="#0B0D10" d="M2 2h7v7H2V2zm1 1v5h5V3H3zm1 1h3v3H4V4zM16 2h7v7h-7V2zm1 1v5h5V3h-5zm1 1h3v3h-3V4zM2 16h7v7H2v-7zm1 1v5h5v-5H3zm1 1h3v3H4v-3z" />
+                  {/* Data matrix pattern elements */}
+                  <path fill="#0B0D10" d="M11 2h2v3h-2zM14 4h2v2h-2zM11 7h3v2h-3zM2 11h3v2H2zM7 11h2v3H7zM11 11h3v2h-3zM16 11h2v2h-2zM20 11h3v2h-3zM4 14h2v2H4zM13 13h2v3h-2zM17 14h2v3h-2zM21 14h2v2h-2zM11 16h2v3h-2zM14 18h2v2h-2zM18 18h2v2h-2zM11 21h3v2h-3zM16 21h2v2h-2zM20 20h3v3h-3z" />
+                </svg>
+              </div>
+              <p className="text-[10px] text-slate-400">
+                Point your phone camera at the QR code to open Garuda Mail immediately.
+              </p>
+            </div>
+
+            {/* PWA Home Screen Instructions */}
+            <div className="space-y-1.5 text-[11px] pt-1">
+              <span className="text-[10px] uppercase tracking-wider text-[var(--color-text-dim)] font-semibold flex items-center gap-1">
+                <Sparkles size={11} className="text-amber-400" />
+                Install as Mobile App (PWA)
+              </span>
+              <div className="grid grid-cols-2 gap-2 text-[10px]">
+                <div className="p-2 rounded bg-[var(--color-surface-2)] border border-[var(--color-border-subtle)]">
+                  <div className="font-semibold text-slate-200">🍏 Apple iPhone</div>
+                  <div className="text-slate-400 mt-0.5">Safari Share ➔ &quot;Add to Home Screen&quot;</div>
+                </div>
+                <div className="p-2 rounded bg-[var(--color-surface-2)] border border-[var(--color-border-subtle)]">
+                  <div className="font-semibold text-slate-200">🤖 Android</div>
+                  <div className="text-slate-400 mt-0.5">Chrome Menu ➔ &quot;Install App&quot;</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-2 border-t border-[var(--color-border)] flex items-center justify-between text-[10px] text-slate-400">
+              <span>Local Wi-Fi LAN:</span>
+              <span className="font-mono text-cyan-400">http://192.168.1.3:3000</span>
+            </div>
           </div>
         )}
 
