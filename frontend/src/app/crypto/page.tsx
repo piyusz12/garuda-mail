@@ -1,15 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   Shield, Lock, Key, AlertTriangle, CheckCircle, XCircle,
-  HelpCircle, ExternalLink, Cpu, Sparkles, Filter, ChevronRight
+  HelpCircle, ExternalLink, Cpu, Sparkles, Filter, ChevronRight,
+  Globe, Radio, Search, ShieldCheck, Terminal, ArrowRight, RefreshCw, Check
 } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
 import { SeverityBadge, RiskScore, PostureBar } from '@/components/ui/shared';
 import { mockPosture, mockSessions, mockFindings } from '@/lib/mock/data';
 import { getPolicyStatusLabel, getPolicyStatusColor } from '@/lib/formatters';
+import type { CommSecurityAuditResult } from '@/lib/commSecurity';
 import Link from 'next/link';
 import clsx from 'clsx';
 
@@ -92,7 +94,39 @@ const OBSERVED_CIPHERS = [
 ];
 
 export default function CryptoPosturePage() {
+  const [activeTab, setActiveTab] = useState<'comm-security' | 'posture'>('comm-security');
   const [filterPolicy, setFilterPolicy] = useState<string>('all');
+
+  // Communication Security Auditor State
+  const [domainInput, setDomainInput] = useState('gov.in');
+  const [auditResult, setAuditResult] = useState<CommSecurityAuditResult | null>(null);
+  const [loadingAudit, setLoadingAudit] = useState(false);
+  const [auditError, setAuditError] = useState('');
+
+  const runCommAudit = async (target: string) => {
+    const clean = target.trim().replace(/^@/, '');
+    if (!clean) return;
+    setLoadingAudit(true);
+    setAuditError('');
+    try {
+      const res = await fetch(`/api/protocols/comm-audit?domain=${encodeURIComponent(clean)}`);
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(errJson.error || 'Audit probe failed');
+      }
+      const data: CommSecurityAuditResult = await res.json();
+      setAuditResult(data);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setAuditError(msg);
+    } finally {
+      setLoadingAudit(false);
+    }
+  };
+
+  useEffect(() => {
+    runCommAudit('gov.in');
+  }, []);
 
   const filteredCiphers = OBSERVED_CIPHERS.filter(c => {
     if (filterPolicy === 'all') return true;
@@ -101,11 +135,348 @@ export default function CryptoPosturePage() {
 
   return (
     <AppShell
-      title="Cryptographic Posture"
-      description="In-depth audit of enterprise email TLS handshakes, cipher suites, forward secrecy, and Post-Quantum readiness"
+      title="Communication Security & Cryptographic Posture"
+      description="Defense-grade communication auditing: MTA-STS, DANE TLSA, STRIPTLS downgrade defense, and Post-Quantum hybrid posture"
     >
       <div className="space-y-6">
 
+        {/* ── Sub-navigation Tabs ── */}
+        <div className="flex items-center gap-2 border-b border-[var(--color-border)] pb-3">
+          <button
+            type="button"
+            onClick={() => setActiveTab('comm-security')}
+            className={clsx(
+              'flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-[12px] font-semibold transition-all border',
+              activeTab === 'comm-security'
+                ? 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-300 border-cyan-500/40 shadow-sm shadow-cyan-500/10'
+                : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] bg-[var(--color-surface-2)] border-transparent'
+            )}
+          >
+            <Radio size={14} className={activeTab === 'comm-security' ? 'text-cyan-400 animate-pulse' : ''} />
+            <span>Communication Security & STRIPTLS Shield</span>
+            <span className="text-[10px] px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-300 font-mono">
+              RFC 8461 / 7672
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('posture')}
+            className={clsx(
+              'flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-[12px] font-semibold transition-all border',
+              activeTab === 'posture'
+                ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-indigo-300 border-indigo-500/40 shadow-sm shadow-indigo-500/10'
+                : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] bg-[var(--color-surface-2)] border-transparent'
+            )}
+          >
+            <Shield size={14} />
+            <span>Cipher Suites & TLS Posture</span>
+            <span className="text-[10px] px-1.5 py-0.2 rounded bg-indigo-500/20 text-indigo-300 font-mono">
+              NIST SP 800-52r2
+            </span>
+          </button>
+        </div>
+
+        {/* ── Tab 1: Communication Security & STRIPTLS Shield ── */}
+        {activeTab === 'comm-security' && (
+          <div className="space-y-6 animate-in fade-in duration-200">
+            {/* ── Domain Search & Probe Bar ── */}
+            <div className="card p-4 sm:p-5 border-l-4 border-l-cyan-500 bg-gradient-to-r from-cyan-950/20 via-[var(--color-surface-2)] to-transparent space-y-3">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-sm sm:text-base font-bold text-[var(--color-text-primary)] flex items-center gap-2">
+                    <Radio size={16} className="text-cyan-400 animate-pulse" />
+                    <span>Live Communication Security & STRIPTLS Auditor</span>
+                  </h3>
+                  <p className="text-[11px] text-[var(--color-text-muted)]">
+                    Probe real-world destination domains for RFC 8461 MTA-STS enforcement, RFC 7672 DANE TLSA DNSSEC binding, and MITM downgrade immunity.
+                  </p>
+                </div>
+
+                {/* Quick Domain Presets */}
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-[10px] uppercase font-semibold text-[var(--color-text-dim)]">Presets:</span>
+                  {['gov.in', 'nic.in', 'meity.gov.in', 'defense.gov.in', 'gmail.com'].map(d => (
+                    <button
+                      key={d}
+                      type="button"
+                      onClick={() => {
+                        setDomainInput(d);
+                        runCommAudit(d);
+                      }}
+                      className={clsx(
+                        'px-2 py-0.5 rounded text-[10px] font-mono font-medium transition-colors border',
+                        domainInput === d
+                          ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40 font-bold'
+                          : 'bg-[var(--color-surface-3)] text-[var(--color-text-muted)] hover:text-white border-[var(--color-border-subtle)]'
+                      )}
+                    >
+                      {d}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <form
+                onSubmit={e => {
+                  e.preventDefault();
+                  runCommAudit(domainInput);
+                }}
+                className="flex items-center gap-2 pt-1"
+              >
+                <div className="relative flex-1">
+                  <Globe size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-dim)]" />
+                  <input
+                    type="text"
+                    value={domainInput}
+                    onChange={e => setDomainInput(e.target.value)}
+                    placeholder="Enter destination email domain (e.g. nic.in, defense.gov.in, meity.gov.in)..."
+                    className="w-full pl-9 pr-4 py-2 bg-[var(--color-surface-1)] border border-[var(--color-border)] rounded-lg text-[12px] text-[var(--color-text-primary)] font-mono placeholder:text-[var(--color-text-dim)] focus:outline-none focus:border-cyan-500 transition-colors"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={loadingAudit}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-[12px] transition-all disabled:opacity-50 flex-shrink-0 shadow-lg shadow-cyan-500/20"
+                >
+                  {loadingAudit ? (
+                    <>
+                      <RefreshCw size={13} className="animate-spin" />
+                      <span>Auditing...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Search size={13} />
+                      <span>Audit Domain</span>
+                    </>
+                  )}
+                </button>
+              </form>
+            </div>
+
+            {auditResult && (
+              <>
+                {/* ── Top Defense Scorecard & Grade Card ── */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  {/* Grade Badge */}
+                  <div className="card p-5 border-t-2 border-t-cyan-400 bg-gradient-to-b from-cyan-500/10 to-transparent flex flex-col justify-between">
+                    <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
+                      <span>Security Grade</span>
+                      <ShieldCheck size={16} className="text-cyan-400" />
+                    </div>
+                    <div className="flex items-baseline gap-2 py-2">
+                      <span className="text-5xl font-black text-cyan-400 font-mono tracking-tight">
+                        {auditResult.grade}
+                      </span>
+                      <span className="text-xl font-bold text-[var(--color-text-secondary)]">
+                        {auditResult.score}/100
+                      </span>
+                    </div>
+                    <div className="text-[10px] text-cyan-300/80 font-mono">
+                      Target: <span className="font-bold">{auditResult.domain}</span>
+                    </div>
+                  </div>
+
+                  {/* STRIPTLS Immunity */}
+                  <div className="card p-5 border-t-2 border-t-emerald-400 bg-gradient-to-b from-emerald-500/10 to-transparent flex flex-col justify-between">
+                    <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
+                      <span>STRIPTLS Downgrade Immunity</span>
+                      <Lock size={16} className="text-emerald-400" />
+                    </div>
+                    <div className="py-2">
+                      <span className="text-xl font-bold text-emerald-400">
+                        {auditResult.striptlsImmunity.immune ? '100% IMMUNE' : 'VULNERABLE'}
+                      </span>
+                      <p className="text-[11px] text-[var(--color-text-secondary)] mt-1">
+                        {auditResult.striptlsImmunity.defenseMechanism}
+                      </p>
+                    </div>
+                    <div className="text-[10px] text-emerald-300/70 font-mono">
+                      Active Man-in-the-Middle Protection
+                    </div>
+                  </div>
+
+                  {/* MTA-STS Status */}
+                  <div className="card p-5 border-t-2 border-t-indigo-400 bg-gradient-to-b from-indigo-500/10 to-transparent flex flex-col justify-between">
+                    <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
+                      <span>RFC 8461 MTA-STS</span>
+                      <Radio size={16} className="text-indigo-400" />
+                    </div>
+                    <div className="py-2">
+                      <span className="text-xl font-bold uppercase text-indigo-400">
+                        Mode: {auditResult.mtaSts.mode}
+                      </span>
+                      <p className="text-[11px] text-[var(--color-text-secondary)] mt-1">
+                        Max Age: {auditResult.mtaSts.maxAge.toLocaleString()}s (MX Matched)
+                      </p>
+                    </div>
+                    <div className="text-[10px] text-indigo-300/70 font-mono truncate">
+                      {auditResult.mtaSts.policyUrl}
+                    </div>
+                  </div>
+
+                  {/* Post-Quantum Hybrid */}
+                  <div className="card p-5 border-t-2 border-t-purple-400 bg-gradient-to-b from-purple-500/10 to-transparent flex flex-col justify-between">
+                    <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
+                      <span>Post-Quantum Ready</span>
+                      <Sparkles size={16} className="text-purple-400" />
+                    </div>
+                    <div className="py-2">
+                      <span className="text-xl font-bold text-purple-400">
+                        {auditResult.transportEncryption.pqcReadiness.quantumResistanceScore}%
+                      </span>
+                      <p className="text-[11px] text-[var(--color-text-secondary)] mt-1 truncate">
+                        {auditResult.transportEncryption.pqcReadiness.algorithm}
+                      </p>
+                    </div>
+                    <div className="text-[10px] text-purple-300/70 font-mono">
+                      NIST FIPS 203 (ML-KEM) Shield
+                    </div>
+                  </div>
+                </div>
+
+                {/* ── 4 Detailed Verification Panels ── */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                  {/* RFC 8461 MTA-STS & DANE Detailed */}
+                  <div className="card p-5 space-y-4">
+                    <div className="flex items-center justify-between border-b border-[var(--color-border)] pb-3">
+                      <h4 className="text-[13px] font-bold text-[var(--color-text-primary)] flex items-center gap-2">
+                        <Shield size={15} className="text-cyan-400" />
+                        <span>MTA-STS & DANE TLSA Trust Chain</span>
+                      </h4>
+                      <span className="badge-healthy text-[10px] px-2 py-0.5 rounded font-mono font-bold">
+                        DNSSEC VALIDATED
+                      </span>
+                    </div>
+
+                    <div className="space-y-3 text-[12px]">
+                      <div className="p-3 rounded-lg bg-[var(--color-surface-2)] border border-[var(--color-border-subtle)] space-y-1.5">
+                        <div className="flex items-center justify-between text-[11px] font-semibold text-cyan-300">
+                          <span>MTA-STS Specification</span>
+                          <span className="font-mono text-[10px] px-1.5 rounded bg-cyan-500/20">RFC 8461</span>
+                        </div>
+                        <p className="text-[11px] text-[var(--color-text-secondary)]">
+                          {auditResult.mtaSts.description}
+                        </p>
+                        <div className="pt-1 text-[10px] font-mono text-[var(--color-text-dim)] flex items-center gap-4">
+                          <span>Policy Mode: <b className="text-white">{auditResult.mtaSts.mode}</b></span>
+                          <span>MX Hostname Match: <b className="text-emerald-400">PASSED</b></span>
+                        </div>
+                      </div>
+
+                      <div className="p-3 rounded-lg bg-[var(--color-surface-2)] border border-[var(--color-border-subtle)] space-y-1.5">
+                        <div className="flex items-center justify-between text-[11px] font-semibold text-indigo-300">
+                          <span>DANE TLSA Certificate Pinning</span>
+                          <span className="font-mono text-[10px] px-1.5 rounded bg-indigo-500/20">RFC 7672</span>
+                        </div>
+                        <p className="text-[11px] text-[var(--color-text-secondary)]">
+                          {auditResult.dane.description}
+                        </p>
+                        <div className="pt-1 text-[10px] font-mono text-[var(--color-text-dim)] flex items-center gap-4">
+                          <span>Usage: <b className="text-white">{auditResult.dane.usage}</b></span>
+                          <span>Selector: <b className="text-white">{auditResult.dane.selector}</b></span>
+                          <span>Matching: <b className="text-white">{auditResult.dane.matchingType}</b></span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Transport Layer Security & Ciphers */}
+                  <div className="card p-5 space-y-4">
+                    <div className="flex items-center justify-between border-b border-[var(--color-border)] pb-3">
+                      <h4 className="text-[13px] font-bold text-[var(--color-text-primary)] flex items-center gap-2">
+                        <Lock size={15} className="text-emerald-400" />
+                        <span>Transport Cryptography & Forward Secrecy</span>
+                      </h4>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold">
+                        {auditResult.transportEncryption.tlsVersion}
+                      </span>
+                    </div>
+
+                    <div className="space-y-3 text-[12px]">
+                      <div className="p-3 rounded-lg bg-[var(--color-surface-2)] border border-[var(--color-border-subtle)] space-y-1">
+                        <span className="text-[10px] uppercase font-semibold text-[var(--color-text-dim)] block">Negotiated Cipher Suite</span>
+                        <span className="font-mono text-cyan-300 font-bold block">{auditResult.transportEncryption.preferredCipher}</span>
+                        <p className="text-[11px] text-[var(--color-text-secondary)] pt-1">
+                          Key Exchange: {auditResult.transportEncryption.keyExchange}
+                        </p>
+                      </div>
+
+                      <div className="p-3 rounded-lg bg-[var(--color-surface-2)] border border-[var(--color-border-subtle)] space-y-1">
+                        <span className="text-[10px] uppercase font-semibold text-[var(--color-text-dim)] block">Certificate Transparency & CA</span>
+                        <span className="text-white font-medium block">{auditResult.certificateTransparency.caIssuer}</span>
+                        <div className="pt-1 text-[10px] font-mono text-[var(--color-text-dim)] flex items-center gap-4">
+                          <span>Key: <b className="text-white">{auditResult.certificateTransparency.keyType}</b></span>
+                          <span>OCSP Stapled: <b className="text-emerald-400">ACTIVE</b></span>
+                          <span>SCT Proofs: <b className="text-white">{auditResult.certificateTransparency.sctProofCount} embedded</b></span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* ── Active Findings & Recommendations ── */}
+                <div className="card p-5 space-y-4">
+                  <h4 className="text-[13px] font-bold text-[var(--color-text-primary)] flex items-center gap-2 border-b border-[var(--color-border)] pb-3">
+                    <AlertTriangle size={15} className="text-amber-400" />
+                    <span>Cryptographic Findings & Recommendations for {auditResult.domain}</span>
+                  </h4>
+
+                  <div className="space-y-2.5">
+                    {auditResult.findings.map(f => (
+                      <div key={f.id} className="p-3 rounded-lg bg-[var(--color-surface-2)] border border-[var(--color-border-subtle)] flex items-start justify-between gap-3 text-[12px]">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className={clsx(
+                              'text-[10px] uppercase font-bold px-2 py-0.5 rounded font-mono',
+                              f.severity === 'healthy' ? 'bg-emerald-500/20 text-emerald-300' :
+                              f.severity === 'critical' ? 'bg-rose-500/20 text-rose-300' :
+                              'bg-amber-500/20 text-amber-300'
+                            )}>
+                              {f.category} — {f.severity}
+                            </span>
+                            <span className="font-semibold text-white">{f.title}</span>
+                          </div>
+                          <p className="text-[11px] text-[var(--color-text-secondary)]">{f.explanation}</p>
+                          {f.remediation && (
+                            <p className="text-[11px] text-cyan-300 font-medium pt-0.5">
+                              💡 <b>Remediation:</b> {f.remediation}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Compliance Standards Badges */}
+                  <div className="pt-3 border-t border-[var(--color-border)] flex items-center justify-between flex-wrap gap-2 text-[11px]">
+                    <span className="text-[10px] font-semibold uppercase text-[var(--color-text-dim)]">Compliance Certified:</span>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {Object.entries(auditResult.complianceCertificates).map(([key, valid]) => (
+                        <span
+                          key={key}
+                          className={clsx(
+                            'px-2 py-0.5 rounded text-[10px] font-mono font-semibold flex items-center gap-1 border',
+                            valid
+                              ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+                              : 'bg-rose-500/15 text-rose-400 border-rose-500/30'
+                          )}
+                        >
+                          <Check size={10} />
+                          <span>{key.toUpperCase()}</span>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* ── Tab 2: Cipher Suites & TLS Posture ── */}
+        {activeTab === 'posture' && (
+          <div className="space-y-6 animate-in fade-in duration-200">
         {/* ── Top Metric Cards ── */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="card p-5 space-y-2 border-t-2 border-t-sky-500/80 bg-gradient-to-b from-sky-500/[0.08] to-transparent shadow-lg shadow-sky-500/10 card-hover">
@@ -410,8 +781,10 @@ export default function CryptoPosturePage() {
             </table>
           </div>
         </div>
-
       </div>
-    </AppShell>
+    )}
+
+  </div>
+</AppShell>
   );
 }

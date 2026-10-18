@@ -1,6 +1,16 @@
 import { getToken } from 'next-auth/jwt';
 import { NextRequest, NextResponse } from 'next/server';
 
+function applySecurityHeaders(res: NextResponse): NextResponse {
+  res.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
+  res.headers.set('X-Content-Type-Options', 'nosniff');
+  res.headers.set('X-Frame-Options', 'DENY');
+  res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.headers.set('Cross-Origin-Opener-Policy', 'same-origin');
+  res.headers.set('Cross-Origin-Resource-Policy', 'same-origin');
+  return res;
+}
+
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const isAdminRoute = pathname === '/admin' || pathname.startsWith('/admin/');
@@ -19,7 +29,7 @@ export async function middleware(req: NextRequest) {
     pathname.startsWith('/rootCA.pem') ||
     pathname.includes('.')
   ) {
-    return NextResponse.next();
+    return applySecurityHeaders(NextResponse.next());
   }
 
   const configuredSecret = process.env.NEXTAUTH_SECRET || 'garuda-mail-sovereign-production-secret-2026';
@@ -58,7 +68,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(deniedUrl);
   }
 
-  return NextResponse.next();
+  return applySecurityHeaders(NextResponse.next());
 }
 
 export const config = {

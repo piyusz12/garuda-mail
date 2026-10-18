@@ -65,8 +65,9 @@ export function createDynamicTransporter(protocol: ProtocolType, customConfig?: 
     auth: { user, pass },
     tls: {
       rejectUnauthorized: process.env.SMTP_ALLOW_INSECURE_TLS !== 'true',
-      ciphers: 'HIGH:!aNULL:!kEDH',
+      ciphers: 'TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!SRP:!CAMELLIA',
       minVersion: 'TLSv1.2',
+      honorCipherOrder: true,
     },
   });
 }
@@ -157,7 +158,12 @@ export async function verifySmtpConnection(config: SmtpConfig): Promise<{ succes
       port: config.port || (isPort465 ? 465 : 587),
       secure: isPort465,
       auth: { user: config.user, pass: config.pass },
-      tls: { rejectUnauthorized: process.env.SMTP_ALLOW_INSECURE_TLS !== 'true' },
+      tls: {
+        rejectUnauthorized: process.env.SMTP_ALLOW_INSECURE_TLS !== 'true',
+        ciphers: 'TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:!aNULL:!eNULL:!RC4:!MD5',
+        minVersion: 'TLSv1.2',
+        honorCipherOrder: true,
+      },
     });
 
     await testTransporter.verify();

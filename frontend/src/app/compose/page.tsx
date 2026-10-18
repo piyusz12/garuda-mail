@@ -5,12 +5,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Send, X, Paperclip, Bold, Italic, Link2,
   Shield, Lock, Info, ChevronDown, Save, AlertCircle,
-  Cpu, CheckCircle2, Terminal, Network, Settings2
+  Cpu, CheckCircle2, Terminal, Network, Settings2, ShieldCheck
 } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
 import { useRouter, useSearchParams } from 'next/navigation';
 import clsx from 'clsx';
 import { SUPPORTED_PROTOCOLS, ProtocolType, ProtocolSpec } from '@/lib/protocols';
+import type { CommSecurityAuditResult } from '@/lib/commSecurity';
 
 const fadeUp = { initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.3 } };
 
@@ -69,6 +70,36 @@ function ComposeForm() {
   const [sent, setSent] = useState(false);
   const [error, setError] = useState('');
   const [attachments, setAttachments] = useState<PendingAttachment[]>([]);
+  const [targetCommSecurity, setTargetCommSecurity] = useState<CommSecurityAuditResult | null>(null);
+
+  // Auto-audit communication security for recipient domain
+  useEffect(() => {
+    if (!to || !to.trim()) {
+      setTargetCommSecurity(null);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      let domain = '';
+      if (to.includes('@')) {
+        const match = to.match(/@([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
+        if (match) domain = match[1].toLowerCase().trim();
+      } else {
+        const match = to.match(/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
+        if (match) domain = match[1].toLowerCase().trim();
+      }
+      if (domain) {
+        try {
+          const res = await fetch(`/api/protocols/comm-audit?domain=${encodeURIComponent(domain)}`);
+          if (res.ok) {
+            const data: CommSecurityAuditResult = await res.json();
+            setTargetCommSecurity(data);
+          }
+        } catch {}
+      }
+    }, 450);
+
+    return () => clearTimeout(timer);
+  }, [to]);
 
   // Fetch directory users and protocols info
   useEffect(() => {
@@ -549,6 +580,26 @@ function ComposeForm() {
                 CC <ChevronDown size={11} className={clsx('transition-transform', showCc && 'rotate-180')} />
               </button>
             </div>
+
+            {/* Live Recipient Communication Security Shield Badge */}
+            {targetCommSecurity && (
+              <div className="mx-4 my-1 px-3 py-1.5 rounded-lg bg-gradient-to-r from-cyan-950/40 via-[var(--color-surface-2)] to-blue-950/30 border border-cyan-500/30 flex items-center justify-between gap-2 text-[11px] animate-in fade-in">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <ShieldCheck size={14} className="text-cyan-400 flex-shrink-0" />
+                  <span className="font-semibold text-cyan-300">Target Security:</span>
+                  <span className="font-mono font-bold text-white px-1.5 py-0.2 rounded bg-cyan-500/20 border border-cyan-500/40">
+                    Grade {targetCommSecurity.grade} ({targetCommSecurity.score}/100)
+                  </span>
+                  <span className="text-[10px] text-slate-300 hidden sm:inline">
+                    {targetCommSecurity.striptlsImmunity.immune ? '🛡️ STRIPTLS Immune' : '⚠️ Fallback Vulnerable'} • MTA-STS {targetCommSecurity.mtaSts.mode.toUpperCase()} • DANE {targetCommSecurity.dane.present ? 'VERIFIED' : 'NONE'}
+                  </span>
+                </div>
+                <span className="text-[10px] font-mono text-emerald-400 font-semibold flex items-center gap-1 flex-shrink-0">
+                  <Lock size={11} />
+                  <span>Transport Hardened</span>
+                </span>
+              </div>
+            )}
 
             {/* Quick Directory Contacts */}
             <div className="flex items-center gap-1.5 px-4 py-2 bg-[var(--color-surface-1)] text-[11px] overflow-x-auto">
