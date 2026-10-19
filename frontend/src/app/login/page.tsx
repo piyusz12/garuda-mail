@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { getSession, signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -22,13 +22,18 @@ function LoginForm() {
   const rawCallback = searchParams.get('callbackUrl') || '/inbox';
   const callbackUrl = rawCallback.startsWith('/') ? rawCallback : '/inbox';
   const registered = searchParams.get('registered') === 'true';
-  const emailParam = searchParams.get('email') || '';
 
-  const [email, setEmail] = useState(emailParam);
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Clear any auto-populated credentials on mount for a 100% fresh login
+  useEffect(() => {
+    setEmail('');
+    setPassword('');
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,7 +108,7 @@ function LoginForm() {
             Sign in to your account
           </h2>
 
-          <form onSubmit={handleSubmit} className="space-y-4" suppressHydrationWarning>
+          <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off" suppressHydrationWarning>
             {/* Email */}
             <div className="space-y-1.5">
               <label className="text-[12px] font-medium text-[var(--color-text-muted)] uppercase tracking-wider">
@@ -113,12 +118,14 @@ function LoginForm() {
                 <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-dim)]" />
                 <input
                   id="email"
+                  name="email_fresh_input"
                   type="email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  placeholder="you@example.com"
+                  placeholder="Enter your email address"
                   required
-                  autoComplete="email"
+                  autoComplete="off"
+                  data-lpignore="true"
                   suppressHydrationWarning
                   className="w-full h-10 pl-9 pr-4 text-[13px] rounded-md bg-[var(--color-surface-2)] border border-[var(--color-border)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-dim)] focus:outline-none focus:border-[var(--color-accent)] transition-colors"
                 />
@@ -134,12 +141,14 @@ function LoginForm() {
                 <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-dim)]" />
                 <input
                   id="password"
+                  name="password_fresh_input"
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  placeholder="••••••••"
+                  placeholder="Enter your password"
                   required
-                  autoComplete="current-password"
+                  autoComplete="new-password"
+                  data-lpignore="true"
                   suppressHydrationWarning
                   className="w-full h-10 pl-9 pr-10 text-[13px] rounded-md bg-[var(--color-surface-2)] border border-[var(--color-border)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-dim)] focus:outline-none focus:border-[var(--color-accent)] transition-colors"
                 />
