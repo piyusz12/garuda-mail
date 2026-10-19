@@ -184,56 +184,6 @@ function LoginForm() {
               )}
             </button>
           </form>
-
-          {/* Quick Demo Credentials for Showcase */}
-          <div className="mt-4 pt-4 border-t border-[var(--color-border)]">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">
-                Demo Accounts
-              </span>
-              <span className="text-[10px] text-[var(--color-accent)] font-mono">
-                PW: GarudaSecurity2026!
-              </span>
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                type="button"
-                id="demo-user-btn"
-                onClick={() => {
-                  setEmail('user@garudamail.local');
-                  setPassword('GarudaSecurity2026!');
-                }}
-                className="text-left p-2.5 rounded-md bg-[var(--color-surface-2)] border border-[var(--color-border)] hover:border-emerald-400 transition-colors group cursor-pointer"
-              >
-                <div className="text-[11px] font-semibold text-emerald-400 group-hover:underline">Normal User</div>
-                <div className="text-[10px] text-[var(--color-text-dim)] truncate">user@garudamail.local</div>
-              </button>
-              <button
-                type="button"
-                id="demo-officer-btn"
-                onClick={() => {
-                  setEmail('officer@garuda.internal');
-                  setPassword('GarudaSecurity2026!');
-                }}
-                className="text-left p-2.5 rounded-md bg-[var(--color-surface-2)] border border-[var(--color-border)] hover:border-[var(--color-accent)] transition-colors group cursor-pointer"
-              >
-                <div className="text-[11px] font-semibold text-[var(--color-accent)] group-hover:underline">Officer / Analyst</div>
-                <div className="text-[10px] text-[var(--color-text-dim)] truncate">officer@garuda.internal</div>
-              </button>
-              <button
-                type="button"
-                id="demo-admin-btn"
-                onClick={() => {
-                  setEmail('admin@garudamail.local');
-                  setPassword('GarudaSecurity2026!');
-                }}
-                className="text-left p-2.5 rounded-md bg-[var(--color-surface-2)] border border-[var(--color-border)] hover:border-purple-400 transition-colors group cursor-pointer"
-              >
-                <div className="text-[11px] font-semibold text-purple-400 group-hover:underline">Security Admin</div>
-                <div className="text-[10px] text-[var(--color-text-dim)] truncate">admin@garudamail.local</div>
-              </button>
-            </div>
-          </div>
         </div>
 
         {/* Register link */}
