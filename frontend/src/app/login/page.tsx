@@ -195,7 +195,19 @@ function LoginForm() {
                 PW: GarudaSecurity2026!
               </span>
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                id="demo-user-btn"
+                onClick={() => {
+                  setEmail('user@garudamail.local');
+                  setPassword('GarudaSecurity2026!');
+                }}
+                className="text-left p-2.5 rounded-md bg-[var(--color-surface-2)] border border-[var(--color-border)] hover:border-emerald-400 transition-colors group cursor-pointer"
+              >
+                <div className="text-[11px] font-semibold text-emerald-400 group-hover:underline">Normal User</div>
+                <div className="text-[10px] text-[var(--color-text-dim)] truncate">user@garudamail.local</div>
+              </button>
               <button
                 type="button"
                 id="demo-officer-btn"
