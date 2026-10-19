@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
-import { getSession, signIn } from 'next-auth/react';
+import { getSession, signIn, signOut } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Mail, Lock, Eye, EyeOff, AlertCircle, Loader2 } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, AlertCircle, Loader2, RotateCcw, Check } from 'lucide-react';
 import Link from 'next/link';
 import { getProtectedRouteForRole } from '@/lib/roles';
 
@@ -28,12 +28,38 @@ function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [resetNotice, setResetNotice] = useState(false);
 
   // Clear any auto-populated credentials on mount for a 100% fresh login
   useEffect(() => {
     setEmail('');
     setPassword('');
   }, []);
+
+  const handleReset = async () => {
+    setEmail('');
+    setPassword('');
+    setError('');
+
+    // Purge browser storage & session tokens
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.clear();
+        sessionStorage.clear();
+      } catch {}
+      // Clear document cookies for NextAuth
+      document.cookie.split(';').forEach(c => {
+        document.cookie = c.replace(/^ +/, '').replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/');
+      });
+    }
+
+    try {
+      await signOut({ redirect: false });
+    } catch {}
+
+    setResetNotice(true);
+    setTimeout(() => setResetNotice(false), 3500);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -175,23 +201,48 @@ function LoginForm() {
               </motion.div>
             )}
 
-            {/* Submit */}
-            <button
-              id="login-submit"
-              type="submit"
-              suppressHydrationWarning
-              disabled={loading || !email || !password}
-              className="w-full h-10 flex items-center justify-center gap-2 text-[13px] font-semibold rounded-xl bg-gradient-to-r from-sky-500 via-indigo-500 to-purple-600 hover:from-sky-400 hover:via-indigo-400 hover:to-purple-500 text-white shadow-lg shadow-indigo-500/25 disabled:opacity-50 disabled:pointer-events-none transition-all duration-200 active:scale-[0.98] border border-white/20 cursor-pointer"
-            >
-              {loading ? (
-                <>
-                  <Loader2 size={14} className="animate-spin" />
-                  Signing in...
-                </>
-              ) : (
-                'Sign In'
-              )}
-            </button>
+            {/* Action Buttons: Sign In + Reset */}
+            <div className="flex items-center gap-2 pt-1">
+              <button
+                id="login-submit"
+                type="submit"
+                suppressHydrationWarning
+                disabled={loading || !email || !password}
+                className="flex-1 h-10 flex items-center justify-center gap-2 text-[13px] font-semibold rounded-xl bg-gradient-to-r from-sky-500 via-indigo-500 to-purple-600 hover:from-sky-400 hover:via-indigo-400 hover:to-purple-500 text-white shadow-lg shadow-indigo-500/25 disabled:opacity-50 disabled:pointer-events-none transition-all duration-200 active:scale-[0.98] border border-white/20 cursor-pointer"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 size={14} className="animate-spin" />
+                    Signing in...
+                  </>
+                ) : (
+                  'Sign In'
+                )}
+              </button>
+
+              <button
+                id="login-reset"
+                type="button"
+                onClick={handleReset}
+                title="Clear all fields, purge session tokens and delete all credentials"
+                className="h-10 px-3.5 flex items-center justify-center gap-1.5 text-[12px] font-medium rounded-xl bg-[var(--color-surface-2)] hover:bg-rose-500/10 text-[var(--color-text-muted)] hover:text-rose-400 border border-[var(--color-border)] hover:border-rose-500/30 transition-all duration-150 cursor-pointer active:scale-95"
+              >
+                <RotateCcw size={14} />
+                <span>Reset</span>
+              </button>
+            </div>
+
+            {/* Reset notice */}
+            {resetNotice && (
+              <motion.div
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-center gap-2 p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-[12px] text-emerald-400"
+              >
+                <Check size={14} className="flex-shrink-0" />
+                <span>Credentials & active sessions deleted. Ready for fresh login.</span>
+              </motion.div>
+            )}
           </form>
         </div>
 
