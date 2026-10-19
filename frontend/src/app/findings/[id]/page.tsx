@@ -131,12 +131,12 @@ export default function FindingDetailPage({ params }: { params: Promise<{ id: st
           </motion.div>
         </div>
 
-        {/* ── Evidence ── */}
-        <motion.div {...fadeUp} className="card p-5">
-          <SectionHeader icon={FileText} title="Evidence" count={finding.evidence.length} />
-          <div className="space-y-3 mt-4">
+        {/* ── Evidence-Backed Cryptographic Intelligence ── */}
+        <motion.div {...fadeUp} className="card p-5 border-l-4 border-l-[var(--color-accent)] bg-gradient-to-r from-[var(--color-surface-1)] to-[var(--color-surface-2)]">
+          <SectionHeader icon={FileText} title="Evidence-Backed Cryptographic Intelligence" count={finding.evidence.length} />
+          <div className="space-y-4 mt-4">
             {finding.evidence.map((ev, i) => (
-              <EvidenceCard key={i} evidence={ev} />
+              <EvidenceCard key={i} evidence={ev} finding={finding} />
             ))}
           </div>
         </motion.div>
@@ -268,24 +268,84 @@ function SectionHeader({ icon: Icon, title, count }: { icon: React.ElementType; 
   );
 }
 
-function EvidenceCard({ evidence }: { evidence: Evidence }) {
+function EvidenceCard({ evidence, finding }: { evidence: Evidence; finding?: Finding }) {
+  const isDeterministic = (finding?.confidence ?? 100) >= 90;
+  const standardRef = finding?.standardsMapping?.[0]?.standard || 'RFC 8996';
+  
   return (
-    <div className="p-4 bg-[var(--color-surface-2)] rounded-md border border-[var(--color-border-subtle)]">
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-2">
-        <EvidenceField label="Session" value={evidence.sessionId} mono link={`/sessions/${evidence.sessionId}`} />
-        <EvidenceField label="Packets" value={evidence.packets} mono />
-        <EvidenceField label="Observed" value={evidence.observed} mono highlight />
-        <EvidenceField label="Source" value={evidence.sourceIp} mono />
-        <EvidenceField label="Destination" value={`${evidence.destHostname || evidence.destIp}`} mono />
-        <EvidenceField label="Timestamp" value={formatDateTime(evidence.timestamp)} />
+    <div className="p-4 bg-[var(--color-surface-2)] rounded-lg border border-[var(--color-border-subtle)] space-y-3 font-sans">
+      {/* Evidence-Backed Cryptographic Intelligence Matrix */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-[12px]">
+        {/* WHAT */}
+        <div className="p-2.5 rounded bg-[var(--color-surface-3)] border border-[var(--color-border-subtle)] space-y-1">
+          <div className="text-[10px] font-mono font-bold uppercase text-[var(--color-accent)] flex items-center justify-between">
+            <span>[WHAT] OBSERVED FINDING</span>
+            <span className="text-[9px] px-1.5 py-0.2 rounded bg-[var(--color-surface-1)] text-slate-300 font-mono">CRYPTOGRAPHIC TELEMETRY</span>
+          </div>
+          <div className="font-semibold text-white">{finding?.title || evidence.observed}</div>
+          <div className="text-[11px] text-mono text-rose-300">{evidence.observed}</div>
+        </div>
+
+        {/* WHY */}
+        <div className="p-2.5 rounded bg-[var(--color-surface-3)] border border-[var(--color-border-subtle)] space-y-1">
+          <div className="text-[10px] font-mono font-bold uppercase text-amber-400">
+            [WHY] VULNERABILITY IMPACT
+          </div>
+          <div className="text-[11px] text-[var(--color-text-secondary)] leading-relaxed">
+            {finding?.whyItMatters || 'Cryptographic weakness exposes passive network interception to cleartext eavesdropping.'}
+          </div>
+        </div>
+
+        {/* WHERE */}
+        <div className="p-2.5 rounded bg-[var(--color-surface-3)] border border-[var(--color-border-subtle)] space-y-1">
+          <div className="text-[10px] font-mono font-bold uppercase text-cyan-400">
+            [WHERE] COMMUNICATION ENDPOINTS
+          </div>
+          <div className="font-mono text-[11px] text-slate-200">
+            Source: <span className="text-white font-bold">{evidence.sourceIp}</span>
+          </div>
+          <div className="font-mono text-[11px] text-slate-200">
+            Destination: <span className="text-cyan-300 font-bold">{evidence.destHostname || evidence.destIp}</span> (Session: {evidence.sessionId})
+          </div>
+        </div>
+
+        {/* EVIDENCE */}
+        <div className="p-2.5 rounded bg-[var(--color-surface-3)] border border-[var(--color-border-subtle)] space-y-1">
+          <div className="text-[10px] font-mono font-bold uppercase text-emerald-400">
+            [EVIDENCE] PACKET TRACE & SIGNATURE
+          </div>
+          <div className="font-mono text-[11px] text-emerald-300">
+            Packets: <span className="font-bold underline">{evidence.packets}</span> (ClientHello / ServerHello Handshake)
+          </div>
+          <div className="text-[10px] font-mono text-[var(--color-text-dim)]">
+            Captured: {formatDateTime(evidence.timestamp)}
+          </div>
+        </div>
       </div>
-      <div className="flex items-center gap-2 mt-3 pt-3 border-t border-[var(--color-border-subtle)]">
-        <Link
-          href={`/sessions/${evidence.sessionId}`}
-          className="text-[11px] text-[var(--color-accent)] hover:underline"
-        >
-          View Session →
-        </Link>
+
+      {/* CONFIDENCE & STANDARD BANNER */}
+      <div className="p-2.5 rounded bg-gradient-to-r from-[var(--color-surface-1)] to-[var(--color-surface-3)] border border-[var(--color-border)] flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px]">
+        <div className="flex items-center gap-2">
+          <span className="font-mono font-bold uppercase text-slate-400">[CONFIDENCE]:</span>
+          <span className={clsx(
+            'px-2 py-0.5 rounded font-mono font-bold text-[10px]',
+            isDeterministic ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'
+          )}>
+            {finding?.confidence ?? 100}% — {isDeterministic ? 'DETERMINISTIC RFC PROOF ✅' : 'INSUFFICIENT EVIDENCE FOR CONFIRMATION ⚠️'}
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="font-mono font-bold uppercase text-slate-400">[STANDARD]:</span>
+          <span className="font-mono text-[11px] text-cyan-300 font-bold bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/30">
+            {standardRef}
+          </span>
+          <Link
+            href={`/sessions/${evidence.sessionId}`}
+            className="text-[11px] text-[var(--color-accent)] hover:underline ml-2"
+          >
+            Inspect Session →
+          </Link>
+        </div>
       </div>
     </div>
   );

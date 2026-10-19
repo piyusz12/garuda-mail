@@ -7,7 +7,7 @@ import {
   Inbox, Send, FileEdit, Star, Archive, Trash2,
   LayoutDashboard, Upload, Network, AlertTriangle, Shield,
   Award, Brain, Search as SearchIcon, FileText, Settings, Layers,
-  ChevronLeft, ChevronRight, Plus, Mail, Cpu, Activity, X,
+  ChevronLeft, ChevronRight, Plus, Mail, Cpu, Activity, X, FlaskConical,
 } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -24,6 +24,7 @@ const systemNav = [
   { name: 'Overview', href: '/dashboard', icon: LayoutDashboard, color: 'text-sky-400', activeBg: 'bg-sky-500/15 border-sky-500/30 text-sky-400' },
   { name: 'AI Fabric', href: '/fabric', icon: Cpu, color: 'text-purple-400', activeBg: 'bg-purple-500/15 border-purple-500/30 text-purple-400' },
   { name: 'Autonomous Ops', href: '/operations', icon: Activity, color: 'text-cyan-400', activeBg: 'bg-cyan-500/15 border-cyan-500/30 text-cyan-400' },
+  { name: 'GARUDA Lab', href: '/lab', icon: FlaskConical, color: 'text-amber-400', activeBg: 'bg-amber-500/15 border-amber-500/30 text-amber-300' },
   { name: 'Analysis', href: '/analysis', icon: Upload, color: 'text-indigo-400', activeBg: 'bg-indigo-500/15 border-indigo-500/30 text-indigo-400' },
   { name: 'Sessions', href: '/sessions', icon: Network, color: 'text-blue-400', activeBg: 'bg-blue-500/15 border-blue-500/30 text-blue-400' },
   { name: 'Findings', href: '/findings', icon: AlertTriangle, color: 'text-amber-400', activeBg: 'bg-amber-500/15 border-amber-500/30 text-amber-400' },

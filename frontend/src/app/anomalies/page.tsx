@@ -19,7 +19,7 @@ import type { Anomaly, Ja4Fingerprint } from '@/types';
 const fadeUp = { initial: { opacity: 0, y: 12 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.3 } };
 
 export default function AnomaliesPage() {
-  const [activeTab, setActiveTab] = useState<'anomalies' | 'ja4'>('anomalies');
+  const [activeTab, setActiveTab] = useState<'anomalies' | 'ja4' | 'drift'>('anomalies');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedAnomaly, setSelectedAnomaly] = useState<Anomaly | null>(mockAnomalies[0]);
 
@@ -134,6 +134,20 @@ export default function AnomaliesPage() {
             )}
           >
             <Fingerprint size={16} /> JA4 Fingerprint Database ({mockJa4Fingerprints.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('drift')}
+            className={clsx(
+              'px-4 py-2.5 text-[13px] font-medium border-b-2 flex items-center gap-2 transition-colors',
+              activeTab === 'drift'
+                ? 'border-[var(--color-accent)] text-[var(--color-accent)]'
+                : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]'
+            )}
+          >
+            <TrendingUp size={16} /> Posture Drift & Adaptive Baseline
+            <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 font-mono font-bold">
+              DRIFT REGRESSION
+            </span>
           </button>
         </div>
 
@@ -391,6 +405,142 @@ export default function AnomaliesPage() {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── TAB 3: Cryptographic Posture Drift & Adaptive Baseline ── */}
+        {activeTab === 'drift' && (
+          <div className="space-y-6 animate-in fade-in duration-200">
+            {/* Top Enterprise Baseline Summary */}
+            <div className="card p-5 bg-gradient-to-r from-amber-950/20 via-[var(--color-surface-2)] to-purple-950/20 border-l-4 border-l-amber-500 space-y-3">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                    <TrendingUp size={22} />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-base font-bold text-white">Adaptive Cryptographic Baseline & Drift Monitor</h3>
+                      <span className="badge-critical text-[9px] px-2 py-0.5 rounded font-bold uppercase font-mono">
+                        REGRESSION DETECTED (-26 PTS)
+                      </span>
+                    </div>
+                    <p className="text-[12px] text-[var(--color-text-muted)]">
+                      Continuous enterprise posture tracking over time. Separates one-off flow anomalies from systematic infrastructure regressions.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 text-[11px] text-[var(--color-text-secondary)]">
+                  <span className="px-2.5 py-1 rounded bg-[var(--color-surface-3)] font-mono border border-[var(--color-border-subtle)]">
+                    Model: KL-Divergence + Adaptive ECDF Drift
+                  </span>
+                </div>
+              </div>
+
+              {/* Dual Output Architecture Callout */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 text-[12px]">
+                <div className="p-3 rounded-lg bg-[var(--color-surface-1)] border border-[var(--color-border-subtle)] space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-cyan-400 font-mono block">AI Output 1: Behavioral Anomaly</span>
+                  <p className="text-[11px] text-[var(--color-text-secondary)]">
+                    Per-session outlier detection (Isolation Forest + Autoencoder): detects off-hours beaconing, covert bursts, and non-standard JA4 signatures.
+                  </p>
+                </div>
+                <div className="p-3 rounded-lg bg-[var(--color-surface-1)] border border-amber-500/30 space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-amber-400 font-mono block">AI Output 2: Posture Drift</span>
+                  <p className="text-[11px] text-[var(--color-text-secondary)]">
+                    Temporal cryptographic regression tracking: alerts CISOs when the ratio of modern TLS 1.3 ciphers decays over weeks.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Time-Series Regression Comparison: Week 1 vs Week 4 vs Week 8 */}
+            <div className="card p-6 space-y-4">
+              <div className="flex items-center justify-between border-b border-[var(--color-border)] pb-3">
+                <div>
+                  <h4 className="text-sm font-bold text-white">Cryptographic Posture Regression (Week 1 vs Week 4 vs Week 8)</h4>
+                  <p className="text-[11px] text-[var(--color-text-muted)]">
+                    Tracking 14,200 enterprise email sessions across the corporate mail gateway
+                  </p>
+                </div>
+                <span className="text-[11px] font-mono text-rose-400 font-bold bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/30">
+                  CRITICAL POSTURE DRIFT
+                </span>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse text-[12px]">
+                  <thead>
+                    <tr className="border-b border-[var(--color-border)] bg-[var(--color-surface-2)] text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">
+                      <th className="py-2.5 px-4">Cryptographic Metric</th>
+                      <th className="py-2.5 px-4 text-emerald-400">Week 1 (Baseline)</th>
+                      <th className="py-2.5 px-4 text-sky-400">Week 4 (Midpoint)</th>
+                      <th className="py-2.5 px-4 text-rose-400">Week 8 (Observed Now)</th>
+                      <th className="py-2.5 px-4 text-right">Drift Delta</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[var(--color-border-subtle)] font-mono">
+                    <tr>
+                      <td className="py-3 px-4 font-sans font-semibold text-white">TLS 1.3 Modern Adoption</td>
+                      <td className="py-3 px-4 text-emerald-300 font-bold">82.4%</td>
+                      <td className="py-3 px-4 text-sky-300">74.1%</td>
+                      <td className="py-3 px-4 text-rose-400 font-bold">61.0%</td>
+                      <td className="py-3 px-4 text-rose-400 font-bold text-right">-21.4% (Severe Regression)</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3 px-4 font-sans font-semibold text-white">TLS 1.2 Classical Usage</td>
+                      <td className="py-3 px-4 text-slate-300">17.6%</td>
+                      <td className="py-3 px-4 text-slate-300">23.9%</td>
+                      <td className="py-3 px-4 text-slate-300">29.0%</td>
+                      <td className="py-3 px-4 text-amber-300 text-right">+11.4%</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3 px-4 font-sans font-semibold text-white">Deprecated TLS 1.0 / 1.1</td>
+                      <td className="py-3 px-4 text-emerald-300">0.0% (Clean)</td>
+                      <td className="py-3 px-4 text-amber-300">2.0%</td>
+                      <td className="py-3 px-4 text-rose-400 font-bold">10.0% (Active)</td>
+                      <td className="py-3 px-4 text-rose-400 font-bold text-right">+10.0% (Violates RFC 8996)</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3 px-4 font-sans font-semibold text-white">SWEET32 / 3DES Vulnerable Ciphers</td>
+                      <td className="py-3 px-4 text-emerald-300">0 sessions</td>
+                      <td className="py-3 px-4 text-amber-300">3 sessions</td>
+                      <td className="py-3 px-4 text-rose-400 font-bold">19 sessions</td>
+                      <td className="py-3 px-4 text-rose-400 font-bold text-right">+19 Outliers</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3 px-4 font-sans font-semibold text-white">Forward Secrecy (PFS) Enforced</td>
+                      <td className="py-3 px-4 text-emerald-300">100.0%</td>
+                      <td className="py-3 px-4 text-slate-300">97.4%</td>
+                      <td className="py-3 px-4 text-rose-400 font-bold">90.0%</td>
+                      <td className="py-3 px-4 text-rose-400 font-bold text-right">-10.0% (Static RSA Resurgence)</td>
+                    </tr>
+                    <tr className="bg-[var(--color-surface-2)]">
+                      <td className="py-3 px-4 font-sans font-bold text-white">Overall Enterprise Posture Score</td>
+                      <td className="py-3 px-4 text-emerald-400 font-black text-sm">94 / 100</td>
+                      <td className="py-3 px-4 text-sky-400 font-black text-sm">85 / 100</td>
+                      <td className="py-3 px-4 text-rose-400 font-black text-sm">68 / 100</td>
+                      <td className="py-3 px-4 text-rose-400 font-black text-sm text-right">-26 Points</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Actionable Root Cause Card */}
+              <div className="p-4 rounded-xl bg-gradient-to-r from-rose-950/30 to-amber-950/20 border border-rose-500/30 space-y-2 text-[12px]">
+                <div className="flex items-center gap-2 text-rose-400 font-bold">
+                  <AlertCircle size={16} />
+                  <span>Automated Root Cause Diagnosis for Drift</span>
+                </div>
+                <p className="text-slate-300 leading-relaxed">
+                  The drift engine detected that between Week 4 and Week 8, legacy mail servers in the Finance subnet (10.4.0.0/24) were rolled back to unpatched Exchange 2010 configurations following an interrupted migration, re-introducing 3DES-CBC and disabling TLS 1.3 key-shares.
+                </p>
+                <div className="pt-1 flex items-center gap-3 text-[11px] font-mono text-cyan-300">
+                  <span>💡 Recommended Action: Apply Ansible playbook to disable SSLv3/TLS1.0 on subnet 10.4.0.0/24</span>
+                </div>
               </div>
             </div>
           </div>

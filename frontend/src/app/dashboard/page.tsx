@@ -43,29 +43,41 @@ export default function DashboardPage() {
 
         {/* ── Row 2: Risk + Severity + Posture ── */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-          {/* Risk Score */}
-          <motion.div variants={fadeUp} className="lg:col-span-3 card p-6 flex flex-col items-center justify-center">
-            <div className="text-[11px] uppercase tracking-wider text-[var(--color-text-muted)] font-medium mb-4">
-              Overall Risk Score
+          {/* Hybrid Risk Fusion & CRS Card */}
+          <motion.div variants={fadeUp} className="lg:col-span-3 card p-6 flex flex-col items-center justify-between border-t-2 border-t-[var(--color-severity-critical)] bg-gradient-to-b from-rose-500/[0.04] to-transparent">
+            <div className="w-full flex items-center justify-between mb-3 text-[11px] font-mono">
+              <span className="font-bold text-rose-400">GARUDA CRS</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--color-surface-3)] text-slate-300">
+                CVSS v4.0: <b className="text-rose-400">8.6 Base</b>
+              </span>
             </div>
+
             <RiskScore score={data.risk.overallScore} size="lg" />
-            <div className="mt-4 grid grid-cols-2 gap-x-6 gap-y-1 text-center">
-              <div>
-                <div className="text-[10px] text-[var(--color-text-dim)]">Rule-based</div>
-                <div className="text-[13px] font-semibold text-[var(--color-text-secondary)] tabular-nums">{data.risk.ruleContribution}%</div>
+
+            {/* Hybrid Fusion Breakdown */}
+            <div className="w-full mt-4 pt-3 border-t border-[var(--color-border-subtle)] space-y-1.5 text-[11px] font-mono">
+              <div className="flex items-center justify-between text-slate-300">
+                <span className="text-[10px] text-slate-400">Crypto Rule Score:</span>
+                <span className="font-bold text-emerald-400">90 / 100</span>
               </div>
-              <div>
-                <div className="text-[10px] text-[var(--color-text-dim)]">AI Anomaly</div>
-                <div className="text-[13px] font-semibold text-[var(--color-text-secondary)] tabular-nums">{data.risk.aiAnomalyContribution}%</div>
+              <div className="flex items-center justify-between text-slate-300">
+                <span className="text-[10px] text-slate-400">AI Anomaly Score:</span>
+                <span className="font-bold text-amber-400">78 / 100</span>
               </div>
-              <div>
-                <div className="text-[10px] text-[var(--color-text-dim)]">Context</div>
-                <div className="text-[13px] font-semibold text-[var(--color-text-secondary)] tabular-nums">{data.risk.contextContribution}%</div>
+              <div className="flex items-center justify-between text-slate-300">
+                <span className="text-[10px] text-slate-400">Asset Context:</span>
+                <span className="font-bold text-sky-400">85 / 100</span>
               </div>
-              <div>
-                <div className="text-[10px] text-[var(--color-text-dim)]">Confidence</div>
-                <div className="text-[13px] font-semibold text-[var(--color-text-secondary)] tabular-nums">{data.risk.confidenceContribution}%</div>
+              <div className="flex items-center justify-between pt-1 border-t border-[var(--color-border-subtle)] text-[10px]">
+                <span className="text-slate-400">CRS Confidence:</span>
+                <span className="font-bold text-emerald-300">97% Certainty</span>
               </div>
+            </div>
+
+            <div className="w-full pt-3 mt-1 text-center">
+              <Link href="/lab" className="text-[11px] text-[var(--color-accent)] hover:underline flex items-center justify-center gap-1 font-sans">
+                Open GARUDA Lab Testbed →
+              </Link>
             </div>
           </motion.div>
 

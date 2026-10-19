@@ -686,6 +686,109 @@ export default function CryptoPosturePage() {
           </div>
         </div>
 
+        {/* ── PQC Readiness Detection Engine (RFC 10024 / NIST FIPS 203) ── */}
+        <div className="card p-6 border-purple-500/30 bg-gradient-to-br from-[var(--color-surface-1)] via-purple-950/10 to-[var(--color-surface-2)] space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[var(--color-border)]">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-lg bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400">
+                <Sparkles size={18} />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="text-base font-bold text-[var(--color-text-primary)]">
+                    PQC Readiness & Hybrid Key-Agreement Engine
+                  </h3>
+                  <span className="px-2 py-0.5 rounded font-mono text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                    IETF RFC 10024
+                  </span>
+                  <span className="px-2 py-0.5 rounded font-mono text-[10px] font-bold bg-sky-500/20 text-sky-300 border border-sky-500/30">
+                    NIST FIPS 203 (ML-KEM)
+                  </span>
+                </div>
+                <p className="text-[12px] text-[var(--color-text-muted)] mt-0.5">
+                  Evaluates email transport handshakes for quantum resistance against Store-Now-Decrypt-Later (SNDL) state adversary collection
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 bg-[var(--color-surface-3)] px-3 py-1.5 rounded-lg border border-purple-500/30">
+              <span className="text-[11px] text-slate-300 font-mono uppercase">Readiness Level:</span>
+              <span className="text-xs font-bold font-mono px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                LOW ⚠️
+              </span>
+            </div>
+          </div>
+
+          {/* Handshake Analysis Pipeline */}
+          <div className="p-3.5 rounded-lg bg-[var(--color-surface-2)] border border-[var(--color-border-subtle)] space-y-2">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-purple-300 flex items-center gap-1.5">
+              <Terminal size={14} /> PQC Detection Pipeline: ClientHello supported_groups Inspection
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-2 text-[11px] font-mono items-center">
+              <div className="p-2 rounded bg-[var(--color-surface-3)] border border-slate-700 text-center">
+                <div className="text-[9px] text-slate-400">INPUT</div>
+                <div className="font-bold text-sky-300">TLS ClientHello</div>
+              </div>
+              <div className="text-center text-slate-500">──►</div>
+              <div className="p-2 rounded bg-[var(--color-surface-3)] border border-slate-700 text-center">
+                <div className="text-[9px] text-slate-400">EXTENSION</div>
+                <div className="font-bold text-slate-200">supported_groups</div>
+              </div>
+              <div className="text-center text-slate-500">──►</div>
+              <div className="p-2 rounded bg-purple-950/40 border border-purple-500/40 text-center">
+                <div className="text-[9px] text-purple-400">PQC ENGINE</div>
+                <div className="font-bold text-purple-300">Hybrid ML-KEM?</div>
+              </div>
+            </div>
+            <p className="text-[12px] text-rose-300/90 pt-1">
+              <b>Observed Handshake Diagnostic:</b> &quot;The observed handshake does not negotiate a post-quantum hybrid key-establishment group.&quot;
+            </p>
+          </div>
+
+          {/* RFC 10024 Hybrid Key-Agreement Groups Matrix */}
+          <div className="space-y-2">
+            <h4 className="text-[12px] font-bold uppercase tracking-wider text-[var(--color-text-primary)]">
+              RFC 10024 / NIST FIPS 203 Hybrid Group Verification Matrix
+            </h4>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse text-[12px]">
+                <thead>
+                  <tr className="border-b border-[var(--color-border)] text-[10px] font-semibold text-[var(--color-text-muted)] uppercase">
+                    <th className="py-2 px-3">Hybrid Key-Agreement Group</th>
+                    <th className="py-2 px-3">Codepoint</th>
+                    <th className="py-2 px-3">Classical + Post-Quantum Primitive</th>
+                    <th className="py-2 px-3">Security Category</th>
+                    <th className="py-2 px-3">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[var(--color-border-subtle)] font-mono text-[11px]">
+                  <tr>
+                    <td className="py-2 px-3 font-bold text-purple-300">X25519MLKEM768</td>
+                    <td className="py-2 px-3 text-slate-400">0x11EC</td>
+                    <td className="py-2 px-3 text-slate-300">X25519 (ECDHE) + ML-KEM-768 (Lattice)</td>
+                    <td className="py-2 px-3 text-slate-300">NIST Level 3 (AES-192 Equivalent)</td>
+                    <td className="py-2 px-3 text-rose-400 font-bold">MISSING IN CLIENTHELLO ⚠️</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 px-3 font-bold text-purple-300">SecP256r1MLKEM768</td>
+                    <td className="py-2 px-3 text-slate-400">0x11ED</td>
+                    <td className="py-2 px-3 text-slate-300">NIST P-256 + ML-KEM-768 (FIPS 203)</td>
+                    <td className="py-2 px-3 text-slate-300">NIST Level 3 (FIPS Regulated Enterprise)</td>
+                    <td className="py-2 px-3 text-rose-400 font-bold">MISSING IN CLIENTHELLO ⚠️</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 px-3 font-bold text-purple-300">SecP384r1MLKEM1024</td>
+                    <td className="py-2 px-3 text-slate-400">0x11EE</td>
+                    <td className="py-2 px-3 text-slate-300">NIST P-384 + ML-KEM-1024 (Top Secret)</td>
+                    <td className="py-2 px-3 text-slate-300">NIST Level 5 (CNSA 2.0 National Defense)</td>
+                    <td className="py-2 px-3 text-rose-400 font-bold">MISSING IN CLIENTHELLO ⚠️</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
         {/* ── Cipher Suite Audit Matrix ── */}
         <div className="card p-6 space-y-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">

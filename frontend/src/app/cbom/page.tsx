@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Layers, Download, Shield, AlertTriangle, CheckCircle,
-  FileCode, Filter, ExternalLink, Database, Sparkles, Copy, Check
+  FileCode, Filter, ExternalLink, Database, Sparkles, Copy, Check,
+  GitBranch, Server, Terminal, Lock, Key, Radio
 } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
 import { SeverityBadge } from '@/components/ui/shared';
@@ -16,6 +17,7 @@ import type { CbomAsset } from '@/types';
 const fadeUp = { initial: { opacity: 0, y: 12 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.3 } };
 
 export default function CbomPage() {
+  const [viewMode, setViewMode] = useState<'table' | 'tree'>('table');
   const [filterRisk, setFilterRisk] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [exportNotification, setExportNotification] = useState<string | null>(null);
@@ -185,37 +187,159 @@ export default function CbomPage() {
           </div>
         </div>
 
-        {/* ── Search & Filter Controls ── */}
-        <div className="card p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <input
-            type="text"
-            placeholder="Search by asset hostname, cipher, protocol..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full sm:w-80 px-3 py-1.5 rounded-lg bg-[var(--color-surface-2)] border border-[var(--color-border)] text-[13px] text-[var(--color-text-primary)] placeholder-[var(--color-text-dim)] focus:outline-none focus:border-[var(--color-accent)]"
-          />
-
-          <div className="flex items-center gap-1.5 bg-[var(--color-surface-2)] p-1 rounded-lg border border-[var(--color-border)]">
-            {['all', 'critical', 'high', 'medium', 'low'].map((risk) => (
-              <button
-                key={risk}
-                onClick={() => setFilterRisk(risk)}
-                className={clsx(
-                  'px-3 py-1 text-[11px] font-medium rounded-md capitalize transition-colors',
-                  filterRisk === risk
-                    ? 'bg-[var(--color-surface-3)] text-[var(--color-text-primary)] shadow-sm'
-                    : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]'
-                )}
-              >
-                {risk}
-              </button>
-            ))}
+        {/* ── View Mode Selector Bar ── */}
+        <div className="flex items-center justify-between border-b border-[var(--color-border)] pb-3">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setViewMode('table')}
+              className={clsx(
+                'px-3.5 py-1.5 rounded-lg text-[12px] font-semibold transition-all border flex items-center gap-1.5',
+                viewMode === 'table'
+                  ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40 shadow-sm'
+                  : 'bg-[var(--color-surface-2)] text-[var(--color-text-muted)] border-transparent'
+              )}
+            >
+              <Layers size={14} />
+              <span>CycloneDX Inventory Table</span>
+            </button>
+            <button
+              onClick={() => setViewMode('tree')}
+              className={clsx(
+                'px-3.5 py-1.5 rounded-lg text-[12px] font-semibold transition-all border flex items-center gap-1.5',
+                viewMode === 'tree'
+                  ? 'bg-purple-500/20 text-purple-300 border-purple-500/40 shadow-sm'
+                  : 'bg-[var(--color-surface-2)] text-[var(--color-text-muted)] border-transparent'
+              )}
+            >
+              <GitBranch size={14} />
+              <span>Cryptographic Hierarchy Tree</span>
+              <span className="text-[9px] px-1.5 py-0.2 rounded bg-purple-500/30 text-purple-200 font-mono font-bold">
+                MAIL SERVER HIERARCHY
+              </span>
+            </button>
           </div>
+          <span className="text-[11px] text-[var(--color-text-dim)] font-mono hidden sm:inline">
+            NIST IR 8547 / CycloneDX 1.6
+          </span>
         </div>
 
-        {/* ── CBOM Inventory Table ── */}
-        <div className="card overflow-hidden">
-          <div className="overflow-x-auto">
+        {/* ── TREE VIEW: Cryptographic Hierarchy Tree ── */}
+        {viewMode === 'tree' ? (
+          <div className="card p-6 bg-gradient-to-b from-[var(--color-surface-1)] to-[var(--color-surface-2)] border border-[var(--color-border)] space-y-6 animate-in fade-in duration-200">
+            <div className="flex items-center justify-between border-b border-[var(--color-border)] pb-3">
+              <div className="flex items-center gap-2.5">
+                <Server size={18} className="text-cyan-400" />
+                <h4 className="text-base font-bold text-white">
+                  MAIL SERVER CLUSTER: <span className="font-mono text-cyan-300">mail.sovereign.local</span>
+                </h4>
+              </div>
+              <span className="badge-healthy text-[10px] px-2 py-0.5 rounded font-mono font-bold">
+                4 ACTIVE PROTOCOL CHANNELS
+              </span>
+            </div>
+
+            {/* Tree Branch Visual Representation */}
+            <div className="space-y-5 font-mono text-[12px]">
+              {/* Branch 1: SMTP / 587 */}
+              <div className="p-4 rounded-xl bg-[var(--color-surface-2)] border border-emerald-500/30 space-y-2.5">
+                <div className="flex items-center justify-between text-emerald-400 font-bold text-[13px]">
+                  <span className="flex items-center gap-2">
+                    <Radio size={14} /> ├── 🛡️ SMTP Submission (Port 587 / RFC 3207)
+                  </span>
+                  <span className="badge-healthy text-[10px] px-2 py-0.5 rounded uppercase">COMPLIANT (PQC HYBRID)</span>
+                </div>
+                <div className="pl-6 space-y-1 text-slate-300 text-[11px]">
+                  <div>│   ├── 🔒 <b className="text-white">TLS 1.3 (RFC 8446)</b></div>
+                  <div>│   │   ├── 🔑 Key Exchange: <span className="text-purple-300 font-bold">X25519MLKEM768 (NIST FIPS 203 Hybrid)</span></div>
+                  <div>│   │   ├── 🔐 Symmetric Cipher: <span className="text-cyan-300">TLS_AES_256_GCM_SHA384 (Authenticated 256-bit AEAD)</span></div>
+                  <div>│   │   ├── 📜 Hash Function: <span className="text-slate-300">SHA-384</span></div>
+                  <div>│   │   └── 🏷️ Certificate: <span className="text-slate-200">CN=mail.sovereign.local (RSA 4096, Issuer: Garuda Sovereign Root CA)</span></div>
+                  <div>│   └── 🛡️ Policy: <span className="text-emerald-400">MTA-STS mode:enforce + DANE TLSA 3 1 1 (DNSSEC Root Validated)</span></div>
+                </div>
+              </div>
+
+              {/* Branch 2: SMTPS / 465 */}
+              <div className="p-4 rounded-xl bg-[var(--color-surface-2)] border border-indigo-500/30 space-y-2.5">
+                <div className="flex items-center justify-between text-indigo-400 font-bold text-[13px]">
+                  <span className="flex items-center gap-2">
+                    <Lock size={14} /> ├── 🛡️ SMTPS Implicit TLS (Port 465 / RFC 8314)
+                  </span>
+                  <span className="text-[10px] px-2 py-0.5 rounded font-mono font-bold bg-indigo-500/20 text-indigo-300">MODERN TLS 1.3</span>
+                </div>
+                <div className="pl-6 space-y-1 text-slate-300 text-[11px]">
+                  <div>│   ├── 🔒 <b className="text-white">TLS 1.3</b></div>
+                  <div>│   │   ├── 🔑 Key Exchange: <span className="text-slate-200">ECDHE-X25519 (Perfect Forward Secrecy)</span></div>
+                  <div>│   │   ├── 🔐 Symmetric Cipher: <span className="text-indigo-300">TLS_CHACHA20_POLY1305_SHA256</span></div>
+                  <div>│   │   └── 🏷️ Certificate: <span className="text-slate-200">CN=smtp.sovereign.local (ECDSA P-384)</span></div>
+                </div>
+              </div>
+
+              {/* Branch 3: IMAP / 993 */}
+              <div className="p-4 rounded-xl bg-[var(--color-surface-2)] border border-sky-500/30 space-y-2.5">
+                <div className="flex items-center justify-between text-sky-400 font-bold text-[13px]">
+                  <span className="flex items-center gap-2">
+                    <Terminal size={14} /> ├── 📥 IMAP4rev1 Sync (Port 993 / RFC 3501)
+                  </span>
+                  <span className="text-[10px] px-2 py-0.5 rounded font-mono font-bold bg-sky-500/20 text-sky-300">ACCEPTABLE TLS 1.2</span>
+                </div>
+                <div className="pl-6 space-y-1 text-slate-300 text-[11px]">
+                  <div>│   ├── 🔒 <b className="text-white">TLS 1.2</b></div>
+                  <div>│   │   ├── 🔑 Key Exchange: <span className="text-slate-200">ECDHE-P256 (Classical ECC)</span></div>
+                  <div>│   │   ├── 🔐 Cipher: <span className="text-sky-300">ECDHE-RSA-AES128-GCM-SHA256</span></div>
+                  <div>│   │   └── 🏷️ Certificate: <span className="text-slate-200">CN=imap.sovereign.local</span></div>
+                </div>
+              </div>
+
+              {/* Branch 4: POP3 / 110 Legacy */}
+              <div className="p-4 rounded-xl bg-gradient-to-r from-rose-950/30 to-[var(--color-surface-2)] border border-rose-500/40 space-y-2.5">
+                <div className="flex items-center justify-between text-rose-400 font-bold text-[13px]">
+                  <span className="flex items-center gap-2">
+                    <AlertTriangle size={14} /> └── ⚠️ POP3 Legacy Mail Service (Port 110 / RFC 1939)
+                  </span>
+                  <span className="badge-critical text-[10px] px-2 py-0.5 rounded font-bold uppercase">CRITICAL CVE-2016-2183</span>
+                </div>
+                <div className="pl-6 space-y-1 text-rose-300 text-[11px]">
+                  <div>    └── ⚠️ <b className="text-rose-400">TLS 1.1 (DEPRECATED - RFC 8996 Violation)</b></div>
+                  <div>        ├── ❌ Key Exchange: <span className="text-rose-400 font-bold">Static RSA (NO Forward Secrecy / PFS: None)</span></div>
+                  <div>        ├── ❌ Cipher: <span className="text-rose-400 font-bold">TLS_RSA_WITH_3DES_EDE_CBC_SHA (Sweet32 Vulnerable)</span></div>
+                  <div>        └── ❌ Certificate: <span className="text-rose-400 font-bold">CN=pop.internal.local (Self-signed, EXPIRED)</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* ── Search & Filter Controls ── */}
+            <div className="card p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <input
+                type="text"
+                placeholder="Search by asset hostname, cipher, protocol..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full sm:w-80 px-3 py-1.5 rounded-lg bg-[var(--color-surface-2)] border border-[var(--color-border)] text-[13px] text-[var(--color-text-primary)] placeholder-[var(--color-text-dim)] focus:outline-none focus:border-[var(--color-accent)]"
+              />
+
+              <div className="flex items-center gap-1.5 bg-[var(--color-surface-2)] p-1 rounded-lg border border-[var(--color-border)]">
+                {['all', 'critical', 'high', 'medium', 'low'].map((risk) => (
+                  <button
+                    key={risk}
+                    onClick={() => setFilterRisk(risk)}
+                    className={clsx(
+                      'px-3 py-1 text-[11px] font-medium rounded-md capitalize transition-colors',
+                      filterRisk === risk
+                        ? 'bg-[var(--color-surface-3)] text-[var(--color-text-primary)] shadow-sm'
+                        : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]'
+                    )}
+                  >
+                    {risk}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* ── CBOM Inventory Table ── */}
+            <div className="card overflow-hidden">
+              <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-[13px]">
               <thead>
                 <tr className="border-b border-[var(--color-border)] bg-[var(--color-surface-2)] text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">
@@ -290,6 +414,8 @@ export default function CbomPage() {
             </table>
           </div>
         </div>
+      </>
+    )}
 
       </div>
     </AppShell>
