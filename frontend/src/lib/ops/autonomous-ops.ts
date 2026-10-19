@@ -3,7 +3,7 @@
  * Client/Server Service connecting to FastAPI backend (port 8035) with fallback state.
  */
 
-export type AutonomyMode = 'OBSERVE' | 'RECOMMEND_AND_APPROVE' | 'BOUNDED_AUTOMATION';
+export type AutonomyMode = 'OBSERVE' | 'RECOMMEND_AND_APPROVE' | 'BOUNDED_AUTOMATION' | 'READ_ONLY_ASSIST';
 export type ActionRiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 export type ActionExecutionStatus =
   | 'PLANNED'
@@ -150,7 +150,7 @@ const BACKEND_BASE = process.env.NEXT_PUBLIC_OPS_API_URL || 'http://127.0.0.1:80
 // Mock in-memory state when FastAPI is not actively bound
 let currentMode: AutonomyMode = 'RECOMMEND_AND_APPROVE';
 
-let mockPlans: ActionPlan[] = [
+const mockPlans: ActionPlan[] = [
   {
     action_id: 'ACT-1042',
     action_type: 'reroute_eligible_job',

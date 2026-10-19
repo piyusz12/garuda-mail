@@ -14,7 +14,7 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     "scripts/**",
     "prisma/seed.js",
-    "test-e2e.js",
+    "test-*.js",
     "certificates/**",
   ]),
   {

@@ -2,9 +2,5 @@
   "framework": "nextjs",
   "buildCommand": "npm run build",
   "installCommand": "npm install",
-  "outputDirectory": ".next",
-  "env": {
-    "NEXT_PUBLIC_USE_MOCK_DATA": "true",
-    "AUTH_TRUST_HOST": "true"
-  }
+  "outputDirectory": ".next"
 }

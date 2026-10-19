@@ -130,7 +130,15 @@ export default function EmailDetailPage({ params }: { params: Promise<{ id: stri
           timestamp: fb.sentAt || fb.createdAt,
           read: true,
           starred: fb.starred || false,
-          attachments: fb.attachments || [],
+          attachments: (fb.attachments || []).map((att) => ({
+            id: att.id,
+            name: att.filename,
+            filename: att.filename,
+            size: att.size,
+            type: att.mimeType,
+            mimeType: att.mimeType,
+            url: att.url,
+          })),
           security: {
             level: secLevel,
             tlsVersion: fb.tlsVersion || null,

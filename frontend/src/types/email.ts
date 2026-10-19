@@ -30,6 +30,10 @@ export interface EmailAttachment {
   name: string;
   size: number;
   type: string;
+  id?: string;
+  filename?: string;
+  mimeType?: string;
+  url?: string;
 }
 
 export interface EmailMessage {

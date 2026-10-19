@@ -4,6 +4,11 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  env: {
+    NEXT_PUBLIC_USE_MOCK_DATA: process.env.NEXT_PUBLIC_USE_MOCK_DATA ?? 'true',
+    AUTH_TRUST_HOST: process.env.AUTH_TRUST_HOST ?? 'true',
+    DEMO_MODE: process.env.DEMO_MODE ?? 'true',
+  },
 	async headers() {
 		return [
 			{

@@ -17,6 +17,7 @@ export interface FallbackEmail {
   riskScore: number;
   folder: string;
   starred: boolean;
+  read?: boolean;
   draft?: boolean;
   createdAt: string;
   sentAt?: string;

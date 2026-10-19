@@ -6,8 +6,8 @@ import { useSession, signOut } from 'next-auth/react';
 import {
   Search, Bell, Wifi, Check, Clock,
   ExternalLink, Settings as SettingsIcon, LogOut, Laptop,
-  Menu, Smartphone, Copy, CheckCheck, QrCode, Sparkles, ShieldAlert,
-  Zap, Users
+  Menu, Smartphone, Copy, CheckCheck, QrCode, Sparkles, Shield, ShieldAlert,
+  Zap
 } from 'lucide-react';
 import clsx from 'clsx';
 import Link from 'next/link';

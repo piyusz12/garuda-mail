@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
-  Brain, Fingerprint, AlertTriangle, Shield, Activity,
+  Brain, Fingerprint, AlertTriangle, AlertCircle, Shield, Activity,
   Search, ExternalLink, Info, Sparkles, ChevronRight,
   TrendingUp, BarChart2, CheckCircle2, Sliders
 } from 'lucide-react';

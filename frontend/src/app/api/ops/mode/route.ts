@@ -5,7 +5,7 @@ import { authOptions } from '@/lib/auth';
 import { updateAutonomyMode } from '@/lib/ops/autonomous-ops';
 
 const modeSchema = z.object({
-  mode: z.enum(['RECOMMEND_AND_APPROVE', 'BOUNDED_AUTOMATION', 'READ_ONLY_ASSIST']),
+  mode: z.enum(['OBSERVE', 'RECOMMEND_AND_APPROVE', 'BOUNDED_AUTOMATION', 'READ_ONLY_ASSIST']),
 });
 
 export async function POST(request: Request) {

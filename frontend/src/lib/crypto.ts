@@ -249,6 +249,7 @@ export function decryptAsymmetricEnvelope(params: {
   decrypted: boolean;
   signatureVerified: boolean;
   integrityVerified: boolean;
+  integrityValid?: boolean;
   senderFingerprint: string;
   error?: string;
 } {
