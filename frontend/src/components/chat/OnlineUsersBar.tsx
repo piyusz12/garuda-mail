@@ -80,6 +80,7 @@ export default function OnlineUsersBar() {
         {/* Quick Send to Anyone Button */}
         <button
           type="button"
+          id="tray-quick-send-btn"
           onClick={() => handleOpenQuickMail()}
           className="flex flex-col items-center gap-1 flex-shrink-0 group cursor-pointer"
           title="Open Quick Mail Composer"
@@ -106,6 +107,7 @@ export default function OnlineUsersBar() {
             <button
               key={u.id}
               type="button"
+              id={`tray-peer-avatar-${u.id}`}
               onClick={() => !isCurrent && handleOpenQuickMail(u)}
               disabled={isCurrent}
               className={clsx(

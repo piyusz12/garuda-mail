@@ -192,6 +192,7 @@ export default function QuickMailDrawer() {
       <div className="fixed bottom-20 md:bottom-6 right-4 sm:right-6 z-40">
         <motion.button
           type="button"
+          id="quick-mail-floating-btn"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => {
@@ -366,6 +367,7 @@ export default function QuickMailDrawer() {
                       return (
                         <button
                           key={user.id}
+                          id={`contact-item-${user.id}`}
                           type="button"
                           onClick={() => handleSelectContact(user)}
                           className="w-full px-3.5 py-2.5 flex items-center justify-between hover:bg-[var(--color-surface-2)] transition-colors text-left group"
@@ -461,6 +463,7 @@ export default function QuickMailDrawer() {
                   {QUICK_TEMPLATES.map((tmpl, idx) => (
                     <button
                       key={idx}
+                      id={`quick-tmpl-btn-${idx}`}
                       type="button"
                       onClick={() => handleApplyTemplate(tmpl)}
                       className="px-2.5 py-1 rounded-full text-[10px] font-medium bg-[var(--color-surface-2)] text-[var(--color-text-secondary)] hover:text-emerald-400 hover:bg-emerald-500/15 border border-[var(--color-border-subtle)] transition-colors whitespace-nowrap flex-shrink-0 flex items-center gap-1"
@@ -498,6 +501,7 @@ export default function QuickMailDrawer() {
                     </div>
                     <textarea
                       ref={bodyInputRef}
+                      id="quick-mail-body-input"
                       value={body}
                       onChange={e => {
                         setBody(e.target.value);
@@ -609,6 +613,7 @@ export default function QuickMailDrawer() {
 
                   <button
                     type="button"
+                    id="quick-mail-submit-btn"
                     onClick={handleSendQuick}
                     disabled={sending || !body.trim()}
                     className={clsx(
