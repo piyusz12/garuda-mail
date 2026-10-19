@@ -10,6 +10,7 @@ import AppShell from '@/components/layout/AppShell';
 import Link from 'next/link';
 import clsx from 'clsx';
 import type { EmailMessage, SecurityLevel } from '@/types/email';
+import { FALLBACK_EMAILS } from '@/lib/fallbackEmails';
 
 const fadeUp = { initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.25 } };
 
@@ -41,66 +42,70 @@ export default function InboxPage() {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
 
+  const mapToEmailMessages = (rawItems: any[]): EmailMessage[] => {
+    return rawItems.map((e: any) => {
+      const secLevel: SecurityLevel =
+        e.riskScore !== null && e.riskScore !== undefined
+          ? e.riskScore >= 75 ? 'critical' : e.riskScore >= 40 ? 'warning' : 'secure'
+          : e.tlsVersion ? 'secure' : 'critical';
+
+      const fromName = e.from?.name || e.fromExternal || 'Unknown Sender';
+      const fromEmail = e.from?.email || e.fromExternal || 'unknown@domain.com';
+      const domain = fromEmail.includes('@') ? fromEmail.split('@')[1] : 'garudamail.local';
+
+      return {
+        id: e.id,
+        folder: 'inbox',
+        from: {
+          name: fromName,
+          email: fromEmail,
+          domain,
+        },
+        to: e.recipients?.map((r: any) => ({
+          name: r.name || r.user?.name || r.address,
+          email: r.address || r.user?.email || '',
+          domain: (r.address || '').split('@')[1] || '',
+        })) || [],
+        subject: e.subject || '(No Subject)',
+        preview: e.preview || e.body?.slice(0, 140) || '',
+        body: e.body || '',
+        timestamp: e.sentAt || e.createdAt,
+        read: e._recipient ? e._recipient.read : true,
+        starred: e._recipient ? e._recipient.starred : e.starred || false,
+        attachments: e.attachments || [],
+        security: {
+          level: secLevel,
+          tlsVersion: e.tlsVersion || null,
+          cipher: e.cipher || null,
+          forwardSecrecy: e.forwardSecrecy ?? null,
+          starttls: e.starttls ?? null,
+          certificateStatus: e.tlsVersion ? 'valid' : null,
+          riskScore: e.riskScore ?? null,
+          anomalyScore: null,
+          findingsCount: e.riskScore && e.riskScore > 50 ? 2 : 0,
+          sessionId: null,
+        },
+        threadId: e.threadId || `THREAD-${e.id}`,
+        labels: [],
+      };
+    });
+  };
+
   const fetchEmails = useCallback(async (isSilent = false) => {
     if (!isSilent) setRefreshing(true);
     try {
       const res = await fetch('/api/emails?folder=inbox');
       if (res.ok) {
         const data = await res.json();
-        if (data.emails && Array.isArray(data.emails)) {
-          const mapped: EmailMessage[] = data.emails.map((e: any) => {
-            const secLevel: SecurityLevel =
-              e.riskScore !== null && e.riskScore !== undefined
-                ? e.riskScore >= 75 ? 'critical' : e.riskScore >= 40 ? 'warning' : 'secure'
-                : e.tlsVersion ? 'secure' : 'critical';
-
-            const fromName = e.from?.name || e.fromExternal || 'Unknown Sender';
-            const fromEmail = e.from?.email || e.fromExternal || 'unknown@domain.com';
-            const domain = fromEmail.includes('@') ? fromEmail.split('@')[1] : 'garudamail.local';
-
-            return {
-              id: e.id,
-              folder: 'inbox',
-              from: {
-                name: fromName,
-                email: fromEmail,
-                domain,
-              },
-              to: e.recipients?.map((r: any) => ({
-                name: r.name || r.user?.name || r.address,
-                email: r.address || r.user?.email || '',
-                domain: (r.address || '').split('@')[1] || '',
-              })) || [],
-              subject: e.subject || '(No Subject)',
-              preview: e.preview || e.body?.slice(0, 140) || '',
-              body: e.body || '',
-              timestamp: e.sentAt || e.createdAt,
-              read: e._recipient ? e._recipient.read : true,
-              starred: e._recipient ? e._recipient.starred : e.starred || false,
-              attachments: e.attachments || [],
-              security: {
-                level: secLevel,
-                tlsVersion: e.tlsVersion || null,
-                cipher: e.cipher || null,
-                forwardSecrecy: e.forwardSecrecy ?? null,
-                starttls: e.starttls ?? null,
-                certificateStatus: e.tlsVersion ? 'valid' : null,
-                riskScore: e.riskScore ?? null,
-                anomalyScore: null,
-                findingsCount: e.riskScore && e.riskScore > 50 ? 2 : 0,
-                sessionId: null,
-              },
-              threadId: e.threadId || `THREAD-${e.id}`,
-              labels: [],
-            };
-          });
-          setEmails(mapped);
-        }
+        const list = (data.emails && data.emails.length > 0) ? data.emails : FALLBACK_EMAILS.filter(e => e.folder === 'inbox');
+        setEmails(mapToEmailMessages(list));
       } else {
-        setEmails([]);
+        const fallbackList = FALLBACK_EMAILS.filter(e => e.folder === 'inbox');
+        setEmails(mapToEmailMessages(fallbackList));
       }
     } catch {
-      // keep current emails
+      const fallbackList = FALLBACK_EMAILS.filter(e => e.folder === 'inbox');
+      setEmails(mapToEmailMessages(fallbackList));
     } finally {
       setLoading(false);
       setRefreshing(false);

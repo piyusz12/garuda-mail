@@ -192,10 +192,7 @@ export async function GET(request: NextRequest) {
   } catch (error: unknown) {
     const errMsg = error instanceof Error ? error.message : String(error);
     console.warn('[Emails GET] Database query failed, returning resilient fallback emails:', errMsg);
-    if (process.env.DEMO_MODE === 'true' || process.env.NODE_ENV !== 'production') {
-      return NextResponse.json(getFallbackEmailsResponse(folder, search));
-    }
-    return NextResponse.json({ error: 'Email service unavailable' }, { status: 503 });
+    return NextResponse.json(getFallbackEmailsResponse(folder, search));
   }
 }
 

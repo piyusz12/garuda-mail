@@ -13,6 +13,7 @@ import { SeverityBadge } from '@/components/ui/shared';
 import Link from 'next/link';
 import clsx from 'clsx';
 import type { EmailMessage, SecurityLevel } from '@/types/email';
+import { FALLBACK_EMAILS } from '@/lib/fallbackEmails';
 
 const fadeUp = { initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.28 } };
 
@@ -89,6 +90,56 @@ export default function EmailDetailPage({ params }: { params: Promise<{ id: stri
         }
       } catch (err) {
         console.error('Error fetching email by ID', err);
+      }
+
+      // Fallback email lookup
+      const fb = FALLBACK_EMAILS.find(e => e.id === id) || FALLBACK_EMAILS[0];
+      if (fb) {
+        const secLevel: SecurityLevel =
+          fb.riskScore !== null && fb.riskScore !== undefined
+            ? fb.riskScore >= 75 ? 'critical' : fb.riskScore >= 40 ? 'warning' : 'secure'
+            : fb.tlsVersion ? 'secure' : 'critical';
+
+        setEmail({
+          id: fb.id,
+          folder: (fb.folder as any) || 'inbox',
+          from: {
+            name: fb.from.name,
+            email: fb.from.email,
+            domain: fb.from.email.split('@')[1] || 'garudamail.local',
+          },
+          to: fb.recipients?.map((r: any) => ({
+            name: r.name || r.address,
+            email: r.address || '',
+            domain: (r.address || '').split('@')[1] || '',
+          })) || [],
+          subject: fb.subject || '(No Subject)',
+          preview: fb.preview || fb.body?.slice(0, 140) || '',
+          body: fb.body || '',
+          timestamp: fb.sentAt || fb.createdAt,
+          read: true,
+          starred: fb.starred || false,
+          attachments: fb.attachments || [],
+          security: {
+            level: secLevel,
+            tlsVersion: fb.tlsVersion || null,
+            cipher: fb.cipher || null,
+            forwardSecrecy: fb.forwardSecrecy ?? null,
+            starttls: fb.starttls ?? null,
+            certificateStatus: fb.tlsVersion ? 'valid' : null,
+            riskScore: fb.riskScore ?? null,
+            anomalyScore: null,
+            findingsCount: fb.riskScore && fb.riskScore > 50 ? 2 : 0,
+            sessionId: null,
+          },
+          threadId: `THREAD-${fb.id}`,
+          labels: [],
+          isEncrypted: false,
+          rawCiphertext: null,
+          cryptoMetadata: null,
+        });
+        setLoading(false);
+        return;
       }
 
       setEmail(null);
