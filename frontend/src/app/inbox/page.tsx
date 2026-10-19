@@ -7,6 +7,7 @@ import {
   ChevronRight, Lock, LockOpen, Filter, RefreshCw, Network, Trash2,
 } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
+import OnlineUsersBar from '@/components/chat/OnlineUsersBar';
 import Link from 'next/link';
 import clsx from 'clsx';
 import type { EmailMessage, SecurityLevel } from '@/types/email';
@@ -119,7 +120,12 @@ export default function InboxPage() {
       if (typeof document !== 'undefined' && document.hidden) return;
       fetchEmails(true);
     }, 2000);
-    return () => clearInterval(interval);
+    const handleDispatched = () => fetchEmails(true);
+    window.addEventListener('email-dispatched', handleDispatched);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('email-dispatched', handleDispatched);
+    };
   }, [fetchEmails]);
 
   const handleToggleStar = async (e: React.MouseEvent, emailId: string, currentStarred: boolean) => {
@@ -179,6 +185,11 @@ export default function InboxPage() {
       description={`${emails.length} messages • ${unreadCount} unread • ${criticalCount} critical • Auto-Sync Active`}
     >
       <motion.div initial="initial" animate="animate" className="space-y-4">
+
+        {/* ── WhatsApp-Style Online Users & Contacts Tray ── */}
+        <motion.div {...fadeUp}>
+          <OnlineUsersBar />
+        </motion.div>
 
         {/* Security Filter & Action Bar */}
         <motion.div {...fadeUp} className="card p-3 flex items-center justify-between gap-3 flex-wrap">

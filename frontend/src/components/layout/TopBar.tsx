@@ -6,7 +6,8 @@ import { useSession, signOut } from 'next-auth/react';
 import {
   Search, Bell, Wifi, Check, Clock,
   ExternalLink, Settings as SettingsIcon, LogOut, Laptop,
-  Menu, Smartphone, Copy, CheckCheck, QrCode, Sparkles, ShieldAlert
+  Menu, Smartphone, Copy, CheckCheck, QrCode, Sparkles, ShieldAlert,
+  Zap, Users
 } from 'lucide-react';
 import clsx from 'clsx';
 import Link from 'next/link';
@@ -133,6 +134,23 @@ export default function TopBar({ title, description, onOpenMobileMenu }: TopBarP
             </button>
           )}
         </div>
+
+        <div className="w-px h-5 bg-[var(--color-border)] mx-1 sm:mx-2" />
+
+        {/* WhatsApp-style Active Peers Quick Trigger */}
+        <button
+          type="button"
+          onClick={() => window.dispatchEvent(new CustomEvent('open-quick-mail'))}
+          className="flex items-center gap-1.5 h-8 px-2 sm:px-2.5 rounded-lg text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 hover:border-emerald-500/50 transition-all cursor-pointer shadow-sm"
+          title="View Online Users & Send Quick Email"
+        >
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
+          </span>
+          <span className="hidden sm:inline">Online Peers</span>
+          <Zap size={12} className="text-emerald-400" />
+        </button>
 
         <div className="w-px h-5 bg-[var(--color-border)] mx-1 sm:mx-2" />
 

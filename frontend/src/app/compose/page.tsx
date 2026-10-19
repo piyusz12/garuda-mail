@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Send, X, Paperclip, Bold, Italic, Link2,
   Shield, Lock, Info, ChevronDown, Save, AlertCircle,
-  Cpu, CheckCircle2, Terminal, Network, Settings2, ShieldCheck
+  Cpu, CheckCircle2, Terminal, Network, Settings2, ShieldCheck, Zap
 } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -21,6 +21,9 @@ interface DirectoryUser {
   email: string | null;
   role: string;
   department: string | null;
+  isOnline?: boolean;
+  statusText?: string;
+  avatarColor?: string;
 }
 
 interface PendingAttachment {
@@ -601,24 +604,48 @@ function ComposeForm() {
               </div>
             )}
 
-            {/* Quick Directory Contacts */}
+            {/* Quick Directory Contacts with WhatsApp Online Status */}
             <div className="flex items-center gap-1.5 px-4 py-2 bg-[var(--color-surface-1)] text-[11px] overflow-x-auto">
-              <span className="text-[10px] uppercase text-[var(--color-text-dim)] font-mono mr-1 flex-shrink-0">
-                Contacts:
+              <span className="text-[10px] uppercase text-[var(--color-text-dim)] font-mono mr-1 flex-shrink-0 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                Peers:
               </span>
               {directoryUsers.map(u => (
                 <button
                   key={u.id}
                   type="button"
                   onClick={() => addRecipient(u.email || '')}
-                  className="px-2.5 py-0.5 rounded text-[10px] bg-[var(--color-surface-2)] text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] hover:bg-[var(--color-accent-dim)] border border-[var(--color-border-subtle)] transition-colors flex items-center gap-1 flex-shrink-0"
-                  title={`Add ${u.email || u.name} to recipients`}
+                  className={clsx(
+                    'px-2.5 py-1 rounded-full text-[10px] transition-colors flex items-center gap-1.5 flex-shrink-0 border',
+                    u.isOnline
+                      ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/35 hover:bg-emerald-500/25'
+                      : 'bg-[var(--color-surface-2)] text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] hover:bg-[var(--color-accent-dim)] border-[var(--color-border-subtle)]'
+                  )}
+                  title={`Add ${u.email || u.name} (${u.statusText || 'Contact'})`}
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-severity-healthy)]" />
-                  <span className="font-medium">{u.name || u.email?.split('@')[0]}</span>
+                  <span
+                    className={clsx(
+                      'w-1.5 h-1.5 rounded-full',
+                      u.isOnline ? 'bg-emerald-400 animate-pulse' : 'bg-slate-400'
+                    )}
+                  />
+                  <span className="font-semibold">{u.name || u.email?.split('@')[0]}</span>
+                  {u.isOnline && (
+                    <span className="text-[9px] font-mono text-emerald-400 font-bold uppercase">Online</span>
+                  )}
                   <span className="text-[var(--color-text-dim)]">({u.email})</span>
                 </button>
               ))}
+
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new CustomEvent('open-quick-mail'))}
+                className="ml-auto px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 border border-emerald-500/40 flex items-center gap-1 flex-shrink-0 transition-colors"
+                title="Open WhatsApp-style Quick Mail Drawer"
+              >
+                <Zap size={10} className="text-emerald-400" />
+                <span>Quick Mail</span>
+              </button>
             </div>
 
             {/* CC Field */}

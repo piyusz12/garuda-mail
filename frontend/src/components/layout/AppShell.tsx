@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Sidebar from './Sidebar';
 import TopBar from './TopBar';
 import BottomNav from './BottomNav';
+import QuickMailDrawer from '@/components/chat/QuickMailDrawer';
 import clsx from 'clsx';
 
 interface AppShellProps {
@@ -54,6 +55,9 @@ export default function AppShell({ children, title, description }: AppShellProps
         onOpenMenu={() => setMobileDrawerOpen(!mobileDrawerOpen)}
         isMenuOpen={mobileDrawerOpen}
       />
+
+      {/* WhatsApp-Style Online Users & Quick Mail Drawer */}
+      <QuickMailDrawer />
     </div>
   );
 }
