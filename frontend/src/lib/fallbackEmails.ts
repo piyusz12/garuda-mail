@@ -29,8 +29,11 @@ export interface FallbackEmail {
     read: boolean;
     starred: boolean;
   }>;
-  attachments?: Array<{ id: string; filename: string; size: number; mimeType: string }>;
+  attachments?: Array<{ id?: string; filename: string; size: number; mimeType: string; url?: string }>;
   labels?: string[];
+  isEncrypted?: boolean;
+  cryptoMetadata?: any;
+  rawCiphertext?: string | null;
 }
 
 export const FALLBACK_EMAILS: FallbackEmail[] = [

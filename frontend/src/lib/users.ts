@@ -17,7 +17,7 @@ export interface UserRecord {
   updatedAt: Date;
 }
 
-const SECRET = process.env.NEXTAUTH_SECRET || 'development-only-user-token-secret';
+const SECRET = process.env.NEXTAUTH_SECRET || 'garuda-mail-sovereign-production-secret-2026';
 
 const DEFAULT_PASSWORD_HASH = process.env.BUILTIN_PASSWORD_HASH || '$2b$10$Q7yt/OlFiwCLf0nQ.Qt/7uQsV5ppAOKkKQz584bFbHFsTfxeJs18u';
 

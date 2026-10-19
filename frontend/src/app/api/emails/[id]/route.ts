@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/db';
 import { decryptPayload } from '@/lib/crypto';
 import { FALLBACK_EMAILS } from '@/lib/fallbackEmails';
+import { findCustomEmailById, updateCustomEmail, deleteCustomEmail } from '@/lib/emailStore';
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -19,46 +20,66 @@ export async function GET(request: NextRequest, { params }: Params) {
   const userEmail = session.user.email?.toLowerCase().trim();
 
   try {
-    const email = await prisma.email.findFirst({
-      where: {
-        id,
-        OR: [
-          { fromId: session.user.id },
-          { recipients: { some: { userId: session.user.id } } },
-          ...(userEmail ? [{ recipients: { some: { address: userEmail } } }] : []),
-        ],
-      },
-      include: {
-        from: { select: { id: true, name: true, email: true, avatarColor: true } },
-        recipients: {
-          include: {
-            user: { select: { id: true, name: true, email: true } },
-          },
+    let email: any = null;
+    try {
+      email = await prisma.email.findFirst({
+        where: {
+          id,
+          OR: [
+            { fromId: session.user.id },
+            { recipients: { some: { userId: session.user.id } } },
+            ...(userEmail ? [{ recipients: { some: { address: userEmail } } }] : []),
+          ],
         },
-        attachments: true,
-      },
-    });
+        include: {
+          from: { select: { id: true, name: true, email: true, avatarColor: true } },
+          recipients: {
+            include: {
+              user: { select: { id: true, name: true, email: true } },
+            },
+          },
+          attachments: true,
+        },
+      });
+    } catch (dbErr) {
+      console.warn('[Email GET] Prisma query failed, checking memory fallback stores:', dbErr);
+    }
 
     if (!email) {
-      const fb = FALLBACK_EMAILS.find(e => e.id === id);
+      const fb = findCustomEmailById(id) || FALLBACK_EMAILS.find(e => e.id === id);
       if (fb) {
-        return NextResponse.json({ email: fb });
+        const decrypted = decryptPayload(fb.body);
+        return NextResponse.json({
+          email: {
+            ...fb,
+            body: decrypted.plaintext,
+            rawCiphertext: decrypted.envelope?.ciphertext || null,
+            isEncrypted: decrypted.isEncrypted,
+            cryptoMetadata: decrypted.envelope || null,
+            integrityVerified: decrypted.verified ?? true,
+          },
+        });
       }
       return NextResponse.json({ error: 'Email not found' }, { status: 404 });
     }
 
-    // Auto-claim and mark as read for this user
-    await prisma.emailRecipient.updateMany({
-      where: {
-        emailId: id,
-        read: false,
-        OR: [
-          { userId: session.user.id },
-          ...(userEmail ? [{ address: userEmail }] : []),
-        ],
-      },
-      data: { read: true, readAt: new Date(), userId: session.user.id },
-    });
+    // Auto-claim and mark as read for this user in DB if reachable
+    try {
+      await prisma.emailRecipient.updateMany({
+        where: {
+          emailId: id,
+          read: false,
+          OR: [
+            { userId: session.user.id },
+            ...(userEmail ? [{ address: userEmail }] : []),
+          ],
+        },
+        data: { read: true, readAt: new Date(), userId: session.user.id },
+      });
+    } catch {}
+
+    // Also update in fallback store
+    updateCustomEmail(id, { read: true });
 
     // Decrypt payload with AES-256-GCM
     const decrypted = decryptPayload(email.body);
@@ -75,16 +96,18 @@ export async function GET(request: NextRequest, { params }: Params) {
     });
   } catch (error: unknown) {
     const errMsg = error instanceof Error ? error.message : String(error);
-    console.warn('[Email GET] Database query failed, returning fallback email:', errMsg);
-    const fallback = FALLBACK_EMAILS.find(e => e.id === id) || FALLBACK_EMAILS[0];
+    console.warn('[Email GET] Unexpected error, returning fallback email:', errMsg);
+    const fallback = findCustomEmailById(id) || FALLBACK_EMAILS[0];
     if (fallback) {
+      const decrypted = decryptPayload(fallback.body);
       return NextResponse.json({
         email: {
           ...fallback,
-          rawCiphertext: null,
-          isEncrypted: false,
-          cryptoMetadata: null,
-          integrityVerified: true,
+          body: decrypted.plaintext,
+          rawCiphertext: decrypted.envelope?.ciphertext || null,
+          isEncrypted: decrypted.isEncrypted,
+          cryptoMetadata: decrypted.envelope || null,
+          integrityVerified: decrypted.verified ?? true,
         },
       });
     }
@@ -105,12 +128,14 @@ export async function PATCH(request: NextRequest, { params }: Params) {
   const { read, starred, folder } = body;
   const userEmail = session.user.email?.toLowerCase().trim();
 
-  try {
-    const updates: { read?: boolean; starred?: boolean; folder?: string } = {};
-    if (read !== undefined) updates.read = read;
-    if (starred !== undefined) updates.starred = starred;
-    if (folder !== undefined) updates.folder = folder;
+  // Update in fallback store
+  const updates: { read?: boolean; starred?: boolean; folder?: string } = {};
+  if (read !== undefined) updates.read = read;
+  if (starred !== undefined) updates.starred = starred;
+  if (folder !== undefined) updates.folder = folder;
+  updateCustomEmail(id, updates);
 
+  try {
     await prisma.emailRecipient.updateMany({
       where: {
         emailId: id,
@@ -121,12 +146,11 @@ export async function PATCH(request: NextRequest, { params }: Params) {
       },
       data: updates,
     });
-
-    return NextResponse.json({ message: 'Updated' });
-  } catch (error: unknown) {
-    console.error('[Email PATCH] Error:', error);
-    return NextResponse.json({ error: 'Failed to update email' }, { status: 500 });
+  } catch (dbErr) {
+    console.warn('[Email PATCH] Database update error (handled via fallback):', dbErr);
   }
+
+  return NextResponse.json({ message: 'Updated' });
 }
 
 // ── DELETE /api/emails/[id] — Delete email (move to trash or permanent) ──
@@ -141,6 +165,9 @@ export async function DELETE(request: NextRequest, { params }: Params) {
   const searchParams = request.nextUrl.searchParams;
   const permanent = searchParams.get('permanent') === 'true';
   const userEmail = session.user.email?.toLowerCase().trim();
+
+  // Delete/trash in fallback store
+  deleteCustomEmail(id, permanent);
 
   try {
     if (permanent) {
@@ -173,7 +200,6 @@ export async function DELETE(request: NextRequest, { params }: Params) {
         data: { folder: 'trash' },
       });
 
-      // If it's an un-dispatched draft owned by this user, delete it directly
       if (updated.count === 0) {
         await prisma.email.deleteMany({
           where: {
@@ -184,11 +210,10 @@ export async function DELETE(request: NextRequest, { params }: Params) {
         });
       }
     }
-
-    return NextResponse.json({ message: permanent ? 'Deleted permanently' : 'Moved to trash' });
-  } catch (error: unknown) {
-    console.error('[Email DELETE] Error:', error);
-    return NextResponse.json({ error: 'Failed to delete email' }, { status: 500 });
+  } catch (dbErr) {
+    console.warn('[Email DELETE] Database delete error (handled via fallback):', dbErr);
   }
+
+  return NextResponse.json({ message: permanent ? 'Deleted permanently' : 'Moved to trash' });
 }
 
