@@ -8,6 +8,7 @@ import {
   UserCheck, ShieldCheck, X
 } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
+import Link from 'next/link';
 
 interface UserDirectoryItem {
   id: string;
@@ -34,7 +35,7 @@ export default function AdminConsoleClient({ currentUser }: AdminConsoleClientPr
   
   // Reset dialog state
   const [showResetModal, setShowResetModal] = useState(false);
-  const [preserveAdmins, setPreserveAdmins] = useState(true);
+  const [preserveAdmins, setPreserveAdmins] = useState(false);
   const [resetting, setResetting] = useState(false);
   const [deletingEmail, setDeletingEmail] = useState<string | null>(null);
 
@@ -78,6 +79,7 @@ export default function AdminConsoleClient({ currentUser }: AdminConsoleClientPr
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'reset_all',
+          purgeAll: !preserveAdmins,
           keepDefaultAdmins: preserveAdmins,
         }),
       });
@@ -370,8 +372,28 @@ export default function AdminConsoleClient({ currentUser }: AdminConsoleClientPr
                   </tr>
                 ) : filteredUsers.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="py-8 text-center text-slate-400">
-                      No user accounts found matching your query.
+                    <td colSpan={6} className="py-12 text-center">
+                      <div className="max-w-md mx-auto space-y-3">
+                        <div className="w-10 h-10 mx-auto rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                          <CheckCircle2 size={20} />
+                        </div>
+                        <h4 className="text-sm font-bold text-white">All Credentials Deleted (0 Accounts)</h4>
+                        <p className="text-xs text-slate-400">
+                          All accounts have been purged from the system. You can now register fresh. The first user to register will automatically become Administrator.
+                        </p>
+                        <div className="pt-2 flex items-center justify-center gap-3">
+                          <Link href="/register" className="h-8 px-4 flex items-center justify-center text-xs font-semibold rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-900 transition-colors">
+                            Register Fresh Account
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={handleRestoreDefaults}
+                            className="h-8 px-3 text-xs font-medium rounded-lg bg-[var(--color-surface-2)] hover:bg-[var(--color-surface-3)] text-slate-300 border border-[var(--color-border)] transition-colors"
+                          >
+                            Restore Demo Accounts
+                          </button>
+                        </div>
+                      </div>
                     </td>
                   </tr>
                 ) : (
@@ -513,17 +535,39 @@ export default function AdminConsoleClient({ currentUser }: AdminConsoleClientPr
                 Users will need to re-register or use master administrative credentials to log in fresh.
               </p>
 
-              <label className="flex items-center gap-2 p-3 rounded-lg bg-[var(--color-surface-2)] border border-[var(--color-border)] cursor-pointer text-[12px]">
-                <input
-                  type="checkbox"
-                  checked={preserveAdmins}
-                  onChange={(e) => setPreserveAdmins(e.target.checked)}
-                  className="rounded border-slate-600 text-rose-500 focus:ring-rose-500"
-                />
-                <span className="text-slate-200">
-                  Preserve default root administrators (recommended)
-                </span>
-              </label>
+              <div className="space-y-2">
+                <label className="flex items-start gap-2.5 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 cursor-pointer text-[12px]">
+                  <input
+                    type="radio"
+                    name="reset_scope"
+                    checked={!preserveAdmins}
+                    onChange={() => setPreserveAdmins(false)}
+                    className="mt-0.5 text-rose-500 focus:ring-rose-500"
+                  />
+                  <div>
+                    <div className="font-semibold text-rose-300">Complete Wipe (Delete 100% of All Credentials)</div>
+                    <div className="text-[11px] text-slate-400 mt-0.5">
+                      Wipes all accounts (admins, officers, users). Leaves 0 accounts. You can then register a fresh administrator at /register.
+                    </div>
+                  </div>
+                </label>
+
+                <label className="flex items-start gap-2.5 p-3 rounded-xl bg-[var(--color-surface-2)] border border-[var(--color-border)] cursor-pointer text-[12px]">
+                  <input
+                    type="radio"
+                    name="reset_scope"
+                    checked={preserveAdmins}
+                    onChange={() => setPreserveAdmins(true)}
+                    className="mt-0.5 text-sky-500 focus:ring-sky-500"
+                  />
+                  <div>
+                    <div className="font-semibold text-slate-200">Preserve Master Administrator Only</div>
+                    <div className="text-[11px] text-slate-400 mt-0.5">
+                      Deletes normal users &amp; officers, keeping your active administrator account.
+                    </div>
+                  </div>
+                </label>
+              </div>
 
               <div className="flex items-center justify-end gap-2.5 pt-2">
                 <button

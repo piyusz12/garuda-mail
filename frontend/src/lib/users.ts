@@ -357,13 +357,17 @@ export async function registerUser(name: string, email: string, passwordPlain: s
   const colors = ['#38BDF8', '#34D399', '#A78BFA', '#F472B6', '#FB923C', '#FACC15'];
   const avatarColor = colors[Math.floor(Math.random() * colors.length)];
 
+  const existingUsers = await listAllUsers();
+  // If the system has 0 accounts (e.g. after full reset), the first registered user becomes Administrator
+  const assignedRole: UserRole = existingUsers.length === 0 ? 'admin' : 'user';
+
   const newUser: UserRecord = {
     id: `usr_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
     name: name.trim(),
     email: normalizedEmail,
     password: hashedPassword,
-    role: 'user',
-    department: 'Cryptographic SOC',
+    role: assignedRole,
+    department: assignedRole === 'admin' ? 'Security Operations (Root)' : 'Cryptographic SOC',
     avatarColor,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -482,13 +486,14 @@ export async function listAllUsers(): Promise<Array<Omit<UserRecord, 'password'>
 export async function resetAllLoginCredentials(options?: {
   currentAdminEmail?: string;
   keepDefaultAdmins?: boolean;
+  purgeAllCompletely?: boolean;
 }): Promise<{
   deletedCount: number;
   message: string;
 }> {
   let count = 0;
   const currentAdmin = options?.currentAdminEmail?.toLowerCase().trim();
-  const keepAdmins = options?.keepDefaultAdmins ?? true;
+  const purgeAll = options?.purgeAllCompletely ?? (options?.keepDefaultAdmins === false);
 
   // 1. Gather all currently listed users
   const currentUsers = await listAllUsers();
@@ -496,18 +501,29 @@ export async function resetAllLoginCredentials(options?: {
   for (const user of currentUsers) {
     const em = user.email.toLowerCase().trim();
 
-    // Preserve the current admin performing the action so they don't get locked out
-    const isCurrentAdmin = currentAdmin && em === currentAdmin;
-    const isMasterAdmin = keepAdmins && em === 'admin@garudamail.local';
+    if (!purgeAll) {
+      // Preserve the current admin performing the action so they don't get locked out
+      const isCurrentAdmin = currentAdmin && em === currentAdmin;
+      const isMasterAdmin = em === 'admin@garudamail.local';
 
-    if (isCurrentAdmin || isMasterAdmin) {
-      continue;
+      if (isCurrentAdmin || isMasterAdmin) {
+        continue;
+      }
     }
 
     // Permanently purge credentials
     deletedUsers.add(em);
     inMemoryUsers.delete(em);
     count++;
+  }
+
+  // If purging all, also explicitly mark every built-in user as deleted
+  if (purgeAll) {
+    for (const u of BUILTIN_USERS) {
+      const em = u.email.toLowerCase().trim();
+      deletedUsers.add(em);
+      inMemoryUsers.delete(em);
+    }
   }
 
   saveDeletedUsers(deletedUsers);
@@ -519,10 +535,10 @@ export async function resetAllLoginCredentials(options?: {
     console.warn('[resetAllLoginCredentials] /tmp store reset note:', err);
   }
 
-  // 3. Clear Prisma DB custom users if available (except current admin)
+  // 3. Clear Prisma DB users
   try {
     const whereClause: Record<string, unknown> = {};
-    if (currentAdmin) {
+    if (!purgeAll && currentAdmin) {
       whereClause.email = { not: currentAdmin };
     }
     await prisma.user.deleteMany({
@@ -534,7 +550,9 @@ export async function resetAllLoginCredentials(options?: {
 
   return {
     deletedCount: count,
-    message: `All login credentials deleted (${count} accounts purged). Only active administrator preserved.`,
+    message: purgeAll
+      ? `All login credentials deleted across the system (${count} accounts purged). 0 accounts remaining.`
+      : `All login credentials deleted (${count} accounts purged). Only active administrator preserved.`,
   };
 }
 

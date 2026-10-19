@@ -19,7 +19,8 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json().catch(() => ({}));
-    const { action, email, keepDefaultAdmins } = body;
+    const { action, email, keepDefaultAdmins, purgeAll } = body;
+    const isPurgeAll = purgeAll === true || keepDefaultAdmins === false;
 
     if (action === 'restore_defaults') {
       const result = await restoreAllDefaultUsers();
@@ -42,10 +43,11 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Default: Reset all credentials
+    // Default: Reset credentials
     const result = await resetAllLoginCredentials({
       currentAdminEmail: session.user.email || undefined,
-      keepDefaultAdmins: keepDefaultAdmins !== false,
+      keepDefaultAdmins: !isPurgeAll,
+      purgeAllCompletely: isPurgeAll,
     });
 
     return NextResponse.json({
