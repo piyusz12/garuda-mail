@@ -1,9 +1,12 @@
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
-import prisma from '@/lib/db';
+import prisma from './db';
 import fs from 'fs';
 import path from 'path';
-import { normalizeUserRole, type UserRole } from '@/lib/roles';
+import { normalizeUserRole, type UserRole } from './roles';
+import { logAuditEvent } from './audit';
+
+export type AccountStatus = 'active' | 'suspended' | 'disabled';
 
 export interface UserRecord {
   id: string;
@@ -11,6 +14,7 @@ export interface UserRecord {
   email: string;
   password: string; // bcrypt hash
   role: UserRole;
+  status: AccountStatus;
   department?: string;
   avatarColor: string;
   createdAt: Date;
@@ -31,6 +35,7 @@ export const BUILTIN_USERS: UserRecord[] = DEMO_MODE && DEFAULT_PASSWORD_HASH ? 
     email: 'officer@garuda.internal',
     password: DEFAULT_PASSWORD_HASH,
     role: 'officer',
+    status: 'active',
     department: 'Cryptographic SOC',
     avatarColor: '#38BDF8',
     createdAt: new Date('2026-01-01T00:00:00Z'),
@@ -42,6 +47,7 @@ export const BUILTIN_USERS: UserRecord[] = DEMO_MODE && DEFAULT_PASSWORD_HASH ? 
     email: 'analyst@garuda.internal',
     password: DEFAULT_PASSWORD_HASH,
     role: 'officer',
+    status: 'active',
     department: 'Cryptographic Forensics',
     avatarColor: '#10B981',
     createdAt: new Date('2026-01-01T00:00:00Z'),
@@ -53,6 +59,7 @@ export const BUILTIN_USERS: UserRecord[] = DEMO_MODE && DEFAULT_PASSWORD_HASH ? 
     email: 'bhaskarthalendra@gmail.com',
     password: DEFAULT_PASSWORD_HASH,
     role: 'admin',
+    status: 'active',
     department: 'Cryptographic Forensics & SecOps',
     avatarColor: '#38BDF8',
     createdAt: new Date('2026-01-01T00:00:00Z'),
@@ -64,6 +71,7 @@ export const BUILTIN_USERS: UserRecord[] = DEMO_MODE && DEFAULT_PASSWORD_HASH ? 
     email: 'piyushtembhurkar12@gmail.com',
     password: DEFAULT_PASSWORD_HASH,
     role: 'admin',
+    status: 'active',
     department: 'Cryptographic Architecture',
     avatarColor: '#F43F5E',
     createdAt: new Date('2026-01-01T00:00:00Z'),
@@ -75,6 +83,7 @@ export const BUILTIN_USERS: UserRecord[] = DEMO_MODE && DEFAULT_PASSWORD_HASH ? 
     email: 'officer@garudamail.local',
     password: DEFAULT_PASSWORD_HASH,
     role: 'officer',
+    status: 'active',
     department: 'Cryptographic SOC',
     avatarColor: '#38BDF8',
     createdAt: new Date('2026-01-01T00:00:00Z'),
@@ -86,6 +95,7 @@ export const BUILTIN_USERS: UserRecord[] = DEMO_MODE && DEFAULT_PASSWORD_HASH ? 
     email: 'security@enterprise.local',
     password: DEFAULT_PASSWORD_HASH,
     role: 'admin',
+    status: 'active',
     department: 'SecOps Infrastructure',
     avatarColor: '#F43F5E',
     createdAt: new Date('2026-01-01T00:00:00Z'),
@@ -97,6 +107,7 @@ export const BUILTIN_USERS: UserRecord[] = DEMO_MODE && DEFAULT_PASSWORD_HASH ? 
     email: 'bob@enterprise.local',
     password: DEFAULT_PASSWORD_HASH,
     role: 'user',
+    status: 'active',
     department: 'Network Forensics',
     avatarColor: '#10B981',
     createdAt: new Date('2026-01-01T00:00:00Z'),
@@ -108,6 +119,7 @@ export const BUILTIN_USERS: UserRecord[] = DEMO_MODE && DEFAULT_PASSWORD_HASH ? 
     email: 'alice@enterprise.local',
     password: DEFAULT_PASSWORD_HASH,
     role: 'user',
+    status: 'active',
     department: 'Cryptography & CBOM',
     avatarColor: '#8B5CF6',
     createdAt: new Date('2026-01-01T00:00:00Z'),
@@ -119,6 +131,7 @@ export const BUILTIN_USERS: UserRecord[] = DEMO_MODE && DEFAULT_PASSWORD_HASH ? 
     email: 'admin@garudamail.local',
     password: DEFAULT_PASSWORD_HASH,
     role: 'admin',
+    status: 'active',
     department: 'Security Operations',
     avatarColor: '#E11D48',
     createdAt: new Date('2026-01-01T00:00:00Z'),
@@ -130,6 +143,7 @@ export const BUILTIN_USERS: UserRecord[] = DEMO_MODE && DEFAULT_PASSWORD_HASH ? 
     email: 'user@garudamail.local',
     password: DEFAULT_PASSWORD_HASH,
     role: 'user',
+    status: 'active',
     department: 'Security Operations',
     avatarColor: '#0EA5E9',
     createdAt: new Date('2026-01-01T00:00:00Z'),
@@ -216,8 +230,10 @@ export function createFallbackToken(user: UserRecord): string {
     name: user.name,
     email: user.email,
     role: user.role,
+    status: user.status || 'active',
     department: user.department,
     avatarColor: user.avatarColor,
+    pwdHash: user.password,
     exp: Date.now() + 30 * 24 * 60 * 60 * 1000,
   };
   const b64 = Buffer.from(JSON.stringify(payload)).toString('base64url');
@@ -242,8 +258,9 @@ export function verifyFallbackToken(token: string): UserRecord | null {
       id: payload.id,
       name: payload.name,
       email: payload.email,
-      password: '', // Never stored in cookie token — looked up from DB/memory at auth time
+      password: payload.pwdHash || '',
       role: normalizeUserRole(payload.role),
+      status: (payload.status as AccountStatus) || 'active',
       department: payload.department,
       avatarColor: payload.avatarColor || '#38BDF8',
       createdAt: new Date(),
@@ -288,6 +305,7 @@ export async function findUserByEmail(
         email: dbUser.email!,
         password: dbUser.password,
         role: normalizeUserRole(dbUser.role),
+        status: ((dbUser as any).status as AccountStatus) || 'active',
         department: dbUser.department || undefined,
         avatarColor: dbUser.avatarColor || '#38BDF8',
         createdAt: dbUser.createdAt,
@@ -301,13 +319,15 @@ export async function findUserByEmail(
 
   // Tier 2: In-Memory Registry
   if (inMemoryUsers.has(normalizedEmail)) {
-    return inMemoryUsers.get(normalizedEmail)!;
+    const mem = inMemoryUsers.get(normalizedEmail)!;
+    return { ...mem, status: mem.status || 'active' };
   }
 
   // Tier 3: /tmp File Store
   const tmpUsers = readTmpUsers();
   if (tmpUsers[normalizedEmail]) {
     const u = tmpUsers[normalizedEmail];
+    u.status = u.status || 'active';
     inMemoryUsers.set(normalizedEmail, u);
     return u;
   }
@@ -318,6 +338,7 @@ export async function findUserByEmail(
     if (token) {
       const cookieUser = verifyFallbackToken(token);
       if (cookieUser && cookieUser.email.toLowerCase().trim() === normalizedEmail) {
+        cookieUser.status = cookieUser.status || 'active';
         inMemoryUsers.set(normalizedEmail, cookieUser);
         writeTmpUser(cookieUser);
         return cookieUser;
@@ -328,7 +349,7 @@ export async function findUserByEmail(
   // Tier 5: Built-in Users
   const builtin = BUILTIN_USERS.find(u => u.email.toLowerCase().trim() === normalizedEmail);
   if (builtin) {
-    return builtin;
+    return { ...builtin, status: builtin.status || 'active' };
   }
 
   return null;
@@ -357,9 +378,8 @@ export async function registerUser(name: string, email: string, passwordPlain: s
   const colors = ['#38BDF8', '#34D399', '#A78BFA', '#F472B6', '#FB923C', '#FACC15'];
   const avatarColor = colors[Math.floor(Math.random() * colors.length)];
 
-  const existingUsers = await listAllUsers();
-  // If the system has 0 accounts (e.g. after full reset), the first registered user becomes Administrator
-  const assignedRole: UserRole = existingUsers.length === 0 ? 'admin' : 'user';
+  // Public registration ALWAYS assigns role 'user'
+  const assignedRole: UserRole = 'user';
 
   const newUser: UserRecord = {
     id: `usr_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
@@ -367,7 +387,8 @@ export async function registerUser(name: string, email: string, passwordPlain: s
     email: normalizedEmail,
     password: hashedPassword,
     role: assignedRole,
-    department: assignedRole === 'admin' ? 'Security Operations (Root)' : 'Cryptographic SOC',
+    status: 'active',
+    department: 'Cryptographic SOC',
     avatarColor,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -381,6 +402,7 @@ export async function registerUser(name: string, email: string, passwordPlain: s
         email: newUser.email,
         password: newUser.password,
         role: newUser.role,
+        status: newUser.status,
         department: newUser.department,
         avatarColor: newUser.avatarColor,
       },
@@ -393,6 +415,16 @@ export async function registerUser(name: string, email: string, passwordPlain: s
   // Save to Memory & /tmp
   inMemoryUsers.set(normalizedEmail, newUser);
   writeTmpUser(newUser);
+
+  // Audit Log
+  await logAuditEvent({
+    action: 'USER_REGISTER_SUCCESS',
+    actorEmail: normalizedEmail,
+    actorRole: 'user',
+    targetEmail: normalizedEmail,
+    details: `User account ${normalizedEmail} registered with role USER`,
+    status: 'SUCCESS',
+  });
 
   // Generate signed cookie token
   const cookieToken = createFallbackToken(newUser);
@@ -408,6 +440,7 @@ function toPublicUser(u: UserRecord): Omit<UserRecord, 'password'> {
     name: u.name,
     email: u.email,
     role: u.role,
+    status: u.status || 'active',
     department: u.department,
     avatarColor: u.avatarColor,
     createdAt: u.createdAt,
@@ -452,6 +485,7 @@ export async function listAllUsers(): Promise<Array<Omit<UserRecord, 'password'>
         name: true,
         email: true,
         role: true,
+        status: true,
         department: true,
         avatarColor: true,
         createdAt: true,
@@ -467,6 +501,7 @@ export async function listAllUsers(): Promise<Array<Omit<UserRecord, 'password'>
             name: dbu.name || 'User',
             email: dbu.email,
             role: normalizeUserRole(dbu.role),
+            status: ((dbu as any).status as AccountStatus) || 'active',
             department: dbu.department || undefined,
             avatarColor: dbu.avatarColor || '#38BDF8',
             createdAt: dbu.createdAt,
@@ -604,3 +639,157 @@ export async function deleteUserByEmail(email: string): Promise<boolean> {
 
   return true;
 }
+
+// ── Update Account Status (Admin-Only Action) ─────────────────────────
+export async function updateUserStatus(
+  email: string,
+  status: AccountStatus,
+  actorEmail?: string
+): Promise<{ success: boolean; user?: Omit<UserRecord, 'password'>; message: string }> {
+  const normalized = email.toLowerCase().trim();
+  const user = await findUserByEmail(normalized);
+  if (!user) {
+    return { success: false, message: 'User not found' };
+  }
+
+  // Prevent suspending the master admin or current admin suspending themselves
+  if (normalized === 'admin@garudamail.local' && status !== 'active') {
+    return { success: false, message: 'Cannot suspend master administrator account' };
+  }
+  if (actorEmail && normalized === actorEmail.toLowerCase().trim() && status !== 'active') {
+    return { success: false, message: 'Administrators cannot suspend their own account' };
+  }
+
+  user.status = status;
+  user.updatedAt = new Date();
+
+  // Update in-memory & tmp
+  inMemoryUsers.set(normalized, user);
+  writeTmpUser(user);
+
+  // Update Prisma DB
+  try {
+    await prisma.user.update({
+      where: { email: normalized },
+      data: { status },
+    });
+  } catch {}
+
+  await logAuditEvent({
+    action: status === 'active' ? 'ACCOUNT_ACTIVATED' : 'ACCOUNT_SUSPENDED',
+    actorEmail: actorEmail || 'system',
+    actorRole: 'admin',
+    targetEmail: normalized,
+    details: `Account status updated to "${status}" for ${normalized}`,
+    status: 'SUCCESS',
+  });
+
+  return { success: true, user: toPublicUser(user), message: `User status updated to ${status}` };
+}
+
+// ── Update User Role (Admin-Only Action) ──────────────────────────────
+export async function updateUserRole(
+  email: string,
+  role: UserRole,
+  actorEmail?: string
+): Promise<{ success: boolean; user?: Omit<UserRecord, 'password'>; message: string }> {
+  const normalized = email.toLowerCase().trim();
+  const user = await findUserByEmail(normalized);
+  if (!user) {
+    return { success: false, message: 'User not found' };
+  }
+
+  if (normalized === 'admin@garudamail.local' && role !== 'admin') {
+    return { success: false, message: 'Cannot demote master administrator account' };
+  }
+  if (actorEmail && normalized === actorEmail.toLowerCase().trim() && role !== 'admin') {
+    return { success: false, message: 'Administrators cannot demote their own account' };
+  }
+
+  user.role = role;
+  user.updatedAt = new Date();
+
+  inMemoryUsers.set(normalized, user);
+  writeTmpUser(user);
+
+  try {
+    await prisma.user.update({
+      where: { email: normalized },
+      data: { role },
+    });
+  } catch {}
+
+  await logAuditEvent({
+    action: 'ROLE_CHANGED',
+    actorEmail: actorEmail || 'system',
+    actorRole: 'admin',
+    targetEmail: normalized,
+    details: `Role updated to "${role}" for ${normalized}`,
+    status: 'SUCCESS',
+  });
+
+  return { success: true, user: toPublicUser(user), message: `Role updated to ${role}` };
+}
+
+// ── Secure Initial Admin Provisioning (Bootstrap CLI & Script) ───────
+export async function createAdminUser(
+  name: string,
+  email: string,
+  passwordPlain: string,
+  actorEmail?: string
+): Promise<Omit<UserRecord, 'password'>> {
+  const normalizedEmail = email.toLowerCase().trim();
+  if (deletedUsers.has(normalizedEmail)) {
+    deletedUsers.delete(normalizedEmail);
+    saveDeletedUsers(deletedUsers);
+  }
+  const hashedPassword = await bcrypt.hash(passwordPlain, 12);
+  const adminUser: UserRecord = {
+    id: `admin_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+    name: name.trim(),
+    email: normalizedEmail,
+    password: hashedPassword,
+    role: 'admin',
+    status: 'active',
+    department: 'Security Operations (Admin)',
+    avatarColor: '#E11D48',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
+  try {
+    await prisma.user.upsert({
+      where: { email: normalizedEmail },
+      update: {
+        role: 'admin',
+        status: 'active',
+        password: hashedPassword,
+        name: adminUser.name,
+      },
+      create: {
+        name: adminUser.name,
+        email: adminUser.email,
+        password: adminUser.password,
+        role: adminUser.role,
+        status: adminUser.status,
+        department: adminUser.department,
+        avatarColor: adminUser.avatarColor,
+      },
+    });
+  } catch {}
+
+  inMemoryUsers.set(normalizedEmail, adminUser);
+  writeTmpUser(adminUser);
+
+  await logAuditEvent({
+    action: 'ADMIN_PROVISIONED',
+    actorEmail: actorEmail || 'bootstrap-cli',
+    actorRole: 'admin',
+    targetEmail: normalizedEmail,
+    details: `Administrator account ${normalizedEmail} provisioned/updated via secure bootstrap.`,
+    status: 'SUCCESS',
+  });
+
+  return toPublicUser(adminUser);
+}
+

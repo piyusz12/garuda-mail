@@ -16,9 +16,12 @@ export function normalizeUserRole(role?: string | null): UserRole {
 
 export function getProtectedRouteForRole(role?: string): string {
   const normalized = normalizeUserRole(role);
-  if (normalized === 'admin') return '/admin';
-  if (normalized === 'officer') return '/officer';
-  return '/inbox';
+  if (normalized === 'admin') return '/admin/dashboard';
+  return '/user/dashboard';
+}
+
+export function isAdmin(role?: string | null): boolean {
+  return normalizeUserRole(role) === 'admin';
 }
 
 export function hasRoleAccess(role: string | undefined, allowedRoles: UserRole[]): boolean {

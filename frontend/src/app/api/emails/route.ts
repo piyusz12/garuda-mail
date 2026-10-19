@@ -182,11 +182,14 @@ export async function GET(request: NextRequest) {
     // ── Decrypt message bodies with AES-256-GCM for the authenticated user
     const emails = rawEmails.map((e: any) => {
       const dec = decryptPayload(e.body);
+      const isAsymmetricV2 = typeof e.body === 'string' && e.body.includes('<!--GARUDA-E2EE-V2-->');
       return {
         ...e,
         body: dec.plaintext,
-        preview: e.preview || (dec.isEncrypted ? `[AES-256-GCM] ${dec.plaintext.slice(0, 120)}` : dec.plaintext.slice(0, 140)),
-        isEncrypted: dec.isEncrypted,
+        rawCiphertext: dec.envelope ? ('ciphertext' in dec.envelope ? dec.envelope.ciphertext : null) : null,
+        rawBody: e.body,
+        preview: e.preview || (isAsymmetricV2 ? '[Asymmetric E2EE Encrypted Payload]' : dec.isEncrypted ? `[AES-256-GCM] ${dec.plaintext.slice(0, 120)}` : dec.plaintext.slice(0, 140)),
+        isEncrypted: dec.isEncrypted || isAsymmetricV2,
         cryptoMetadata: dec.envelope || null,
       };
     });
@@ -345,13 +348,20 @@ export async function POST(request: NextRequest) {
     let cryptoCipher = 'TLS_AES_256_GCM_SHA384';
 
     if (encrypted && !draft) {
-      try {
-        const { envelopeString } = encryptPayload(emailBody);
-        storedBody = envelopeString;
-        preview = `[AES-256-GCM] ${emailBody.slice(0, 140).replace(/\n+/g, ' ')}`;
-        cryptoCipher = 'AES-256-GCM-PQC-KYBER';
-      } catch (cryptErr) {
-        console.warn('[Emails POST] E2EE encryption failed, falling back to transport encryption:', cryptErr);
+      if (emailBody.includes('<!--GARUDA-E2EE-V2-->')) {
+        // Client already generated genuine asymmetric zero-knowledge envelope (Phase 4/5)
+        storedBody = emailBody;
+        preview = '[Asymmetric E2EE Encrypted Payload]';
+        cryptoCipher = 'RSA-OAEP-4096+AES-256-GCM+PQC';
+      } else {
+        try {
+          const { envelopeString } = encryptPayload(emailBody);
+          storedBody = envelopeString;
+          preview = `[AES-256-GCM] ${emailBody.slice(0, 140).replace(/\n+/g, ' ')}`;
+          cryptoCipher = 'AES-256-GCM-PQC-KYBER';
+        } catch (cryptErr) {
+          console.warn('[Emails POST] E2EE encryption failed, falling back to transport encryption:', cryptErr);
+        }
       }
     }
 

@@ -1,358 +1,272 @@
-# Garuda Mail — AI-Assisted Passive Network Forensic Framework & Autonomous SOAR Remediation Platform
+# GARUDA — SIH26159: Full-Stack Secure Mail & Cryptographic Forensic Platform
 
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/)
-[![Vite 6](https://img.shields.io/badge/Vite-6.0+-646CFF.svg)](https://vite.dev/)
-[![Tests](https://img.shields.io/badge/Tests-365%2F365%20Passing-brightgreen.svg)](tests/)
-[![Closed-Loop Defense](https://img.shields.io/badge/Closed--Loop%20Defense-Phase%2025%20SOC-cyan.svg)](phase_25_autonomous_security_operations.py)
-[![License: Proprietary](https://img.shields.io/badge/License-Enterprise-red.svg)](#)
+[![Next.js 16](https://img.shields.io/badge/Next.js-16.0+-black.svg)](https://nextjs.org/)
+[![Forensic Tests](https://img.shields.io/badge/Forensic%20Tests-412%2F412%20Passing-brightgreen.svg)](email-forensic-framework/tests/)
+[![Crypto E2EE Tests](https://img.shields.io/badge/Crypto%20E2EE-7%2F7%20Passed-brightgreen.svg)](frontend/test-crypto-e2ee.js)
+[![CycloneDX](https://img.shields.io/badge/CBOM-CycloneDX%201.5-blueviolet.svg)](#)
+[![NIST PQC](https://img.shields.io/badge/NIST-FIPS%20203%20ML--KEM-orange.svg)](#)
 
-> **Enterprise Cryptographic Security Assessment, Passive Telemetry Analysis, Autonomous Threat Hunting, SOAR Orchestration, and Closed-Loop Defensive Operations for Enterprise Email Infrastructures.**
+> **GARUDA (SIH26159)** is an enterprise cybersecurity and cryptographic intelligence platform integrating **GARUDA Mail** (true asymmetric zero-knowledge E2EE mail transfer across local networks) with **GARUDA Sentinel** (evidence-driven passive network forensics, deterministic policy risk scoring, explainable AI anomaly detection, CycloneDX 1.5 CBOM cataloging, and NIST FIPS 203 post-quantum readiness).
 
 ---
 
-## 1. Executive Summary
+## 1. Executive Summary & Capabilities
 
-**Garuda Mail** is a dual-tier passive network forensics and response orchestration platform engineered for enterprise mail transfer agents (MTAs), webmail services, and mail client infrastructures (SMTP, IMAP, POP3). 
-
-The platform merges:
-1. **Enterprise Findings & Forensics Portal (`frontend/`)**: Next.js 16 Webmail with real-time sync, cryptographic posture analytics, CBOM catalog, AI anomalies, session reassembly, and SOAR Incident Operations Center.
-2. **Autonomous Python Forensic Engine (`email-forensic-framework/`)**: An end-to-end passive forensic pipeline spanning **Phases 1 through 30**, culminating in autonomous threat hunting, continuous detection engineering, lakehouse backtesting, automated hypothesis testing, SOAR response playbooks, Zero Trust enforcement, Cloud Workload Defence, Data Security & DLP, and Enterprise AI Security (AI Agent Security Graph, Digital Twin simulation, Secrets scanning, and SOAR playbooks for AI incidents).
+GARUDA delivers two complementary, unified cybersecurity capabilities:
 
 ```
-       PASSIVE NETWORK CAPTURE (PCAP / PCAPNG)
-                         │
-                         ▼
-┌─────────────────────────────────────────────────────────┐
-│                 GARUDA FORENSIC CORE                    │
-│                                                         │
-│  [Stream Reassembly] ──► [Protocol Classification]      │
-│  (Ethernet/IP/TCP)         (SMTP, IMAP, POP3)           │
-│                                │                        │
-│  [Cryptographic Posture] ◄─────┴──────► [Forensic Lake] │
-│  (TLS 1.3, JA4, Ciphers)               (Parquet/DuckDB) │
-└──────────────────────────┬──────────────────────────────┘
-                           │
-         ┌─────────────────┴──────────────────┐
-         ▼                                    ▼
-┌──────────────────────────────┐   ┌──────────────────────────────┐
-│     PHASE 23 & 24 ENGINES    │   │    WEB FORENSIC DASHBOARD    │
-│  • Autonomous Threat Hunting │   │  • In-Browser PCAP Ingestion │
-│  • HQL Query Execution       │   │  • Real-Time Threat Gauges   │
-│  • Incident Qualification    │   │  • Stream Timeline Dissector │
-│  • Digital Twin Simulation   │   │  • JA4 Signature Matcher     │
-│  • Four-Eyes Approvals       │   │  • CVE / CWE Risk Matrix     │
-│  • Canary Remediation        │   │  • Incident Ops Center UI    │
-│  • Telemetry Verification    │   │  • Multi-Signature Signoff   │
-│  • Post-Incident Monitoring  │   │  • Evidence Bundle Export    │
-└──────────────────────────────┘   └──────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                                 GARUDA (SIH26159)                                      │
+├───────────────────────────────────────────┬────────────────────────────────────────────┤
+│               GARUDA MAIL                 │              GARUDA SENTINEL               │
+│  • True Asymmetric End-to-End Encryption  │  • Magic Byte PCAP/PCAPNG Verification     │
+│    (RSA-OAEP 2048/4096 + AES-256-GCM)     │  • TCP Flow Reassembly & Protocol Parsing  │
+│  • Digital Signatures (RSA-PSS SHA-256)   │  • 4-Tier Normalized Evidence Hierarchy    │
+│  • Colon-Delimited Fingerprint Trust      │    (Observed, Derived, External, Unavail)  │
+│    (SHA256:XX:YY:ZZ:...)                  │  • Deterministic Policy Engine (CRS 0–100) │
+│  • Zero-Knowledge Server Database Relay   │  • Isolation Forest AI Anomaly Detection   │
+│  • Client-Side Passphrase Locked Keys     │  • Metric Separation (CRS vs AI vs Conf)   │
+│  • Peer Key Discovery & Rotation Audits   │  • CycloneDX 1.5 Cryptographic BOM (CBOM)  │
+│  • WhatsApp-Style Live Online Presence    │  • NIST FIPS 203 ML-KEM PQC Readiness      │
+│  • Quick Mail Dispatch Drawer on LAN      │  • Full-Spectrum SOC & SOAR Playbooks      │
+└───────────────────────────────────────────┴────────────────────────────────────────────┘
 ```
 
 ---
 
-## 2. Platform Architecture & Evolution
+## 2. Master Implementation Status (Phases 1–12)
 
-| Phase Range | Capability Domain | Key Modules |
-| :--- | :--- | :--- |
-| **Phases 1–5** | Protocol Detection & Session Reassembly | `app/protocol/smtp`, `app/protocol/imap`, `app/protocol/pop3`, `app/models/session.py` |
-| **Phases 6–7** | State Transitions & TLS Boundary Identification | `tests/test_phase6_sessions.py`, `tests/test_phase7_transition.py` |
-| **Phases 8–12** | Presentation, Orchestration & Enterprise Platform | `phase_8_presentation_export_engine.py` through `phase_12_enterprise_platform.py` |
-| **Phases 13–18** | GenAI, Forensic Digital Twins & Self-Healing Assurance | `phase_13_federated_intelligence_genai.py` through `phase_18_security_assurance.py` |
-| **Phases 19–20** | Real-Time Streaming Fabric & Federated Intelligence | `phase_19_real_time_streaming_fabric.py`, `phase_20_federated_intelligence.py` |
-| **Phase 21** | Cryptographic Agility & Post-Quantum Cryptography (PQC) | `phase_21_cryptographic_agility_pqc.py` (Kyber/Dilithium readiness) |
-| **Phase 22** | Forensic Data Lakehouse & Multi-Year Memory | `phase_22_forensic_data_lakehouse.py` (Parquet, Sessions, Lineage) |
-| **Phase 23** | Autonomous Threat Hunting & Detection Engineering | `phase_23_autonomous_threat_hunting.py` + 8 modular packages |
-| **Phase 24** | Autonomous Incident Response & SOAR Orchestration | `phase_24_autonomous_incident_response.py` + 9 modular packages |
-| **Phase 25** | **Autonomous Security Operations & Closed-Loop Defense** | **`phase_25_autonomous_security_operations.py` + `security_operations/` + `detection_engineering/`** |
+Every phase from the Master Development Specification is implemented, integrated, and verified:
+
+| Phase | Domain / Component | Status | Verification Reference |
+| :---: | :--- | :---: | :--- |
+| **Phase 1** | Repository Audit, Threat Model & Environment | **100% COMPLETE** | `docs/threat-model.md`, `docs/phase-checklist.md`, `.env.example` |
+| **Phase 2** | Two-Computer LAN & Transport Security | **100% COMPLETE** | `frontend/package.json` (`-H 0.0.0.0`), `docs/deployment-two-pc.md` |
+| **Phase 3** | Quick Mail Dispatch & Live Presence | **100% COMPLETE** | `frontend/src/app/inbox/page.tsx`, `usePeerPresence` polling |
+| **Phase 4** | Asymmetric E2EE & Digital Signatures | **100% COMPLETE** | `frontend/src/lib/crypto.ts`, `frontend/test-crypto-e2ee.js` (7/7 pass) |
+| **Phase 5** | Client-Side Key Management & Trust Store | **100% COMPLETE** | `frontend/src/lib/keyStore.ts`, `frontend/src/components/crypto/KeyLifecycleManager.tsx` |
+| **Phase 6** | Public Key Discovery & Zero-Knowledge Relay | **100% COMPLETE** | `frontend/src/app/api/keys/route.ts`, `frontend/src/app/api/keys/verify/route.ts` |
+| **Phase 7** | Sentinel Forensics & Magic Byte Verification | **100% COMPLETE** | `email-forensic-framework/sentinel_engine.py`, `validate_pcap_signature` |
+| **Phase 8** | 4-Tier Cryptographic Evidence Normalization | **100% COMPLETE** | `EvidenceRecord`, `EvidenceTier` (Observed/Derived/External/Unavailable) |
+| **Phase 9** | Deterministic Policy Engine & CRS Scoring | **100% COMPLETE** | `evaluate_deterministic_policy`, CRS 0–100 calculation |
+| **Phase 10** | Explainable AI Anomaly & Metric Separation | **100% COMPLETE** | `detect_ai_anomalies` (Isolation Forest), CRS vs AI vs Confidence |
+| **Phase 11** | CycloneDX 1.5 CBOM & NIST FIPS 203 PQC | **100% COMPLETE** | `generate_cbom_cyclonedx`, `assess_pqc_readiness` |
+| **Phase 12** | Integrated Testing, Hardening & Documentation | **100% COMPLETE** | 412/412 Pytest passed, 7/7 Crypto passed, 10 Architecture docs |
 
 ---
 
-## 3. Phase 23 & Phase 24 Architecture
-
-### Phase 23 — Detection Engineering & Threat Hunting
-Phase 23 transforms the forensic lakehouse into an active, self-testing, autonomous defensive engine:
-- **Detection Engineering (`detection/`)**: Rule lifecycle (`DRAFT` -> `TESTING` -> `CANARY` -> `ACTIVE`), confidence scoring, and version rollback registry.
-- **Autonomous Threat Hunting (`hunting/`)**: Hunt Query Language (HQL) parser, recurring cron/interval hunters, and candidate extraction.
-- **Hypothesis Formulation & Testing (`hypothesis/`)**: Abductive hypothesis generator with dual supporting/counter-evidence evaluators.
-
-### Phase 24 — Autonomous Incident Response & SOAR Control Plane
-Phase 24 adds the operational decision, remediation, and verification layer:
+## 3. Architecture & Data Flow
 
 ```
-                      PHASE 23
-                DETECTION / HUNTING
-                       │
-                       ▼
-                 FINDING / CASE
-                       │
-                       ▼
-             INCIDENT MANAGER (`incident/`)
-                       │
-        ┌──────────────┼──────────────┐
-        ▼              ▼              ▼
-     TRIAGE          IMPACT         CONTEXT
-        │              │              │
-        └──────────────┼──────────────┘
-                       ▼
-             RESPONSE ENGINE (`response/`)
-                       │
-               ┌───────┼────────┐
-               ▼       ▼        ▼
-           Playbook  Policy   Approval
-               │       │        │
-               └───────┼────────┘
-                       ▼
-          ACTION ORCHESTRATOR (`response/`)
-                       │
-        ┌──────────────┼────────────────┐
-        ▼              ▼                ▼
-     Network         Endpoint        Identity
-      Action           Action          Action
-        │              │                │
-        └──────────────┼────────────────┘
-                       ▼
-           VERIFICATION (`verification/`)
-                       │
-                 ┌─────┴─────┐
-                 ▼           ▼
-              Success      Failure
-                 │           │
-                 ▼           ▼
-              Monitor      Rollback
-           (`monitoring/`) (`response/`)
-                 │           │
-                 └─────┬─────┘
-                       ▼
-            POST-INCIDENT (`reporting/`)
-                       │
-                       ▼
-               LESSONS / TUNING
-                       │
-                       ▼
-                  PHASE 23
-                IMPROVEMENT LOOP
+                                LAN PEER-TO-PEER MAIL FLOW
+ ┌────────────────────────┐                                ┌────────────────────────┐
+ │   Computer A (Alice)   │                                │    Computer B (Bob)    │
+ │  192.168.1.100:3000    │                                │   192.168.1.105:3000   │
+ └───────────┬────────────┘                                └───────────▲────────────┘
+             │ 1. Discover Bob's Public Key                            │ 4. Decrypt with
+             │ 2. Encrypt with Bob's Public Key (RSA-OAEP)             │    Bob's Private Key
+             │ 3. Sign envelope with Alice Private Key (RSA-PSS)       │ 5. Verify Alice
+             ▼                                                         │    Signature
+ ┌─────────────────────────────────────────────────────────────────────┴────────────┐
+ │                     GARUDA RELAY SERVER (Zero-Knowledge)                         │
+ │  • Holds ONLY ciphertext envelopes (GARUDA-E2EE-v2)                              │
+ │  • Cannot decrypt message payloads (Zero Plaintext stored)                       │
+ │  • Distributes public keys & tracks online peer presence                         │
+ └──────────────────────────────────────┬───────────────────────────────────────────┘
+                                        │
+                                        ▼
+                             PASSIVE FORENSIC MIRROR
+ ┌──────────────────────────────────────────────────────────────────────────────────┐
+ │                     GARUDA SENTINEL ENGINE (Backend)                             │
+ │  1. Ingestion: PCAP / PCAPNG magic byte verification                             │
+ │  2. Stream Reassembly: TCP packet defragmentation & protocol classification      │
+ │  3. Evidence Extraction: 4-tier normalization (Observed/Derived/External/Unavail)│
+ │  4. Deterministic Scoring: Cryptographic Risk Score (CRS: 0–100)                 │
+ │  5. Explainable AI: Isolation Forest Anomaly Detection (AI Score: 0–100)         │
+ │  6. CBOM Generation: CycloneDX 1.5 Cryptographic Bill of Materials               │
+ │  7. PQC Readiness: NIST FIPS 203 ML-KEM migration & SNDL vulnerability matrix    │
+ └──────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 4. Repository Layout
+## 4. Quick Start Guide
 
-```text
-garuda-mail/
-├── .gitignore                                 # Git rules for Node, Vite, Python, Logs & Artifacts
-├── README.md                                  # Executive platform overview & operations manual
-├── package.json                               # Web application dependencies (Vite, Chart.js, jsPDF)
-├── index.html                                 # Clean web entrypoint with Google Fonts
-│
-├── src/                                       # Web Frontend Source
-│   ├── main.js                                # Interactive forensic dashboard & SOAR Incident Ops Center
-│   ├── index.css                              # 1,489-line cybersecurity glassmorphism design system
-│   ├── core/                                  # In-Browser Binary Analyzers
-│   │   ├── pcap-parser.js                     # Binary PCAP format stream parser
-│   │   ├── protocol-identifier.js             # Heuristic protocol classifier (SMTP/IMAP/POP3)
-│   │   └── tcp-reassembly.js                  # In-browser TCP stream defragmenter
-│   ├── data/                                  # Forensic Intelligence Catalogs
-│   │   ├── cipher-database.js                 # RFC 9325 / NIST cipher suite ratings
-│   │   ├── cve-mappings.js                    # CVE/CWE vulnerability cross-references
-│   │   ├── demo-data.js                       # Realistic 85-flow synthetic forensic telemetry
-│   │   └── ja4-signatures.js                  # Curated JA4+ fingerprint database
-│   └── utils/                                 # Shared Utilities
-│       ├── binary-reader.js                   # Big/Little-endian ArrayBuffer reader
-│       ├── constants.js                       # Ports, TLS record constants & bitmasks
-│       └── formatters.js                      # Byte, duration, timestamp, and risk formatters
-│
-└── email-forensic-framework/                  # Python Forensic Framework (Phases 1–24)
-    ├── requirements.txt                       # Core framework dependencies
-    ├── main.py                                # CLI entrypoint
-    ├── run_phase2.py                          # Phase 2 regression test & analysis runner
-    ├── phase_23_autonomous_threat_hunting.py  # Phase 23 Platform Runner, CLI & REST server
-    ├── phase_24_autonomous_incident_response.py # Phase 24 Platform Runner, CLI & REST server
-    │
-    ├── incident/                              # Phase 24: Incident Management
-    │   ├── models.py                          # Incident, IncidentStatus, Severity, Priority
-    │   ├── triage.py                          # Criticality & recurrence enrichment
-    │   ├── priority.py                        # P1-P4 Multi-dimensional scoring
-    │   ├── lifecycle.py                       # 16-State Lifecycle State Machine
-    │   └── manager.py                         # Finding-to-incident qualification & reopening
-    │
-    ├── response/                              # Phase 24: Response Orchestration
-    │   ├── risk.py                            # R0 to R4 Risk Classifications
-    │   ├── actions.py                         # ResponseAction contracts & action hashes
-    │   ├── policy.py                          # Policy-as-code evaluation engine
-    │   ├── approval.py                        # Four-Eyes multi-signature approval engine
-    │   ├── planner.py                         # Phased canary rollout planner
-    │   ├── rollback.py                        # Reverse-order rollback engine
-    │   └── orchestrator.py                    # Concurrency change locks & idempotency
-    │
-    ├── playbooks/                             # Phase 24: Standard Response Playbooks
-    │   ├── models.py                          # Playbook & PlaybookStep definitions
-    │   ├── registry.py                        # Preloaded playbooks (Crypto regression, certs, JA4)
-    │   └── engine.py                          # Regression simulator (v1 vs v2) & adaptive tuning
-    │
-    ├── connectors/                            # Phase 24: Response Connectors
-    │   ├── base.py                            # BaseResponseConnector & health checks
-    │   ├── firewall.py                        # Bounded quarantine, JA4 block, ACL
-    │   ├── pki.py                             # Certificate replacement & revocation
-    │   ├── endpoint.py                        # MTA daemon config & evidence preservation
-    │   ├── identity.py                        # Session revocation & credential expiry
-    │   ├── ticketing.py                       # ITSM change request synchronization
-    │   ├── notifications.py                   # Multi-channel alerts (SOC, PKI, PagerDuty)
-    │   └── registry.py                        # ActionType-to-connector routing
-    │
-    ├── simulation/                            # Phase 24: Pre-Response Safety Controls
-    │   ├── blast_radius.py                    # Dependency graph traversal (scope ratio)
-    │   ├── digital_twin.py                    # Recorded traffic compatibility assessment
-    │   └── dry_run.py                         # Non-mutating preview reports
-    │
-    ├── verification/                          # Phase 24: Remediation Verification
-    │   ├── config.py                          # Daemon configuration snapshot verifier
-    │   ├── telemetry.py                       # Passive network wire verifier (zero legacy sessions)
-    │   ├── recovery.py                        # Multi-layer service & traffic recovery health
-    │   └── engine.py                          # Consolidated verification verdict (PASS/FAIL)
-    │
-    ├── monitoring/                            # Phase 24: Post-Incident Monitoring
-    │   ├── watchers.py                        # Multi-interval watchers (1h, 24h, 7d, 30d, 90d)
-    │   ├── recurrence.py                      # Telemetry recurrence detector
-    │   └── reopening.py                       # Automated incident reopening & lineage linking
-    │
-    ├── audit/                                 # Phase 24: Tamper-Evident Audit Ledgers
-    │   ├── actions.py                         # Append-only hash-chained action ledger
-    │   ├── approvals.py                       # Signature compliance audit log
-    │   └── timeline.py                        # ASCII chronological timeline synthesizer
-    │
-    ├── reporting/                             # Phase 24: Reporting & Continuous Learning
-    │   ├── incident_report.py                 # Post-Incident Post-Mortem generator (.MD)
-    │   └── lessons.py                         # Lessons learned & Phase 23 feedback engine
-    │
-    ├── detection/                             # Phase 23: Detection Engineering Package
-    ├── hunting/                               # Phase 23: Autonomous Threat Hunting
-    ├── hypothesis/                            # Phase 23: Hypothesis Testing
-    ├── investigation/                         # Phase 23: Autonomous Investigation
-    ├── validation/                            # Phase 23: Continuous Validation
-    ├── replay/                                # Phase 23: Scenario Replay
-    ├── coverage/                              # Phase 23: ATT&CK Mapping & Gaps
-    ├── feedback/                              # Phase 23: Analyst Feedback Loop
-    └── tests/                                 # Comprehensive Test Suite (167 Tests)
-```
+The repository includes a unified root CLI runner (`run.py`):
 
----
-
-## 5. Quick Start Guide
-
-### 5.1 Web Application Setup
- 
 ```bash
-# Web application files live in frontend/
-cd "frontend"
+# Display help and all available commands
+python run.py help
+```
 
-# Install dependencies (Next.js, Tailwind, Prisma, Lucide)
-npm install
+### 4.1 Launching the Complete Platform
 
-# Start local Next.js development server (port 3000)
-npm run dev
+```bash
+# Terminal 1: Launch FastAPI Forensic REST Backend (Port 8000)
+python run.py server
 
-# Or start from the root runner
+# Terminal 2: Launch Next.js Enterprise Webmail & Forensic Portal (Port 3000)
 python run.py web
 ```
 
-### 5.2 Python Forensic Engine Setup
+- **Frontend Portal**: Open [http://localhost:3000](http://localhost:3000)
+- **Backend API & Swagger Docs**: Open [http://localhost:8000/docs](http://localhost:8000/docs)
+
+### 4.2 Running Passive Forensic Analysis via CLI
 
 ```bash
-# Navigate to framework root
-cd "email-forensic-framework"
-
-# Install Python dependencies
-pip install -r requirements.txt
-
-# Run complete test suite (365 tests across Phases 1–30)
-pytest tests/
+# Run Sentinel multi-phase forensic analysis on capture
+python run.py sentinel pcaps/smtp_starttls.pcap
 ```
 
-### 5.3 Phase 23 Autonomous Threat Hunting CLI
+*Sample Output:*
+```text
+======================================================================
+ GARUDA Sentinel — Passive Forensic Analysis Engine
+ Target Capture: smtp_starttls.pcap
+======================================================================
+[+] Analysis Job ID:        AN-20261019-EC2D98
+[+] Capture SHA-256:        84c77e5d083a597eca7763356bf624d663333b89e097c7d27e8102f981fb75f1
+[+] Packets Processed:      9
+[+] Reassembled Sessions:   1
+[+] Processing Time:        0.006s
 
-```bash
-# Run complete Phase 23 demonstration (7 steps with live dashboards)
-python phase_23_autonomous_threat_hunting.py demo
+--- METRICS SEPARATION ---
+[+] Cryptographic Risk Score (CRS): 35/100
+[+] AI Anomaly Score (IsoForest):   85/100
+[+] Evidence Confidence:            94%
 
-# Execute an autonomous HQL threat hunt
-python phase_23_autonomous_threat_hunting.py hunt --query "HUNT legacy_tls_recurrence FROM tls_events WHERE tls_version IN ['TLS 1.0', 'TLS 1.1'] WITHIN 90d"
+--- FINDINGS DETECTED (1) ---
+ • [CRITICAL] Unencrypted Cleartext Email Session (CRS: +35)
+   Affected Assets: 192.168.1.50:587 | Priority: critical
+   Remediation:     Enforce mandatory STARTTLS upgrade or migrate clients to dedicated implicit TLS ports.
 
-# Conduct an autonomous deep investigation on an entity
-python phase_23_autonomous_threat_hunting.py investigate --entity "asset:MTA-07"
-```
+--- CBOM ASSETS IDENTIFIED (1) ---
+ • Asset: 192.168.1.50:587 | Protocol: None (Cleartext) | Cipher: UNKNOWN
+   Key: None (0 bit) | PQC Ready: False
 
-### 5.4 Phase 24 Autonomous Incident Response CLI
-
-```bash
-# Run complete Phase 24 demonstration (10 steps from qualification to post-mortem)
-python phase_24_autonomous_incident_response.py demo
-
-# Execute autonomous response on target assets
-python phase_24_autonomous_incident_response.py respond --incident "STARTTLS Downgrade Detected" --assets "MTA-07,MTA-01"
-
-# Simulate blast radius and digital twin compatibility
-python phase_24_autonomous_incident_response.py simulate --assets "MTA-07,MTA-04"
-
-# Launch Phase 24 REST API microservice (port 8024)
-python phase_24_autonomous_incident_response.py serve --port 8024
-```
-
-### 5.5 Phase 25 Autonomous Security Operations & Closed-Loop Defense CLI
-
-```bash
-# Run complete Phase 25 demonstration (full closed-loop workflow)
-python phase_25_autonomous_security_operations.py demo
-
-# Launch Phase 25 SOC & SOAR REST API microservice (port 8025)
-python phase_25_autonomous_security_operations.py serve --port 8025
+--- PQC READINESS (NIST FIPS 203) ---
+[!] Status:         Quantum-Vulnerable (Classical RSA/ECC Only)
+[!] SNDL Exposure:  CRITICAL — Long-term confidential communications exposed to harvest-now-decrypt-later
+[!] Recommendation: Deploy hybrid post-quantum key establishment (X25519 + ML-KEM-768 Draft-00).
+======================================================================
 ```
 
 ---
 
-## 6. Verification & Test Suite
-
-The test suite validates forensic reassembly contracts, Phases 23–25 threat hunting and SOAR, Phases 26–30 Zero Trust / Cloud Workload / Data Security / Enterprise AI Security, and all prior forensic pipeline phases:
+## 5. Automated Verification & Test Suites
 
 ```bash
-$ cd email-forensic-framework && pytest tests/
-============================= test session starts =============================
-platform win32 -- Python 3.13.x, pytest-8.x.x, pluggy-1.x.x
-rootdir: .../garuda mail/email-forensic-framework
-collected 365 items
+# 1. Run full Python forensic test suite (412 tests across Phases 1–30 + Sentinel)
+python run.py test
 
-tests\coverage\test_coverage_and_feedback.py .....
-tests\detection\test_detection.py .......
-tests\encryption\test_tls_boundary.py ..
-tests\hunting\test_hunting.py .....
-tests\hypothesis\test_hypothesis.py ...
-tests\incident\test_incident_management.py ....
-tests\investigation\test_investigation.py ....
-tests\phase25\...                                  (22 tests)
-tests\phase26\test_phase26_e2e.py ..             (Phase 26 – Zero Trust)
-tests\phase27\test_phase27_e2e.py ..             (Phase 27 – Cloud Workload)
-tests\phase28\test_phase28_e2e.py ..             (Phase 28 – Data Security & DLP)
-tests\phase29\test_phase29_e2e.py ..             (Phase 29 – Sovereign Cloud)
-tests\phase30\test_phase30_e2e.py ..             (Phase 30 – Enterprise AI Security)
-tests\phase30\test_workflows_secrets_twin.py ... (AI Workflows, Secrets, Digital Twin)
-tests\...                                         (remaining 265 tests)
+# 2. Run TypeScript E2EE cryptographic verification suite (7 cryptographic tests)
+python run.py test-crypto
 
-======================= 365 passed, 1 warning in 1.54s ========================
+# 3. Run all test suites simultaneously
+python run.py test-all
 ```
 
----
-
-## 7. Security & Compliance Standards
-
-- **RFC 8996**: Complete deprecation validation and automated remediation for TLS 1.0 and TLS 1.1.
-- **RFC 9325**: Recommendation for secure use of Transport Layer Security (TLS) and Datagram TLS (DTLS).
-- **NIST SP 800-52 Rev 2**: Guidelines for the Selection, Configuration, and Use of TLS Implementations.
-- **MITRE ATT&CK for Enterprise**: Direct mapping to Enterprise Matrix techniques:
-  - `T1557.002` (Adversary-in-the-Middle: Downgrade / STARTTLS Stripping)
-  - `T1573.002` (Encrypted Channel: Asymmetric Cryptography & JA4 Fingerprinting)
-  - `T1048.003` (Exfiltration Over Alternative Protocol: Unencrypted Email Body/Auth)
-  - `T1588.003` (Obtain Capabilities: Code Signing & Compromised Private Keys)
+### Test Results Summary:
+- **Python Pytest Suite**: `412 passed` in `2.85s`
+- **Crypto E2EE Suite**: `7 passed, 0 failed`
+  - RSA-OAEP 2048 & 4096 keypair generation
+  - Zero-knowledge server storage verification
+  - Asymmetric encryption & RSA-PSS digital signature verification
+  - Unauthorized Mallory decryption blocking (asymmetric isolation)
+  - Tamper detection (single-bit modification in ciphertext fails verification)
+  - Signature replay & timestamp modification rejection
+  - Passphrase-protected client private key storage (PBKDF2 + AES-GCM)
 
 ---
 
-## 8. License & Enterprise Support
+## 6. Two-Computer LAN Demonstration Runbook
 
-Garuda Mail is designed for enterprise cybersecurity operations centers (SOCs), incident response teams, and forensic analysts. Proprietary & Confidential. All rights reserved.
+For a live demonstration between two separate laptops/workstations on the same local network:
+
+1. **Host Computer (Computer A - e.g., IP `192.168.1.100`)**:
+   ```bash
+   cd "c:\garuda mail"
+   # Start backend
+   python run.py server
+   # Start frontend bound to 0.0.0.0
+   python run.py web
+   ```
+2. **Client Computer (Computer B - e.g., IP `192.168.1.105`)**:
+   - Open browser and navigate to: `http://192.168.1.100:3000`
+3. **End-to-End Encrypted Communication Flow**:
+   - On Computer A: Login as `alice@garuda.gov.in`. In **Crypto Settings** (`/crypto`), generate an RSA-OAEP / RSA-PSS keypair protected by a passphrase. Alice's public key automatically registers with fingerprint `SHA256:XX:YY:...`.
+   - On Computer B: Login as `bob@garuda.gov.in`. Generate Bob's keypair. Notice Alice appears as **Online (Active Now)** in the live presence bar.
+   - Click Alice's card to open the **Quick Mail Dispatch Drawer**.
+   - Bob selects **"Verify Fingerprint & Trust"** to verify Alice's SHA-256 fingerprint out-of-band.
+   - Compose a sensitive message: *"Tactical defense briefing coordinates confirmed."*
+   - Click **"Send E2EE Encrypted"**. Bob's browser encrypts using Alice's RSA-OAEP public key and signs with Bob's RSA-PSS private key.
+   - On Computer A: Alice receives the message. Alice enters her private key passphrase to decrypt. Alice sees the verified green badge: **"Digitally Signed by Bob (Valid Signature)"**.
+   - Check Server Logs: The server relay stores *only* the ciphertext envelope `GARUDA-E2EE-v2`. Plaintext is never exposed.
+
+For full network setup, firewall configurations, and offline demo options, see [`docs/deployment-two-pc.md`](file:///c:/garuda%20mail/docs/deployment-two-pc.md).
+
+---
+
+## 7. Cryptographic & Forensic Specifications
+
+### 7.1 GARUDA Mail Cryptography
+- **Asymmetric Envelope**: `GARUDA-E2EE-v2`
+- **Key Exchange / Envelope**: RSA-OAEP (2048/4096-bit, SHA-256 MGF1) + AES-256-GCM session key + Post-Quantum Kyber-768 hybrid encapsulation payload.
+- **Digital Signatures**: RSA-PSS (2048/4096-bit, Salt Length 32, SHA-256).
+- **Client Key Derivation**: PBKDF2 with 100,000 SHA-256 iterations + AES-256-GCM.
+- **Fingerprinting**: Full SHA-256 colon-delimited uppercase hex (`SHA256:XX:YY:...`).
+
+### 7.2 GARUDA Sentinel Forensics
+- **Magic Byte Signatures**:
+  - `0xd4c3b2a1` / `0xa1b2c3d4`: Classic PCAP (Little / Big Endian)
+  - `0x4d3cb2a1` / `0xa1b23c4d`: Nanosecond PCAP (Little / Big Endian)
+  - `0x0a0d0d0a`: PCAP-NG Block Header
+- **Evidence Hierarchy**:
+  - `Observed`: Directly extracted wire packets (TLS records, handshake bytes).
+  - `Derived`: Computed properties (JA4 fingerprints, CRS values).
+  - `External`: Corroborated databases (CVE, CWE, NIST SP 800-52r2 ratings).
+  - `Unavailable`: Encrypted or missing segments (e.g., ciphertext payload post-STARTTLS).
+- **Metric Independence**:
+  - **Deterministic CRS (0–100)**: Cryptographic Risk Score calculated by explicit deterministic policy rules.
+  - **AI Anomaly Score (0–100)**: Unsupervised Isolation Forest detecting statistical deviations.
+  - **Evidence Confidence (0–100%)**: Proportion of verifiable observed packets vs gaps.
+- **CBOM Standard**: CycloneDX v1.5 JSON with `cryptographic-asset` components.
+- **PQC Standard**: NIST FIPS 203 (ML-KEM) and FIPS 204 (ML-DSA) readiness assessment.
+
+---
+
+## 8. Master Documentation Index
+
+All architectural, security, and operational documentation is available in the [`docs/`](file:///c:/garuda%20mail/docs/) directory:
+
+- [**Phase Checklist & Progress Matrix**](file:///c:/garuda%20mail/docs/phase-checklist.md) — 12-phase delivery & verification matrix.
+- [**STRIDE Threat Model**](file:///c:/garuda%20mail/docs/threat-model.md) — Threat boundaries, attack vectors, and countermeasure designs.
+- [**System Architecture**](file:///c:/garuda%20mail/docs/architecture.md) — End-to-end component diagrams, data flows, and state machines.
+- [**Security & Defenses**](file:///c:/garuda%20mail/docs/security.md) — Vulnerability defenses, zero-knowledge storage, and sanitization.
+- [**API Reference**](file:///c:/garuda%20mail/docs/api.md) — REST endpoints, WebSocket protocols, and JSON schemas.
+- [**Database Schemas**](file:///c:/garuda%20mail/docs/database.md) — Relay database, key registry, and parquet forensic lakehouse.
+- [**Cryptographic Design**](file:///c:/garuda%20mail/docs/crypto-design.md) — Asymmetric E2EE, envelope format, and key rotation.
+- [**Sentinel Forensic Architecture**](file:///c:/garuda%20mail/docs/sentinel.md) — Magic bytes, reassembly, and 4-tier evidence.
+- [**Risk Scoring & Metrics**](file:///c:/garuda%20mail/docs/risk-scoring.md) — CRS deterministic engine vs AI anomaly metric separation.
+- [**Post-Quantum Readiness**](file:///c:/garuda%20mail/docs/pqc-readiness.md) — NIST FIPS 203 ML-KEM migration and SNDL defense.
+- [**Testing & QA Matrix**](file:///c:/garuda%20mail/docs/testing.md) — Test strategy, coverage, and automated suites.
+- [**Two-Computer LAN Deployment**](file:///c:/garuda%20mail/docs/deployment-two-pc.md) — Physical LAN demonstration guide and troubleshooting.
+
+---
+
+## 9. Compliance Standards
+
+- **RFC 8996**: Deprecation of TLS 1.0 and TLS 1.1 with automated detection.
+- **RFC 9325**: Current recommendations for secure TLS and DTLS usage.
+- **NIST SP 800-52 Rev. 2**: Selection, configuration, and use of TLS.
+- **NIST FIPS 203**: Module-Lattice-Based Key-Encapsulation Mechanism (ML-KEM).
+- **CycloneDX v1.5**: Cryptographic Bill of Materials (CBOM) specification.
+- **MITRE ATT&CK**: Enterprise matrix mapping (`T1557.002` Downgrade, `T1573.002` Encrypted Channel, `T1048.003` Exfiltration, `T1588.003` Key Compromise).
+
+---
+
+## 10. Enterprise License
+
+GARUDA (SIH26159) is developed for national cybersecurity initiatives, enterprise security operations centers (SOCs), and defense infrastructures. All rights reserved.

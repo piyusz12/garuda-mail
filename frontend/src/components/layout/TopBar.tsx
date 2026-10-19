@@ -354,17 +354,25 @@ export default function TopBar({ title, description, onOpenMobileMenu }: TopBarP
               <div className="flex items-center justify-between text-[var(--color-text-muted)] py-1">
                 <span>Account Role:</span>
                 <span className="text-[var(--color-severity-healthy)] font-medium capitalize">
-                  {session?.user?.role || 'Analyst'}
+                  {session?.user?.role || 'User'}
                 </span>
               </div>
             </div>
-            {session?.user?.role === 'admin' && (
+            {session?.user?.role === 'admin' ? (
               <Link
-                href="/admin"
+                href="/admin/dashboard"
                 onClick={() => setActiveDropdown(null)}
-                className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold rounded-md bg-purple-500/15 text-purple-300 hover:bg-purple-500/25 border border-purple-500/30 transition-colors mt-2"
+                className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold rounded-md bg-rose-500/15 text-rose-300 hover:bg-rose-500/25 border border-rose-500/30 transition-colors mt-2"
               >
-                <ShieldAlert size={12} /> Admin Console
+                <ShieldAlert size={12} /> Admin Dashboard
+              </Link>
+            ) : (
+              <Link
+                href="/user/dashboard"
+                onClick={() => setActiveDropdown(null)}
+                className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold rounded-md bg-sky-500/15 text-sky-300 hover:bg-sky-500/25 border border-sky-500/30 transition-colors mt-2"
+              >
+                <Shield size={12} /> My Dashboard
               </Link>
             )}
             <Link

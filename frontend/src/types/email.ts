@@ -53,15 +53,6 @@ export interface EmailMessage {
   /** Cryptographic End-to-End Encryption metadata */
   isEncrypted?: boolean;
   rawCiphertext?: string | null;
-  cryptoMetadata?: {
-    format: string;
-    algorithm: string;
-    pqcShield: string;
-    iv: string;
-    authTag: string;
-    ciphertext: string;
-    hmac: string;
-    keyFingerprint: string;
-    timestamp: string;
-  } | null;
+  rawBody?: string | null;
+  cryptoMetadata?: Record<string, any> | null;
 }

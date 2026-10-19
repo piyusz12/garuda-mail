@@ -9,9 +9,29 @@ import {
   LayoutDashboard, Upload, Network, AlertTriangle, Shield,
   Award, Brain, Search as SearchIcon, FileText, Settings, Layers,
   ChevronLeft, ChevronRight, Plus, Mail, Cpu, Activity, X, FlaskConical,
-  ShieldAlert,
+  ShieldAlert, Users,
 } from 'lucide-react';
 import clsx from 'clsx';
+
+const userNav = [
+  { name: 'My Dashboard', href: '/user/dashboard', icon: LayoutDashboard, color: 'text-sky-400', activeBg: 'bg-sky-500/15 border-sky-500/30 text-sky-400' },
+  { name: 'Inbox', href: '/inbox', icon: Inbox, countKey: 'inbox' as const, color: 'text-sky-400', activeBg: 'bg-sky-500/15 border-sky-500/30 text-sky-400' },
+  { name: 'Sent', href: '/sent', icon: Send, color: 'text-indigo-400', activeBg: 'bg-indigo-500/15 border-indigo-500/30 text-indigo-400' },
+  { name: 'Drafts', href: '/drafts', icon: FileEdit, countKey: 'drafts' as const, color: 'text-amber-400', activeBg: 'bg-amber-500/15 border-amber-500/30 text-amber-400' },
+  { name: 'Starred', href: '/starred', icon: Star, color: 'text-yellow-400', activeBg: 'bg-yellow-500/15 border-yellow-500/30 text-yellow-400' },
+  { name: 'Contacts', href: '/user/contacts', icon: Users, color: 'text-emerald-400', activeBg: 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400' },
+  { name: 'Security Posture', href: '/user/security', icon: Shield, color: 'text-cyan-400', activeBg: 'bg-cyan-500/15 border-cyan-500/30 text-cyan-400' },
+  { name: 'Key Vault', href: '/crypto', icon: ShieldAlert, color: 'text-emerald-400', activeBg: 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400' },
+  { name: 'My Reports', href: '/user/reports', icon: FileText, color: 'text-slate-300', activeBg: 'bg-slate-500/15 border-slate-500/30 text-slate-200' },
+  { name: 'Settings', href: '/settings', icon: Settings, color: 'text-slate-400', activeBg: 'bg-slate-500/15 border-slate-500/30 text-slate-300' },
+];
+
+const adminNav = [
+  { name: 'Admin Dashboard', href: '/admin/dashboard', icon: ShieldAlert, color: 'text-rose-400', activeBg: 'bg-rose-500/15 border-rose-500/30 text-rose-300' },
+  { name: 'User Management', href: '/admin/users', icon: Users, color: 'text-rose-400', activeBg: 'bg-rose-500/15 border-rose-500/30 text-rose-300' },
+  { name: 'Roles & RBAC', href: '/admin/roles', icon: Shield, color: 'text-purple-400', activeBg: 'bg-purple-500/15 border-purple-500/30 text-purple-400' },
+  { name: 'Audit Logs', href: '/admin/audit-logs', icon: FileText, color: 'text-indigo-400', activeBg: 'bg-indigo-500/15 border-indigo-500/30 text-indigo-400' },
+];
 
 const emailNav = [
   { name: 'Inbox', href: '/inbox', icon: Inbox, countKey: 'inbox' as const, color: 'text-sky-400', activeBg: 'bg-sky-500/15 border-sky-500/30 text-sky-400' },
@@ -87,9 +107,7 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onCloseMobile
         className={clsx(
           'fixed top-0 left-0 z-50 h-screen flex flex-col transition-all duration-300 ease-in-out',
           'surface-1 border-r border-default',
-          // Desktop sizing:
           collapsed ? 'md:w-[60px]' : 'md:w-[240px]',
-          // Mobile responsive placement:
           'w-[280px]',
           mobileOpen ? 'translate-x-0 shadow-2xl visible' : '-translate-x-full invisible md:visible md:translate-x-0'
         )}
@@ -97,7 +115,7 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onCloseMobile
         {/* ── Logo & Mobile Close ── */}
         <div className="flex items-center justify-between h-[56px] px-4 border-b border-default">
           <Link
-            href="/inbox"
+            href={isAdmin ? '/admin/dashboard' : '/user/dashboard'}
             onClick={onCloseMobile}
             className="flex items-center gap-2.5 overflow-hidden"
           >
@@ -114,13 +132,12 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onCloseMobile
                   GARUDA
                 </span>
                 <span className="text-[10px] font-medium tracking-widest text-[var(--color-accent)] uppercase">
-                  MAIL
+                  {isAdmin ? 'ADMIN' : 'SECURE'}
                 </span>
               </div>
             )}
           </Link>
 
-          {/* Close button on mobile */}
           <button
             type="button"
             onClick={onCloseMobile}
@@ -147,115 +164,157 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onCloseMobile
           </Link>
         </div>
 
-      {/* ── Navigation ── */}
-      <nav className="flex-1 overflow-y-auto py-2 px-2">
-        {/* Email Section */}
-        {!collapsed && (
-          <div className="px-2 pt-2 pb-1.5">
-            <span className="text-[10px] uppercase tracking-widest text-[var(--color-text-dim)] font-semibold flex items-center gap-1.5">
-              <Mail size={10} />
-              EMAIL
-            </span>
-          </div>
-        )}
-        <div className="space-y-0.5">
-          {emailNav.map((item) => {
-            const isActive = pathname === item.href;
-            const count = item.countKey ? unreadCounts[item.countKey] : undefined;
-            return (
-              <Link
-                key={item.name}
-                href={item.href}
-                onClick={onCloseMobile}
-                title={collapsed ? item.name : undefined}
-                className={clsx(
-                  'flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] font-medium transition-all duration-150',
-                  isActive
-                    ? clsx(item.activeBg, 'shadow-sm font-semibold')
-                    : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)] border border-transparent',
-                  collapsed && 'md:justify-center md:px-0'
-                )}
-              >
-                <item.icon className={clsx('flex-shrink-0 transition-colors', isActive ? item.color : 'text-[var(--color-text-muted)]')} size={18} strokeWidth={1.8} />
-                {(!collapsed || mobileOpen) && (
-                  <>
-                    <span className="truncate flex-1">{item.name}</span>
-                    {count && count > 0 && (
-                      <span className="text-[10px] font-bold tabular-nums bg-sky-500 text-white rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 shadow-sm shadow-sky-500/30">
-                        {count}
-                      </span>
-                    )}
-                  </>
-                )}
-              </Link>
-            );
-          })}
-        </div>
-
-        {/* Divider */}
-        <div className={clsx('my-3', collapsed ? 'mx-2' : 'mx-3')}>
-          <div className="h-px bg-[var(--color-border)]" />
-        </div>
-
-        {/* System & Tools Section */}
-        {(!collapsed || mobileOpen) && (
-          <div className="px-2 pb-1.5">
-            <span className="text-[10px] uppercase tracking-widest text-[var(--color-text-dim)] font-semibold flex items-center gap-1.5">
-              <Shield size={10} />
-              SYSTEM &amp; FORENSICS
-            </span>
-          </div>
-        )}
-        <div className="space-y-0.5">
-          {systemNav.map((item) => {
-            const isActive = pathname === item.href || pathname?.startsWith(item.href + '/');
-            return (
-              <Link
-                key={item.name}
-                href={item.href}
-                onClick={onCloseMobile}
-                title={collapsed ? item.name : undefined}
-                className={clsx(
-                  'flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] font-medium transition-all duration-150',
-                  isActive
-                    ? clsx(item.activeBg, 'shadow-sm font-semibold')
-                    : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)] border border-transparent',
-                  collapsed && 'md:justify-center md:px-0'
-                )}
-              >
-                <item.icon className={clsx('flex-shrink-0 transition-colors', isActive ? item.color : 'text-[var(--color-text-muted)]')} size={18} strokeWidth={1.8} />
-                {(!collapsed || mobileOpen) && <span className="truncate">{item.name}</span>}
-              </Link>
-            );
-          })}
-
-          {/* Admin-Only Console Navigation */}
-          {isAdmin && (
-            <Link
-              href="/admin"
-              onClick={onCloseMobile}
-              title={collapsed ? 'Admin Console' : undefined}
-              className={clsx(
-                'flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] font-medium transition-all duration-150',
-                pathname === '/admin'
-                  ? 'bg-rose-500/15 border-rose-500/30 text-rose-300 shadow-sm font-semibold'
-                  : 'text-rose-400/90 hover:text-rose-300 hover:bg-rose-500/10 border border-transparent',
-                collapsed && 'md:justify-center md:px-0'
-              )}
-            >
-              <ShieldAlert className="flex-shrink-0 text-rose-400" size={18} strokeWidth={1.8} />
-              {(!collapsed || mobileOpen) && (
-                <div className="flex items-center justify-between flex-1 min-w-0">
-                  <span className="truncate">Admin Console</span>
-                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30">
-                    ROOT
+        {/* ── Navigation ── */}
+        <nav className="flex-1 overflow-y-auto py-2 px-2">
+          {/* USER SPECIFIC NAVIGATION */}
+          {!isAdmin ? (
+            <div className="space-y-0.5">
+              {!collapsed && (
+                <div className="px-2 pt-2 pb-1.5">
+                  <span className="text-[10px] uppercase tracking-widest text-[var(--color-text-dim)] font-semibold flex items-center gap-1.5">
+                    <Shield size={10} />
+                    USER WORKSPACE
                   </span>
                 </div>
               )}
-            </Link>
+              {userNav.map((item) => {
+                const isActive = pathname === item.href;
+                const count = (item as any).countKey ? unreadCounts[(item as any).countKey] : undefined;
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    onClick={onCloseMobile}
+                    title={collapsed ? item.name : undefined}
+                    className={clsx(
+                      'flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] font-medium transition-all duration-150',
+                      isActive
+                        ? clsx(item.activeBg, 'shadow-sm font-semibold')
+                        : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)] border border-transparent',
+                      collapsed && 'md:justify-center md:px-0'
+                    )}
+                  >
+                    <item.icon className={clsx('flex-shrink-0 transition-colors', isActive ? item.color : 'text-[var(--color-text-muted)]')} size={18} strokeWidth={1.8} />
+                    {(!collapsed || mobileOpen) && (
+                      <>
+                        <span className="truncate flex-1">{item.name}</span>
+                        {count && count > 0 && (
+                          <span className="text-[10px] font-bold tabular-nums bg-sky-500 text-white rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 shadow-sm shadow-sky-500/30">
+                            {count}
+                          </span>
+                        )}
+                      </>
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
+          ) : (
+            /* ADMIN SPECIFIC NAVIGATION */
+            <div className="space-y-0.5">
+              {/* Admin Privileged Section */}
+              {!collapsed && (
+                <div className="px-2 pt-2 pb-1.5">
+                  <span className="text-[10px] uppercase tracking-widest text-rose-400 font-semibold flex items-center gap-1.5">
+                    <ShieldAlert size={10} />
+                    ADMINISTRATION (ROOT)
+                  </span>
+                </div>
+              )}
+              {adminNav.map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    onClick={onCloseMobile}
+                    title={collapsed ? item.name : undefined}
+                    className={clsx(
+                      'flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] font-medium transition-all duration-150',
+                      isActive
+                        ? clsx(item.activeBg, 'shadow-sm font-semibold')
+                        : 'text-rose-300/80 hover:text-white hover:bg-rose-500/10 border border-transparent',
+                      collapsed && 'md:justify-center md:px-0'
+                    )}
+                  >
+                    <item.icon className={clsx('flex-shrink-0 transition-colors', isActive ? item.color : 'text-rose-400/80')} size={18} strokeWidth={1.8} />
+                    {(!collapsed || mobileOpen) && <span className="truncate flex-1">{item.name}</span>}
+                  </Link>
+                );
+              })}
+
+              <div className={clsx('my-3', collapsed ? 'mx-2' : 'mx-3')}>
+                <div className="h-px bg-[var(--color-border)]" />
+              </div>
+
+              {/* Email Section */}
+              {!collapsed && (
+                <div className="px-2 pb-1.5">
+                  <span className="text-[10px] uppercase tracking-widest text-[var(--color-text-dim)] font-semibold flex items-center gap-1.5">
+                    <Mail size={10} />
+                    EMAIL COMMUNICATIONS
+                  </span>
+                </div>
+              )}
+              {emailNav.slice(0, 4).map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    onClick={onCloseMobile}
+                    title={collapsed ? item.name : undefined}
+                    className={clsx(
+                      'flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] font-medium transition-all duration-150',
+                      isActive
+                        ? clsx(item.activeBg, 'shadow-sm font-semibold')
+                        : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)] border border-transparent',
+                      collapsed && 'md:justify-center md:px-0'
+                    )}
+                  >
+                    <item.icon className={clsx('flex-shrink-0 transition-colors', isActive ? item.color : 'text-[var(--color-text-muted)]')} size={18} strokeWidth={1.8} />
+                    {(!collapsed || mobileOpen) && <span className="truncate flex-1">{item.name}</span>}
+                  </Link>
+                );
+              })}
+
+              <div className={clsx('my-3', collapsed ? 'mx-2' : 'mx-3')}>
+                <div className="h-px bg-[var(--color-border)]" />
+              </div>
+
+              {/* Forensic Telemetry Section */}
+              {!collapsed && (
+                <div className="px-2 pb-1.5">
+                  <span className="text-[10px] uppercase tracking-widest text-[var(--color-text-dim)] font-semibold flex items-center gap-1.5">
+                    <Shield size={10} />
+                    FORENSIC TELEMETRY
+                  </span>
+                </div>
+              )}
+              {systemNav.map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    onClick={onCloseMobile}
+                    title={collapsed ? item.name : undefined}
+                    className={clsx(
+                      'flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] font-medium transition-all duration-150',
+                      isActive
+                        ? clsx(item.activeBg, 'shadow-sm font-semibold')
+                        : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)] border border-transparent',
+                      collapsed && 'md:justify-center md:px-0'
+                    )}
+                  >
+                    <item.icon className={clsx('flex-shrink-0 transition-colors', isActive ? item.color : 'text-[var(--color-text-muted)]')} size={18} strokeWidth={1.8} />
+                    {(!collapsed || mobileOpen) && <span className="truncate">{item.name}</span>}
+                  </Link>
+                );
+              })}
+            </div>
           )}
-        </div>
-      </nav>
+        </nav>
 
       {/* ── System Status ── */}
       {(!collapsed || mobileOpen) && (

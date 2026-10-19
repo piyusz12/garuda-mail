@@ -443,6 +443,37 @@ export const usePcapStore = create<ForensicState>((set, get) => ({
       tls: result.tls,
       streams: result.streams,
     });
+
+    // Also notify backend server for centralized Sentinel telemetry
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await fetch('/api/pcap/upload', { method: 'POST', body: fd });
+      if (res.ok) {
+        const backendData = await res.json();
+        if (backendData && backendData.status === 'completed') {
+          set(state => ({
+            securityScore: typeof backendData.overallRisk === 'number' ? backendData.overallRisk : state.securityScore,
+            airGappedMode: false,
+            // If backend returned findings, ensure they are reflected in threat list
+            threats: Array.isArray(backendData.findings) && backendData.findings.length > 0
+              ? backendData.findings.map((f: any) => ({
+                  id: f.id || `thr-${Math.random().toString(36).slice(2, 6)}`,
+                  title: f.title || 'Security Finding',
+                  category: f.severity === 'critical' ? 'PROTOCOL_DOWNGRADE' : 'WEAK_CIPHER',
+                  severity: (f.severity?.toUpperCase() || 'MEDIUM') as any,
+                  cve: f.standardsMapping?.[0]?.reference || undefined,
+                  description: f.technicalDetails || f.description || '',
+                  affectedSession: (f.affectedAssets && f.affectedAssets[0]) || 'Reassembled Capture Stream',
+                  recommendation: f.remediation || 'Upgrade configuration.',
+                }))
+              : state.threats,
+          }));
+        }
+      }
+    } catch (err) {
+      console.warn('[usePcapStore] Backend sync failed, continuing in air-gapped mode:', err);
+    }
   },
 
   loadSampleSession: () => {

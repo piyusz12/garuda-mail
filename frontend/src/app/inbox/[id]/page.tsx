@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import {
   ArrowLeft, Star, Paperclip, Reply, Forward, Trash2,
   Shield, AlertTriangle, Lock, LockOpen, CheckCircle, XCircle, AlertCircle, ChevronRight,
-  Network, Eye, ExternalLink, RefreshCw,
+  Network, Eye, ExternalLink, RefreshCw, Key,
 } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
 import { SeverityBadge } from '@/components/ui/shared';
@@ -14,6 +14,10 @@ import Link from 'next/link';
 import clsx from 'clsx';
 import type { EmailMessage, SecurityLevel } from '@/types/email';
 import { FALLBACK_EMAILS } from '@/lib/fallbackEmails';
+import {
+  decryptPrivateKeyWithPassphrase,
+  decryptAsymmetricEnvelope,
+} from '@/lib/crypto';
 
 const fadeUp = { initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.28 } };
 
@@ -27,6 +31,13 @@ export default function EmailDetailPage({ params }: { params: Promise<{ id: stri
   const [viewCiphertext, setViewCiphertext] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [verifiedToast, setVerifiedToast] = useState(false);
+
+  // Client-side asymmetric E2EE passphrase unlock state
+  const [passphrase, setPassphrase] = useState('');
+  const [isDecrypting, setIsDecrypting] = useState(false);
+  const [decryptError, setDecryptError] = useState('');
+  const [clientDecrypted, setClientDecrypted] = useState(false);
+  const [signatureStatus, setSignatureStatus] = useState<{ verified: boolean; senderFingerprint?: string } | null>(null);
 
   useEffect(() => {
     async function loadEmail() {
@@ -187,6 +198,73 @@ export default function EmailDetailPage({ params }: { params: Promise<{ id: stri
   const handleForward = () => {
     if (!email) return;
     router.push(`/compose?subject=Fwd: ${encodeURIComponent(email.subject)}&body=${encodeURIComponent('\n\n--- Forwarded message ---\nFrom: ' + email.from.name + ' <' + email.from.email + '>\nSubject: ' + email.subject + '\n\n' + email.body)}`);
+  };
+
+  const handleClientDecrypt = () => {
+    if (!passphrase) {
+      setDecryptError('Please enter your private key passphrase.');
+      return;
+    }
+    setDecryptError('');
+    setIsDecrypting(true);
+
+    try {
+      const savedBundle = typeof window !== 'undefined' ? localStorage.getItem('garuda_key_bundle') : null;
+      if (!savedBundle) {
+        setDecryptError('No private key bundle found in this browser. Please generate your keypair in Crypto Settings first.');
+        setIsDecrypting(false);
+        return;
+      }
+
+      // Decrypt private key with passphrase
+      const privKeyJson = decryptPrivateKeyWithPassphrase(savedBundle, passphrase);
+      const parsedKeys = JSON.parse(privKeyJson);
+      const privKey = parsedKeys.enc || parsedKeys;
+
+      // Extract V2 envelope
+      let envelope: any = email?.cryptoMetadata;
+      if (!envelope && email?.rawBody && email.rawBody.includes('<!--GARUDA-E2EE-V2-->')) {
+        const jsonStr = email.rawBody
+          .replace('<!--GARUDA-E2EE-V2-->', '')
+          .replace('<!--END-E2EE-V2-->', '')
+          .trim();
+        envelope = JSON.parse(jsonStr);
+      }
+
+      if (!envelope || envelope.format !== 'GARUDA-E2EE-v2') {
+        setDecryptError('Message envelope is not in GARUDA-E2EE-v2 asymmetric format.');
+        setIsDecrypting(false);
+        return;
+      }
+
+      const result = decryptAsymmetricEnvelope({
+        envelope,
+        recipientPrivateKey: privKey,
+      });
+
+      if (!result.decrypted) {
+        setDecryptError(result.error || 'Decryption failed. Please verify your passphrase matches this recipient key.');
+        setIsDecrypting(false);
+        return;
+      }
+
+      setEmail(prev => prev ? {
+        ...prev,
+        body: result.plaintext,
+        rawCiphertext: envelope.ciphertext,
+      } : null);
+
+      setClientDecrypted(true);
+      setSignatureStatus({
+        verified: result.signatureVerified,
+        senderFingerprint: result.senderFingerprint,
+      });
+      setIsDecrypting(false);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setDecryptError(`Failed to unlock key: ${msg.includes('bad decrypt') || msg.includes('authentication tag') ? 'Incorrect passphrase' : msg}`);
+      setIsDecrypting(false);
+    }
   };
 
   if (loading) {
@@ -401,10 +479,64 @@ export default function EmailDetailPage({ params }: { params: Promise<{ id: stri
                 {email.rawCiphertext || email.cryptoMetadata?.ciphertext || '0bf9b2e9a4b88c38ca922b46130565e15ce5a3d4f8b92c10a3e87d6b4c2e1f0a9b8c7d6e5f4a3b2c1d0e'}
               </pre>
             </div>
+          ) : email.body.includes('[Asymmetric E2EE Encrypted Envelope') && !clientDecrypted ? (
+            <div className="p-5 rounded-lg border border-amber-500/30 bg-amber-950/15 space-y-4">
+              <div className="flex items-start gap-3">
+                <div className="w-9 h-9 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shrink-0 mt-0.5">
+                  <Lock size={18} />
+                </div>
+                <div>
+                  <h3 className="text-[13px] font-bold text-amber-300">Asymmetric Zero-Knowledge E2EE Payload</h3>
+                  <p className="text-[11px] text-[var(--color-text-muted)] mt-0.5">
+                    This message was encrypted using your RSA-OAEP public key and digitally signed (RSA-PSS). Enter your private key passphrase to decrypt this communication client-side.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-2">
+                <input
+                  type="password"
+                  value={passphrase}
+                  onChange={e => { setPassphrase(e.target.value); setDecryptError(''); }}
+                  onKeyDown={e => { if (e.key === 'Enter') handleClientDecrypt(); }}
+                  placeholder="Enter private key passphrase..."
+                  className="flex-1 px-3 py-2 text-[12px] bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-md text-[var(--color-text-primary)] placeholder-[var(--color-text-dim)] focus:outline-none focus:border-amber-500 font-mono"
+                />
+                <button
+                  type="button"
+                  onClick={handleClientDecrypt}
+                  disabled={isDecrypting}
+                  className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-[12px] rounded-md transition-colors flex items-center justify-center gap-1.5 shadow-sm"
+                >
+                  {isDecrypting ? <RefreshCw size={14} className="animate-spin" /> : <Lock size={14} />}
+                  <span>{isDecrypting ? 'Decrypting...' : 'Decrypt Message'}</span>
+                </button>
+              </div>
+
+              {decryptError && (
+                <div className="text-[11px] text-rose-400 bg-rose-500/10 border border-rose-500/20 p-2 rounded flex items-center gap-1.5">
+                  <AlertCircle size={13} className="shrink-0" />
+                  <span>{decryptError}</span>
+                </div>
+              )}
+            </div>
           ) : (
-            <pre className="text-[13px] text-[var(--color-text-secondary)] leading-relaxed whitespace-pre-wrap font-sans">
-              {email.body}
-            </pre>
+            <div className="space-y-3">
+              {clientDecrypted && signatureStatus && (
+                <div className="p-3 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-between flex-wrap gap-2 text-[11px]">
+                  <div className="flex items-center gap-2 text-emerald-300 font-semibold">
+                    <CheckCircle size={14} />
+                    <span>Zero-Knowledge Decrypted with Client Private Key</span>
+                  </div>
+                  <div className="font-mono text-[10px] text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-500/20">
+                    {signatureStatus.verified ? '✓ RSA-PSS Signature Valid' : '⚠ Signature Unverified'}
+                  </div>
+                </div>
+              )}
+              <pre className="text-[13px] text-[var(--color-text-secondary)] leading-relaxed whitespace-pre-wrap font-sans">
+                {email.body}
+              </pre>
+            </div>
           )}
 
           {/* Attachments */}

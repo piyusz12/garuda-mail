@@ -2,8 +2,15 @@ import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { findUserByEmail, verifyUserPassword } from '@/lib/users';
 import { normalizeUserRole } from '@/lib/roles';
+import { logAuditEvent } from '@/lib/audit';
 
-const authSecret = process.env.NEXTAUTH_SECRET || 'garuda-mail-sovereign-production-secret-2026';
+const authSecret = (() => {
+  const s = process.env.NEXTAUTH_SECRET;
+  if (!s && process.env.NODE_ENV === 'production') {
+    console.error('[SECURITY WARNING] NEXTAUTH_SECRET is not configured for production. Please generate a strong 256-bit secret with: openssl rand -base64 32');
+  }
+  return s || 'garuda-mail-sovereign-production-secret-2026';
+})();
 
 export const authOptions: NextAuthOptions = {
   // Using JWT strategy without PrismaAdapter avoids runtime database errors on serverless environments
@@ -14,7 +21,7 @@ export const authOptions: NextAuthOptions = {
 
   pages: {
     signIn: '/login',
-    newUser: '/inbox',
+    newUser: '/user/dashboard',
   },
 
   providers: [
@@ -35,13 +42,49 @@ export const authOptions: NextAuthOptions = {
         const user = await findUserByEmail(email, cookieHeader);
 
         if (!user || !user.password) {
+          await logAuditEvent({
+            action: 'LOGIN_FAILURE',
+            targetEmail: email,
+            details: 'Account not found or password not configured',
+            status: 'FAILURE',
+          });
           throw new Error('Invalid email or password');
+        }
+
+        // Account status check: reject suspended or disabled accounts
+        if (user.status === 'suspended' || user.status === 'disabled') {
+          await logAuditEvent({
+            action: 'LOGIN_BLOCKED_SUSPENDED',
+            actorEmail: user.email,
+            actorRole: user.role,
+            targetEmail: user.email,
+            details: `Account ${user.email} attempted login but status is ${user.status}`,
+            status: 'FAILURE',
+          });
+          throw new Error('Account is suspended. Please contact system administrator.');
         }
 
         const passwordMatch = await verifyUserPassword(user, credentials.password);
         if (!passwordMatch) {
+          await logAuditEvent({
+            action: 'LOGIN_FAILURE',
+            actorEmail: user.email,
+            actorRole: user.role,
+            targetEmail: user.email,
+            details: 'Incorrect password supplied',
+            status: 'FAILURE',
+          });
           throw new Error('Invalid email or password');
         }
+
+        await logAuditEvent({
+          action: 'LOGIN_SUCCESS',
+          actorEmail: user.email,
+          actorRole: user.role,
+          targetEmail: user.email,
+          details: `User ${user.email} signed in successfully with role ${user.role}`,
+          status: 'SUCCESS',
+        });
 
         return {
           id: user.id,
@@ -49,6 +92,7 @@ export const authOptions: NextAuthOptions = {
           name: user.name,
           image: null,
           role: user.role,
+          status: user.status || 'active',
         };
       },
     }),
@@ -59,6 +103,7 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
         token.role = normalizeUserRole(user.role);
+        token.status = (user as any).status || 'active';
       }
       return token;
     },
@@ -66,6 +111,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.id = token.id as string;
         session.user.role = normalizeUserRole(token.role);
+        (session.user as any).status = token.status || 'active';
       }
       return session;
     },
@@ -79,17 +125,17 @@ export const authOptions: NextAuthOptions = {
         origin = fallbackOrigin;
       }
 
-      if (!url) return `${origin}/inbox`;
+      if (!url) return `${origin}/user/dashboard`;
 
       try {
         const parsed = new URL(url, origin);
-        if (parsed.origin !== origin) return `${origin}/inbox`;
+        if (parsed.origin !== origin) return `${origin}/user/dashboard`;
         const nextPath = parsed.pathname;
-        if (nextPath.startsWith('/admin')) return `${origin}/admin`;
-        if (nextPath.startsWith('/officer')) return `${origin}/officer`;
-        return `${origin}/inbox`;
+        if (nextPath.startsWith('/admin')) return `${origin}/admin/dashboard`;
+        if (nextPath.startsWith('/user')) return `${origin}/user/dashboard`;
+        return `${origin}/user/dashboard`;
       } catch {
-        return `${origin}/inbox`;
+        return `${origin}/user/dashboard`;
       }
     },
   },
@@ -103,6 +149,7 @@ export const authOptions: NextAuthOptions = {
 declare module 'next-auth' {
   interface User {
     role?: string;
+    status?: string;
   }
   interface Session {
     user: {
@@ -111,6 +158,7 @@ declare module 'next-auth' {
       name?: string | null;
       image?: string | null;
       role?: string;
+      status?: string;
     };
   }
 }
@@ -119,5 +167,6 @@ declare module 'next-auth/jwt' {
   interface JWT {
     id: string;
     role?: string;
+    status?: string;
   }
 }

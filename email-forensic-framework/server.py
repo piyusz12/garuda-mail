@@ -60,6 +60,13 @@ try:
 except Exception as e:
     print(f"[WARN] Could not mount Phase 34 fabric routes: {e}")
 
+# Import Sentinel Forensic Analysis Engine (Phases 7, 8, 9, 10, 11)
+from sentinel_engine import validate_pcap_signature, run_real_forensic_pipeline, ForensicJobResult
+
+# Analysis Storage & Cache
+ANALYSIS_CACHE: Dict[str, ForensicJobResult] = {}
+LATEST_ANALYSIS: Optional[ForensicJobResult] = None
+
 # ── IN-MEMORY DATABASE WITH MOCK & REAL FORENSIC TELEMETRY ──
 
 MOCK_SESSIONS = [
@@ -318,6 +325,53 @@ def get_system_status():
 
 @app.get("/api/dashboard", tags=["Telemetry"])
 def get_dashboard():
+    if LATEST_ANALYSIS:
+        job = LATEST_ANALYSIS
+        crit = job.criticalCount
+        high = job.highCount
+        med = job.mediumCount
+        low = job.lowCount
+        total_f = job.findingsCount
+        
+        return {
+            "risk": {
+                "overallScore": job.overallRisk,
+                "ruleContribution": int(job.overallRisk * 0.7),
+                "aiAnomalyContribution": job.aiAnomalyScore,
+                "contextContribution": 20,
+                "confidenceContribution": job.evidenceConfidence,
+                "dimensions": [
+                    {"name": "Protocol Security", "score": max(10, 100 - (crit * 30)), "weight": 0.3, "description": "TLS version and cipher strength across analyzed captures"},
+                    {"name": "Certificate Health", "score": 85, "weight": 0.25, "description": "X.509 validity and chain integrity"},
+                    {"name": "Configuration Compliance", "score": max(20, 100 - (high * 20)), "weight": 0.2, "description": "STARTTLS enforcement and protocol hygiene"},
+                    {"name": "Behavioral Anomaly", "score": max(10, 100 - job.aiAnomalyScore), "weight": 0.15, "description": "AI-detected deviations from normative baseline"},
+                    {"name": "Cryptographic Posture", "score": job.posture.get("forwardSecrecy", {}).get("score", 75), "weight": 0.1, "description": "Forward secrecy adoption and key exchange quality"}
+                ]
+            },
+            "findingsSummary": {"critical": crit, "high": high, "medium": med, "low": low, "informational": 1, "total": total_f},
+            "sessionsAnalyzed": job.sessionsCount,
+            "affectedAssets": len(set(s.get("destIp") for s in job.sessions)),
+            "posture": job.posture,
+            "recentFindings": [f.model_dump() for f in job.findings[:5]],
+            "recentAnalyses": [
+                {
+                    "id": job.id,
+                    "filename": job.filename,
+                    "fileSize": job.fileSize,
+                    "status": job.status,
+                    "progress": 100,
+                    "sessionsCount": job.sessionsCount,
+                    "findingsCount": job.findingsCount,
+                    "criticalCount": crit,
+                    "highCount": high,
+                    "overallRisk": job.overallRisk,
+                    "startedAt": job.startedAt,
+                    "completedAt": job.completedAt,
+                    "error": None
+                }
+            ]
+        }
+
     return {
         "risk": {
             "overallScore": 78,
@@ -353,11 +407,14 @@ def get_dashboard():
 
 @app.get("/api/sessions", tags=["Sessions"])
 def get_sessions():
+    if LATEST_ANALYSIS:
+        return LATEST_ANALYSIS.sessions + MOCK_SESSIONS
     return MOCK_SESSIONS
 
 @app.get("/api/sessions/{session_id}", tags=["Sessions"])
 def get_session(session_id: str):
-    sess = next((s for s in MOCK_SESSIONS if s["id"] == session_id), None)
+    all_sess = (LATEST_ANALYSIS.sessions + MOCK_SESSIONS) if LATEST_ANALYSIS else MOCK_SESSIONS
+    sess = next((s for s in all_sess if s["id"] == session_id), None)
     if not sess:
         raise HTTPException(404, detail="Session not found")
     
@@ -394,11 +451,14 @@ def get_session(session_id: str):
 
 @app.get("/api/findings", tags=["Findings"])
 def get_findings():
+    if LATEST_ANALYSIS:
+        return [f.model_dump() for f in LATEST_ANALYSIS.findings] + MOCK_FINDINGS
     return MOCK_FINDINGS
 
 @app.get("/api/findings/{finding_id}", tags=["Findings"])
 def get_finding(finding_id: str):
-    finding = next((f for f in MOCK_FINDINGS if f["id"] == finding_id), None)
+    all_findings = ([f.model_dump() for f in LATEST_ANALYSIS.findings] + MOCK_FINDINGS) if LATEST_ANALYSIS else MOCK_FINDINGS
+    finding = next((f for f in all_findings if f["id"] == finding_id), None)
     if not finding:
         raise HTTPException(404, detail="Finding not found")
     return finding
@@ -416,10 +476,22 @@ def get_certificate(cert_id: str):
 
 @app.get("/api/cbom", tags=["Inventory"])
 def get_cbom():
+    if LATEST_ANALYSIS:
+        return LATEST_ANALYSIS.cbom + MOCK_CBOM
     return MOCK_CBOM
 
 @app.get("/api/risk", tags=["Risk"])
 def get_risk():
+    if LATEST_ANALYSIS:
+        job = LATEST_ANALYSIS
+        return {
+            "overallScore": job.overallRisk,
+            "ruleContribution": int(job.overallRisk * 0.7),
+            "aiAnomalyContribution": job.aiAnomalyScore,
+            "contextContribution": 20,
+            "confidenceContribution": job.evidenceConfidence,
+            "dimensions": RISK_DIMENSIONS
+        }
     return {
         "overallScore": 78,
         "ruleContribution": 62,
@@ -431,10 +503,14 @@ def get_risk():
 
 @app.get("/api/posture", tags=["Risk"])
 def get_posture():
+    if LATEST_ANALYSIS:
+        return LATEST_ANALYSIS.posture
     return POSTURE_METRICS
 
 @app.get("/api/anomalies", tags=["AI"])
 def get_anomalies():
+    if LATEST_ANALYSIS and LATEST_ANALYSIS.anomalies:
+        return LATEST_ANALYSIS.anomalies
     return [
         {
             "id": "ANO-001",
@@ -452,6 +528,42 @@ def get_anomalies():
         }
     ]
 
+@app.get("/api/jobs", tags=["Jobs"])
+def get_jobs():
+    jobs = []
+    if LATEST_ANALYSIS:
+        jobs.append({
+            "id": LATEST_ANALYSIS.id,
+            "filename": LATEST_ANALYSIS.filename,
+            "fileSize": LATEST_ANALYSIS.fileSize,
+            "status": "completed",
+            "progress": 100,
+            "sessionsCount": LATEST_ANALYSIS.sessionsCount,
+            "findingsCount": LATEST_ANALYSIS.findingsCount,
+            "criticalCount": LATEST_ANALYSIS.criticalCount,
+            "highCount": LATEST_ANALYSIS.highCount,
+            "overallRisk": LATEST_ANALYSIS.overallRisk,
+            "startedAt": LATEST_ANALYSIS.startedAt,
+            "completedAt": LATEST_ANALYSIS.completedAt,
+            "error": None
+        })
+    jobs.append({
+        "id": "AN-1029",
+        "filename": "smtp_starttls.pcap",
+        "fileSize": 835,
+        "status": "completed",
+        "progress": 100,
+        "sessionsCount": 1,
+        "findingsCount": 2,
+        "criticalCount": 1,
+        "highCount": 1,
+        "overallRisk": 74,
+        "startedAt": "2026-09-30T10:00:00Z",
+        "completedAt": "2026-09-30T10:00:01Z",
+        "error": None
+    })
+    return jobs
+
 @app.get("/api/reports", tags=["Reports"])
 def get_reports():
     return [
@@ -460,25 +572,7 @@ def get_reports():
         {"id": "RPT-JS-001", "type": "json", "title": "Machine-Readable Analysis — AN-1029", "analysisId": "AN-1029", "generatedAt": "2026-09-28T09:11:00Z", "format": "JSON", "size": 1245184, "status": "ready"}
     ]
 
-@app.get("/api/jobs", tags=["Jobs"])
-def get_jobs():
-    return [
-        {
-            "id": "AN-1029",
-            "filename": "enterprise_mail_q3.pcap",
-            "fileSize": 134217728,
-            "status": "completed",
-            "progress": 100,
-            "sessionsCount": 248,
-            "findingsCount": 17,
-            "criticalCount": 3,
-            "highCount": 7,
-            "overallRisk": 78,
-            "startedAt": "2026-09-28T08:55:00Z",
-            "completedAt": "2026-09-28T09:01:00Z",
-            "error": None
-        }
-    ]
+
 
 @app.get("/api/investigations", tags=["Investigations"])
 def get_investigations():
@@ -517,7 +611,11 @@ ALLOWED_EXTENSIONS = {".pcap", ".pcapng", ".cap"}
 
 @app.post("/api/pcap/upload", tags=["Upload"])
 async def upload_pcap(file: UploadFile = File(...)):
-    """Receives an uploaded PCAP, validates path security, saves it, and schedules forensic parsing."""
+    """
+    Receives an uploaded PCAP/PCAPNG, validates magic bytes (file signature),
+    enforces 50MB bounds, and runs the real multi-phase forensic analysis pipeline.
+    """
+    global LATEST_ANALYSIS
     raw_filename = file.filename or "uploaded.pcap"
     # Prevent path traversal: extract filename only (strip directory components)
     safe_basename = Path(raw_filename).name
@@ -538,25 +636,138 @@ async def upload_pcap(file: UploadFile = File(...)):
     contents = await file.read(MAX_UPLOAD_SIZE + 1)
     if len(contents) > MAX_UPLOAD_SIZE:
         raise HTTPException(status_code=413, detail="File too large. Maximum permitted size is 50MB.")
+    
+    # Phase 7: Magic Byte / File Signature Validation
+    is_valid_sig, sig_desc = validate_pcap_signature(contents)
+    if not is_valid_sig:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid capture file signature: {sig_desc}. The file does not have valid PCAP/PCAPNG magic bytes."
+        )
         
     with open(dest_path, "wb") as f:
         f.write(contents)
         
-    job_id = f"AN-{uuid.uuid4().hex[:6].upper()}"
+    try:
+        # Run real forensic pipeline (Phases 7, 8, 9, 10, 11)
+        real_result = run_real_forensic_pipeline(dest_path, clean_name)
+        ANALYSIS_CACHE[real_result.id] = real_result
+        LATEST_ANALYSIS = real_result
+
+        return {
+            "id": real_result.id,
+            "filename": clean_name,
+            "fileSize": len(contents),
+            "signature": sig_desc,
+            "status": "completed",
+            "progress": 100,
+            "durationSec": real_result.durationSec,
+            "packetsCount": real_result.packetsCount,
+            "sessionsCount": real_result.sessionsCount,
+            "findingsCount": real_result.findingsCount,
+            "criticalCount": real_result.criticalCount,
+            "highCount": real_result.highCount,
+            "mediumCount": real_result.mediumCount,
+            "lowCount": real_result.lowCount,
+            "overallRisk": real_result.overallRisk,
+            "aiAnomalyScore": real_result.aiAnomalyScore,
+            "evidenceConfidence": real_result.evidenceConfidence,
+            "startedAt": real_result.startedAt,
+            "completedAt": real_result.completedAt,
+            "error": None
+        }
+    except Exception as e:
+        # Graceful failure handling
+        job_id = f"AN-{uuid.uuid4().hex[:6].upper()}"
+        return {
+            "id": job_id,
+            "filename": clean_name,
+            "fileSize": len(contents),
+            "status": "error",
+            "progress": 0,
+            "error": str(e),
+            "startedAt": datetime.now(timezone.utc).isoformat(),
+            "completedAt": datetime.now(timezone.utc).isoformat()
+        }
+
+@app.get("/api/analysis/{analysis_id}", tags=["Analysis"])
+def get_analysis_by_id(analysis_id: str):
+    """Retrieve full forensic job results including sessions, findings, CRS, and CBOM."""
+    job = ANALYSIS_CACHE.get(analysis_id)
+    if not job and LATEST_ANALYSIS and LATEST_ANALYSIS.id == analysis_id:
+        job = LATEST_ANALYSIS
+    if not job:
+        raise HTTPException(status_code=404, detail="Analysis job not found")
+    return job.model_dump()
+
+@app.get("/api/analysis/{analysis_id}/evidence", tags=["Analysis"])
+def get_analysis_evidence(analysis_id: str):
+    """Retrieve normalized cryptographic evidence records (Phase 8)."""
+    job = ANALYSIS_CACHE.get(analysis_id) or LATEST_ANALYSIS
+    if not job:
+        raise HTTPException(status_code=404, detail="No active analysis jobs found")
+    return [e.model_dump() for e in job.evidenceList]
+
+@app.get("/api/cbom/export", tags=["Inventory"])
+def export_cbom_cyclonedx():
+    """Export Cryptographic Bill of Materials (CBOM) in CycloneDX 1.5 JSON standard."""
+    job = LATEST_ANALYSIS
+    items = job.cbom if job else MOCK_CBOM
+    
+    components = []
+    for item in items:
+        components.append({
+            "type": "cryptographic-asset",
+            "name": item.get("asset", "unknown_asset"),
+            "version": item.get("tlsVersion", "unknown"),
+            "cryptoProperties": {
+                "assetType": "protocol",
+                "algorithm": item.get("cipher", "unknown"),
+                "keyLength": item.get("keySize", 0),
+                "oid": f"urn:garuda:crypto:{item.get('id', 'CBOM-000')}",
+                "classicalSecurityLevel": 128 if item.get("keySize") == 2048 else 256,
+                "nistQuantumSecurityLevel": 0 if not item.get("pqcReady") else 3
+            }
+        })
+
     return {
-        "id": job_id,
-        "filename": clean_name,
-        "fileSize": len(contents),
-        "status": "completed",
-        "progress": 100,
-        "sessionsCount": 12,
-        "findingsCount": 2,
-        "criticalCount": 1,
-        "highCount": 1,
-        "overallRisk": 65,
-        "startedAt": datetime.now(timezone.utc).isoformat(),
-        "completedAt": datetime.now(timezone.utc).isoformat(),
-        "error": None
+        "bomFormat": "CycloneDX",
+        "specVersion": "1.5",
+        "serialNumber": f"urn:uuid:{uuid.uuid4()}",
+        "version": 1,
+        "metadata": {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "tools": [{"vendor": "GARUDA", "name": "GARUDA Sentinel", "version": "1.0.0"}],
+            "component": {"type": "application", "name": "Enterprise Email Infrastructure"}
+        },
+        "components": components
+    }
+
+@app.get("/api/reports/download/{analysis_id}", tags=["Reports"])
+def download_forensic_report(analysis_id: str):
+    """Generate and return machine-readable JSON forensic audit report (Phase 12)."""
+    job = ANALYSIS_CACHE.get(analysis_id) or LATEST_ANALYSIS
+    if not job:
+        return {
+            "title": f"Forensic Security Report — {analysis_id}",
+            "generatedAt": datetime.now(timezone.utc).isoformat(),
+            "overallRisk": 78,
+            "status": "ready",
+            "findings": MOCK_FINDINGS
+        }
+    return {
+        "title": f"GARUDA Sentinel Forensic Audit Report — {job.filename}",
+        "analysisId": job.id,
+        "captureSha256": job.sha256,
+        "packetsAnalyzed": job.packetsCount,
+        "generatedAt": datetime.now(timezone.utc).isoformat(),
+        "cryptographicRiskScore": job.overallRisk,
+        "aiAnomalyScore": job.aiAnomalyScore,
+        "evidenceConfidence": job.evidenceConfidence,
+        "pqcReadiness": job.pqcReadiness,
+        "findings": [f.model_dump() for f in job.findings],
+        "cbomInventory": job.cbom,
+        "policyCompliance": job.posture
     }
 
 def main():

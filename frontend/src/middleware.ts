@@ -50,20 +50,53 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  const role = String(token?.role || 'user').toLowerCase();
-
-  if (isAdminRoute && role !== 'admin') {
+  // Check account status: blocked if suspended or disabled
+  const status = String((token as any)?.status || 'active').toLowerCase();
+  if (status === 'suspended' || status === 'disabled') {
+    if (pathname.startsWith('/api/')) {
+      return NextResponse.json({ error: 'Forbidden: Account is suspended' }, { status: 403 });
+    }
     const deniedUrl = req.nextUrl.clone();
     deniedUrl.pathname = '/login';
-    deniedUrl.searchParams.set('callbackUrl', pathname);
+    deniedUrl.searchParams.set('error', 'account_suspended');
+    return NextResponse.redirect(deniedUrl);
+  }
+
+  const role = String(token?.role || 'user').toLowerCase();
+
+  // Root section redirects to appropriate dashboard
+  if (pathname === '/admin') {
+    if (role === 'admin') {
+      const dashUrl = req.nextUrl.clone();
+      dashUrl.pathname = '/admin/dashboard';
+      return NextResponse.redirect(dashUrl);
+    }
+    const deniedUrl = req.nextUrl.clone();
+    deniedUrl.pathname = '/user/dashboard';
+    deniedUrl.searchParams.set('error', 'admin_required');
+    return NextResponse.redirect(deniedUrl);
+  }
+
+  if (pathname === '/user') {
+    const dashUrl = req.nextUrl.clone();
+    dashUrl.pathname = '/user/dashboard';
+    return NextResponse.redirect(dashUrl);
+  }
+
+  // Admin route protection
+  if (isAdminRoute && role !== 'admin') {
+    if (pathname.startsWith('/api/')) {
+      return NextResponse.json({ error: 'Forbidden: Administrator privileges required' }, { status: 403 });
+    }
+    const deniedUrl = req.nextUrl.clone();
+    deniedUrl.pathname = '/user/dashboard';
     deniedUrl.searchParams.set('error', 'admin_required');
     return NextResponse.redirect(deniedUrl);
   }
 
   if (isOfficerRoute && role !== 'officer' && role !== 'admin') {
     const deniedUrl = req.nextUrl.clone();
-    deniedUrl.pathname = '/login';
-    deniedUrl.searchParams.set('callbackUrl', pathname);
+    deniedUrl.pathname = '/user/dashboard';
     deniedUrl.searchParams.set('error', 'officer_required');
     return NextResponse.redirect(deniedUrl);
   }

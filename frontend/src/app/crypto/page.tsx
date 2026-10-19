@@ -15,6 +15,8 @@ import type { CommSecurityAuditResult } from '@/lib/commSecurity';
 import Link from 'next/link';
 import clsx from 'clsx';
 
+import KeyLifecycleManager from '@/components/crypto/KeyLifecycleManager';
+
 const fadeUp = { initial: { opacity: 0, y: 12 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.3 } };
 
 // Detailed observed cipher suites across enterprise capture
@@ -94,7 +96,7 @@ const OBSERVED_CIPHERS = [
 ];
 
 export default function CryptoPosturePage() {
-  const [activeTab, setActiveTab] = useState<'comm-security' | 'posture'>('comm-security');
+  const [activeTab, setActiveTab] = useState<'comm-security' | 'posture' | 'key-management'>('comm-security');
   const [filterPolicy, setFilterPolicy] = useState<string>('all');
 
   // Communication Security Auditor State
@@ -141,7 +143,7 @@ export default function CryptoPosturePage() {
       <div className="space-y-6">
 
         {/* ── Sub-navigation Tabs ── */}
-        <div className="flex items-center gap-2 border-b border-[var(--color-border)] pb-3">
+        <div className="flex items-center gap-2 border-b border-[var(--color-border)] pb-3 flex-wrap">
           <button
             type="button"
             onClick={() => setActiveTab('comm-security')}
@@ -173,6 +175,23 @@ export default function CryptoPosturePage() {
             <span>Cipher Suites & TLS Posture</span>
             <span className="text-[10px] px-1.5 py-0.2 rounded bg-indigo-500/20 text-indigo-300 font-mono">
               NIST SP 800-52r2
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('key-management')}
+            className={clsx(
+              'flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-[12px] font-semibold transition-all border',
+              activeTab === 'key-management'
+                ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 border-purple-500/40 shadow-sm shadow-purple-500/10'
+                : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] bg-[var(--color-surface-2)] border-transparent'
+            )}
+          >
+            <Key size={14} />
+            <span>Key Management & Fingerprint Trust</span>
+            <span className="text-[10px] px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-300 font-mono">
+              Phase 4-6 E2EE
             </span>
           </button>
         </div>
@@ -887,7 +906,12 @@ export default function CryptoPosturePage() {
       </div>
     )}
 
+    {/* ── Tab 3: Key Management & Fingerprint Trust (Phase 4, 5, 6) ── */}
+    {activeTab === 'key-management' && (
+      <KeyLifecycleManager />
+    )}
+
   </div>
 </AppShell>
-  );
+);
 }

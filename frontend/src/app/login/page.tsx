@@ -23,11 +23,21 @@ function LoginForm() {
   const callbackUrl = rawCallback.startsWith('/') ? rawCallback : '/inbox';
   const registered = searchParams.get('registered') === 'true';
 
+  const urlError = searchParams.get('error');
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState(
+    urlError === 'admin_required'
+      ? 'Administrator privileges required. Please sign in with an admin account.'
+      : urlError === 'account_suspended'
+      ? 'This account has been suspended by an administrator.'
+      : urlError === 'forbidden'
+      ? 'Access forbidden. You do not have permission to view that resource.'
+      : ''
+  );
 
   // Clear any auto-populated credentials on mount for a 100% fresh login
   useEffect(() => {
@@ -51,11 +61,24 @@ function LoginForm() {
     setLoading(false);
 
     if (result?.error) {
-      setError('Invalid email or password. Please try again.');
+      if (result.error.toLowerCase().includes('suspended')) {
+        setError('This account is suspended. Please contact your system administrator.');
+      } else {
+        setError('Invalid email or password. Please try again.');
+      }
     } else {
       const session = await getSession();
       const role = session?.user?.role || 'user';
-      router.push(getProtectedRouteForRole(role));
+      const targetRoute = getProtectedRouteForRole(role);
+      
+      // If callbackUrl matches the role's allowed scope, honor it, otherwise send to role dashboard
+      if (role === 'admin' && callbackUrl.startsWith('/admin')) {
+        router.push(callbackUrl);
+      } else if (role !== 'admin' && callbackUrl.startsWith('/user')) {
+        router.push(callbackUrl);
+      } else {
+        router.push(targetRoute);
+      }
       router.refresh();
     }
   };

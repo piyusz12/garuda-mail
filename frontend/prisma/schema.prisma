@@ -55,7 +55,8 @@ model User {
   emailVerified DateTime?
   image         String?
   password      String?   // hashed with bcrypt
-  role          String    @default("user") // admin | officer | user
+  role          String    @default("user") // admin | user
+  status        String    @default("active") // active | suspended | disabled
   department    String?
   avatarColor   String    @default("#38BDF8")
   createdAt     DateTime  @default(now())
@@ -68,6 +69,19 @@ model User {
   // Email relations
   sentEmails    Email[]   @relation("SentEmails")
   recipients    EmailRecipient[]
+}
+
+// ── Audit Logging ────────────────────────────────────────────────────
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  action      String
+  actorEmail  String?
+  actorRole   String?
+  targetEmail String?
+  details     String?
+  status      String   @default("SUCCESS")
+  createdAt   DateTime @default(now())
 }
 
 // ── Email System ─────────────────────────────────────────────────────
