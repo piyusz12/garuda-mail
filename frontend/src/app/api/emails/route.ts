@@ -153,6 +153,11 @@ export async function GET(request: NextRequest) {
       }));
     }
 
+    // ── Resilient Showcase Fallback: If no custom emails exist for this user in DB, populate rich showcase emails
+    if (rawEmails.length === 0) {
+      return NextResponse.json(getFallbackEmailsResponse(folder, search));
+    }
+
     // ── Decrypt message bodies with AES-256-GCM for the authenticated user
     const emails = rawEmails.map((e: any) => {
       const dec = decryptPayload(e.body);

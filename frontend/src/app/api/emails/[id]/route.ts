@@ -40,6 +40,10 @@ export async function GET(request: NextRequest, { params }: Params) {
     });
 
     if (!email) {
+      const fb = FALLBACK_EMAILS.find(e => e.id === id);
+      if (fb) {
+        return NextResponse.json({ email: fb });
+      }
       return NextResponse.json({ error: 'Email not found' }, { status: 404 });
     }
 
