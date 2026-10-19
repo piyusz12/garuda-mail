@@ -127,6 +127,28 @@ export default function AdminConsoleClient({ currentUser }: AdminConsoleClientPr
     }
   };
 
+  const handleRestoreDefaults = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch('/api/admin/reset-credentials', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'restore_defaults' }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        showToast('success', data.message || 'Default system demo accounts restored.');
+        await fetchUsers();
+      } else {
+        showToast('error', data.error || 'Failed to restore accounts.');
+      }
+    } catch {
+      showToast('error', 'Network error while restoring accounts.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const filteredUsers = users.filter((u) => {
     const q = search.toLowerCase().trim();
     return (
@@ -206,6 +228,15 @@ export default function AdminConsoleClient({ currentUser }: AdminConsoleClientPr
             >
               <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
               <span>Refresh</span>
+            </button>
+            <button
+              onClick={handleRestoreDefaults}
+              disabled={loading}
+              title="Restore initial system demo accounts if desired"
+              className="px-3 py-2 rounded-xl text-[12px] font-medium bg-[var(--color-surface-2)] hover:bg-[var(--color-surface-3)] text-slate-300 border border-[var(--color-border)] flex items-center gap-1.5 transition-colors"
+            >
+              <RotateCcw size={13} />
+              <span className="hidden sm:inline">Restore Demo Accounts</span>
             </button>
           </div>
         </div>

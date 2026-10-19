@@ -137,26 +137,55 @@ export const BUILTIN_USERS: UserRecord[] = DEMO_MODE && DEFAULT_PASSWORD_HASH ? 
   },
 ] : [];
 
-// ── In-Memory User Registry across re-evaluations ───────────────────────
-declare global {
-  var __garudaInMemoryUsers: Map<string, UserRecord> | undefined;
-}
-
-const inMemoryUsers: Map<string, UserRecord> =
-  global.__garudaInMemoryUsers || (global.__garudaInMemoryUsers = new Map());
-
-// Pre-populate in-memory users with builtins
-for (const u of BUILTIN_USERS) {
-  if (!inMemoryUsers.has(u.email)) {
-    inMemoryUsers.set(u.email, u);
-  }
-}
-
 // ── Ephemeral /tmp fallback storage (survives container reuse) ─────────
 const TMP_USERS_FILE = path.join(
   process.env.VERCEL ? '/tmp' : process.env.TEMP || process.env.TMP || '.',
   'garuda_users_store.json'
 );
+
+const TMP_DELETED_FILE = path.join(
+  process.env.VERCEL ? '/tmp' : process.env.TEMP || process.env.TMP || '.',
+  'garuda_deleted_users.json'
+);
+
+function readDeletedUsers(): Set<string> {
+  try {
+    if (fs.existsSync(TMP_DELETED_FILE)) {
+      const data = fs.readFileSync(TMP_DELETED_FILE, 'utf-8');
+      const list = JSON.parse(data);
+      if (Array.isArray(list)) {
+        return new Set(list.map((e: string) => e.toLowerCase().trim()));
+      }
+    }
+  } catch {}
+  return new Set();
+}
+
+function saveDeletedUsers(set: Set<string>) {
+  try {
+    fs.writeFileSync(TMP_DELETED_FILE, JSON.stringify(Array.from(set)), 'utf-8');
+  } catch {}
+}
+
+// ── In-Memory User Registry across re-evaluations ───────────────────────
+declare global {
+  var __garudaInMemoryUsers: Map<string, UserRecord> | undefined;
+  var __garudaDeletedUsers: Set<string> | undefined;
+}
+
+const inMemoryUsers: Map<string, UserRecord> =
+  global.__garudaInMemoryUsers || (global.__garudaInMemoryUsers = new Map());
+
+const deletedUsers: Set<string> =
+  global.__garudaDeletedUsers || (global.__garudaDeletedUsers = readDeletedUsers());
+
+// Pre-populate in-memory users with builtins if not deleted
+for (const u of BUILTIN_USERS) {
+  const em = u.email.toLowerCase().trim();
+  if (!deletedUsers.has(em) && !inMemoryUsers.has(em)) {
+    inMemoryUsers.set(em, u);
+  }
+}
 
 function readTmpUsers(): Record<string, UserRecord> {
   try {
@@ -236,12 +265,16 @@ function parseCookie(cookieHeader: string, name: string): string | null {
   return null;
 }
 
-// ── Multi-Tier Lookup: DB -> Memory -> /tmp -> Cookie -> Builtins ───────
 export async function findUserByEmail(
   email: string,
   cookieHeader?: string | null
 ): Promise<UserRecord | null> {
   const normalizedEmail = email.toLowerCase().trim();
+
+  // If this email was deleted/purged by admin reset, reject immediately
+  if (deletedUsers.has(normalizedEmail)) {
+    return null;
+  }
 
   // Tier 1: Try Prisma Database
   try {
@@ -316,6 +349,10 @@ export async function registerUser(name: string, email: string, passwordPlain: s
   cookieToken: string;
 }> {
   const normalizedEmail = email.toLowerCase().trim();
+  if (deletedUsers.has(normalizedEmail)) {
+    deletedUsers.delete(normalizedEmail);
+    saveDeletedUsers(deletedUsers);
+  }
   const hashedPassword = await bcrypt.hash(passwordPlain, 12);
   const colors = ['#38BDF8', '#34D399', '#A78BFA', '#F472B6', '#FB923C', '#FACC15'];
   const avatarColor = colors[Math.floor(Math.random() * colors.length)];
@@ -378,20 +415,29 @@ function toPublicUser(u: UserRecord): Omit<UserRecord, 'password'> {
 export async function listAllUsers(): Promise<Array<Omit<UserRecord, 'password'>>> {
   const userMap = new Map<string, Omit<UserRecord, 'password'>>();
 
-  // Add builtins first
+  // Add builtins (only if not deleted)
   for (const u of BUILTIN_USERS) {
-    userMap.set(u.email, toPublicUser(u));
+    const em = u.email.toLowerCase().trim();
+    if (!deletedUsers.has(em)) {
+      userMap.set(em, toPublicUser(u));
+    }
   }
 
-  // Add in-memory
+  // Add in-memory (only if not deleted)
   for (const [em, u] of inMemoryUsers.entries()) {
-    userMap.set(em, toPublicUser(u));
+    const normalized = em.toLowerCase().trim();
+    if (!deletedUsers.has(normalized)) {
+      userMap.set(normalized, toPublicUser(u));
+    }
   }
 
-  // Add tmp users
+  // Add tmp users (only if not deleted)
   const tmp = readTmpUsers();
   for (const [em, u] of Object.entries(tmp)) {
-    userMap.set(em, toPublicUser(u));
+    const normalized = em.toLowerCase().trim();
+    if (!deletedUsers.has(normalized)) {
+      userMap.set(normalized, toPublicUser(u));
+    }
   }
 
   // Add database users if query succeeds
@@ -410,16 +456,19 @@ export async function listAllUsers(): Promise<Array<Omit<UserRecord, 'password'>
     });
     for (const dbu of dbUsers) {
       if (dbu.email) {
-        userMap.set(dbu.email, {
-          id: dbu.id,
-          name: dbu.name || 'User',
-          email: dbu.email,
-          role: normalizeUserRole(dbu.role),
-          department: dbu.department || undefined,
-          avatarColor: dbu.avatarColor || '#38BDF8',
-          createdAt: dbu.createdAt,
-          updatedAt: dbu.updatedAt,
-        });
+        const normalized = dbu.email.toLowerCase().trim();
+        if (!deletedUsers.has(normalized)) {
+          userMap.set(normalized, {
+            id: dbu.id,
+            name: dbu.name || 'User',
+            email: dbu.email,
+            role: normalizeUserRole(dbu.role),
+            department: dbu.department || undefined,
+            avatarColor: dbu.avatarColor || '#38BDF8',
+            createdAt: dbu.createdAt,
+            updatedAt: dbu.updatedAt,
+          });
+        }
       }
     }
   } catch {
@@ -429,61 +478,86 @@ export async function listAllUsers(): Promise<Array<Omit<UserRecord, 'password'>
   return Array.from(userMap.values());
 }
 
-// ── Reset All Login Credentials (Admin-Only) ─────────────────────────
-export async function resetAllLoginCredentials(options?: { keepDefaultAdmins?: boolean }): Promise<{
+// ── Reset All Login Credentials (Admin-Only Action) ───────────────────
+export async function resetAllLoginCredentials(options?: {
+  currentAdminEmail?: string;
+  keepDefaultAdmins?: boolean;
+}): Promise<{
   deletedCount: number;
   message: string;
 }> {
   let count = 0;
+  const currentAdmin = options?.currentAdminEmail?.toLowerCase().trim();
   const keepAdmins = options?.keepDefaultAdmins ?? true;
 
-  // 1. In-Memory Registry reset
-  inMemoryUsers.clear();
-  if (keepAdmins) {
-    for (const u of BUILTIN_USERS) {
-      inMemoryUsers.set(u.email, u);
+  // 1. Gather all currently listed users
+  const currentUsers = await listAllUsers();
+
+  for (const user of currentUsers) {
+    const em = user.email.toLowerCase().trim();
+
+    // Preserve the current admin performing the action so they don't get locked out
+    const isCurrentAdmin = currentAdmin && em === currentAdmin;
+    const isMasterAdmin = keepAdmins && em === 'admin@garudamail.local';
+
+    if (isCurrentAdmin || isMasterAdmin) {
+      continue;
     }
+
+    // Permanently purge credentials
+    deletedUsers.add(em);
+    inMemoryUsers.delete(em);
+    count++;
   }
+
+  saveDeletedUsers(deletedUsers);
 
   // 2. Clear /tmp Ephemeral File
   try {
-    if (fs.existsSync(TMP_USERS_FILE)) {
-      if (keepAdmins) {
-        fs.writeFileSync(TMP_USERS_FILE, JSON.stringify({}), 'utf-8');
-      } else {
-        fs.unlinkSync(TMP_USERS_FILE);
-      }
-    }
+    fs.writeFileSync(TMP_USERS_FILE, JSON.stringify({}), 'utf-8');
   } catch (err) {
     console.warn('[resetAllLoginCredentials] /tmp store reset note:', err);
   }
 
-  // 3. Clear Prisma DB custom users if available
+  // 3. Clear Prisma DB custom users if available (except current admin)
   try {
-    const adminEmails = BUILTIN_USERS.filter(u => u.role === 'admin').map(u => u.email);
-    const deleteResult = await prisma.user.deleteMany({
-      where: keepAdmins ? {
-        email: {
-          notIn: adminEmails,
-        },
-      } : {},
+    const whereClause: Record<string, unknown> = {};
+    if (currentAdmin) {
+      whereClause.email = { not: currentAdmin };
+    }
+    await prisma.user.deleteMany({
+      where: whereClause,
     });
-    count += deleteResult.count;
   } catch {
     // Database delete ignored if not connected
   }
 
   return {
     deletedCount: count,
-    message: keepAdmins
-      ? 'All custom registered user credentials and sessions purged. Root administrator accounts preserved.'
-      : 'All login credentials across all stores completely purged.',
+    message: `All login credentials deleted (${count} accounts purged). Only active administrator preserved.`,
+  };
+}
+
+// ── Restore Initial Baseline Accounts (Admin-Only Action) ─────────────
+export async function restoreAllDefaultUsers(): Promise<{ message: string }> {
+  deletedUsers.clear();
+  saveDeletedUsers(deletedUsers);
+
+  for (const u of BUILTIN_USERS) {
+    inMemoryUsers.set(u.email.toLowerCase().trim(), u);
+  }
+
+  return {
+    message: 'Initial system demo accounts restored successfully.',
   };
 }
 
 // ── Delete Single User Credential (Admin-Only) ───────────────────────
 export async function deleteUserByEmail(email: string): Promise<boolean> {
   const normalized = email.toLowerCase().trim();
+  deletedUsers.add(normalized);
+  saveDeletedUsers(deletedUsers);
+
   let deleted = false;
 
   // In-memory
@@ -510,5 +584,5 @@ export async function deleteUserByEmail(email: string): Promise<boolean> {
     if (res.count > 0) deleted = true;
   } catch {}
 
-  return deleted;
+  return true;
 }

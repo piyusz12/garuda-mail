@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { resetAllLoginCredentials, deleteUserByEmail } from '@/lib/users';
+import { resetAllLoginCredentials, deleteUserByEmail, restoreAllDefaultUsers } from '@/lib/users';
 
 export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -21,6 +21,16 @@ export async function POST(request: NextRequest) {
     const body = await request.json().catch(() => ({}));
     const { action, email, keepDefaultAdmins } = body;
 
+    if (action === 'restore_defaults') {
+      const result = await restoreAllDefaultUsers();
+      return NextResponse.json({
+        success: true,
+        message: result.message,
+        operator: session.user.email,
+        timestamp: new Date().toISOString(),
+      });
+    }
+
     if (action === 'delete_user' && email) {
       const deleted = await deleteUserByEmail(email);
       return NextResponse.json({
@@ -34,6 +44,7 @@ export async function POST(request: NextRequest) {
 
     // Default: Reset all credentials
     const result = await resetAllLoginCredentials({
+      currentAdminEmail: session.user.email || undefined,
       keepDefaultAdmins: keepDefaultAdmins !== false,
     });
 
