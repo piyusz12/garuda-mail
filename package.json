@@ -8,5 +8,8 @@
     "start": "npm --prefix frontend run start",
     "lint": "npm --prefix frontend run lint",
     "test": "npm --prefix frontend run lint && python run.py test"
+  },
+  "devDependencies": {
+    "next": "^16.4.0"
   }
 }
