@@ -1,13 +1,15 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import {
   Inbox, Send, FileEdit, Star, Archive, Trash2,
   LayoutDashboard, Upload, Network, AlertTriangle, Shield,
   Award, Brain, Search as SearchIcon, FileText, Settings, Layers,
   ChevronLeft, ChevronRight, Plus, Mail, Cpu, Activity, X, FlaskConical,
+  ShieldAlert,
 } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -46,6 +48,8 @@ interface SidebarProps {
 
 export default function Sidebar({ collapsed, onToggle, mobileOpen, onCloseMobile }: SidebarProps) {
   const pathname = usePathname();
+  const { data: session } = useSession();
+  const isAdmin = session?.user?.role === 'admin';
   const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>({ inbox: 0, drafts: 0 });
 
   useEffect(() => {
@@ -224,6 +228,32 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onCloseMobile
               </Link>
             );
           })}
+
+          {/* Admin-Only Console Navigation */}
+          {isAdmin && (
+            <Link
+              href="/admin"
+              onClick={onCloseMobile}
+              title={collapsed ? 'Admin Console' : undefined}
+              className={clsx(
+                'flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] font-medium transition-all duration-150',
+                pathname === '/admin'
+                  ? 'bg-rose-500/15 border-rose-500/30 text-rose-300 shadow-sm font-semibold'
+                  : 'text-rose-400/90 hover:text-rose-300 hover:bg-rose-500/10 border border-transparent',
+                collapsed && 'md:justify-center md:px-0'
+              )}
+            >
+              <ShieldAlert className="flex-shrink-0 text-rose-400" size={18} strokeWidth={1.8} />
+              {(!collapsed || mobileOpen) && (
+                <div className="flex items-center justify-between flex-1 min-w-0">
+                  <span className="truncate">Admin Console</span>
+                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                    ROOT
+                  </span>
+                </div>
+              )}
+            </Link>
+          )}
         </div>
       </nav>
 

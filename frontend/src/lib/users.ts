@@ -428,3 +428,87 @@ export async function listAllUsers(): Promise<Array<Omit<UserRecord, 'password'>
 
   return Array.from(userMap.values());
 }
+
+// ── Reset All Login Credentials (Admin-Only) ─────────────────────────
+export async function resetAllLoginCredentials(options?: { keepDefaultAdmins?: boolean }): Promise<{
+  deletedCount: number;
+  message: string;
+}> {
+  let count = 0;
+  const keepAdmins = options?.keepDefaultAdmins ?? true;
+
+  // 1. In-Memory Registry reset
+  inMemoryUsers.clear();
+  if (keepAdmins) {
+    for (const u of BUILTIN_USERS) {
+      inMemoryUsers.set(u.email, u);
+    }
+  }
+
+  // 2. Clear /tmp Ephemeral File
+  try {
+    if (fs.existsSync(TMP_USERS_FILE)) {
+      if (keepAdmins) {
+        fs.writeFileSync(TMP_USERS_FILE, JSON.stringify({}), 'utf-8');
+      } else {
+        fs.unlinkSync(TMP_USERS_FILE);
+      }
+    }
+  } catch (err) {
+    console.warn('[resetAllLoginCredentials] /tmp store reset note:', err);
+  }
+
+  // 3. Clear Prisma DB custom users if available
+  try {
+    const adminEmails = BUILTIN_USERS.filter(u => u.role === 'admin').map(u => u.email);
+    const deleteResult = await prisma.user.deleteMany({
+      where: keepAdmins ? {
+        email: {
+          notIn: adminEmails,
+        },
+      } : {},
+    });
+    count += deleteResult.count;
+  } catch {
+    // Database delete ignored if not connected
+  }
+
+  return {
+    deletedCount: count,
+    message: keepAdmins
+      ? 'All custom registered user credentials and sessions purged. Root administrator accounts preserved.'
+      : 'All login credentials across all stores completely purged.',
+  };
+}
+
+// ── Delete Single User Credential (Admin-Only) ───────────────────────
+export async function deleteUserByEmail(email: string): Promise<boolean> {
+  const normalized = email.toLowerCase().trim();
+  let deleted = false;
+
+  // In-memory
+  if (inMemoryUsers.has(normalized)) {
+    inMemoryUsers.delete(normalized);
+    deleted = true;
+  }
+
+  // /tmp file
+  try {
+    const tmp = readTmpUsers();
+    if (tmp[normalized]) {
+      delete tmp[normalized];
+      fs.writeFileSync(TMP_USERS_FILE, JSON.stringify(tmp), 'utf-8');
+      deleted = true;
+    }
+  } catch {}
+
+  // Prisma DB
+  try {
+    const res = await prisma.user.deleteMany({
+      where: { email: normalized },
+    });
+    if (res.count > 0) deleted = true;
+  } catch {}
+
+  return deleted;
+}

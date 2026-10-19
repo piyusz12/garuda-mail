@@ -6,7 +6,7 @@ import { useSession, signOut } from 'next-auth/react';
 import {
   Search, Bell, Wifi, Check, Clock,
   ExternalLink, Settings as SettingsIcon, LogOut, Laptop,
-  Menu, Smartphone, Copy, CheckCheck, QrCode, Sparkles
+  Menu, Smartphone, Copy, CheckCheck, QrCode, Sparkles, ShieldAlert
 } from 'lucide-react';
 import clsx from 'clsx';
 import Link from 'next/link';
@@ -340,6 +340,15 @@ export default function TopBar({ title, description, onOpenMobileMenu }: TopBarP
                 </span>
               </div>
             </div>
+            {session?.user?.role === 'admin' && (
+              <Link
+                href="/admin"
+                onClick={() => setActiveDropdown(null)}
+                className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold rounded-md bg-purple-500/15 text-purple-300 hover:bg-purple-500/25 border border-purple-500/30 transition-colors mt-2"
+              >
+                <ShieldAlert size={12} /> Admin Console
+              </Link>
+            )}
             <Link
               href="/settings"
               onClick={() => setActiveDropdown(null)}
