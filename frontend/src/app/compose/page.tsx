@@ -242,7 +242,7 @@ function ComposeForm() {
     // Parse and resolve recipients
     const toParsed = resolveRecipientAddresses(to, directoryUsers);
     if (toParsed.length === 0) {
-      setError('Please provide at least one recipient email address (e.g. piyushtembhurkar12@gmail.com).');
+      setError('Please provide at least one recipient email address (e.g. recipient@example.com).');
       const inputEl = document.getElementById('recipient-input');
       inputEl?.focus();
       return;
@@ -618,7 +618,7 @@ function ComposeForm() {
                   setTo(e.target.value);
                   if (error) setError('');
                 }}
-                placeholder="piyushtembhurkar12@gmail.com, bhaskarthalendra@gmail.com"
+                placeholder="recipient@example.com, colleague@garudamail.local"
                 className="flex-1 text-[13px] bg-transparent text-[var(--color-text-primary)] placeholder:text-[var(--color-text-dim)] outline-none"
               />
               <button
@@ -656,32 +656,37 @@ function ComposeForm() {
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                 Peers:
               </span>
-              {directoryUsers.map(u => (
-                <button
-                  key={u.id}
-                  type="button"
-                  onClick={() => addRecipient(u.email || '')}
-                  className={clsx(
-                    'px-2.5 py-1 rounded-full text-[10px] transition-colors flex items-center gap-1.5 flex-shrink-0 border',
-                    u.isOnline
-                      ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/35 hover:bg-emerald-500/25'
-                      : 'bg-[var(--color-surface-2)] text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] hover:bg-[var(--color-accent-dim)] border-[var(--color-border-subtle)]'
-                  )}
-                  title={`Add ${u.email || u.name} (${u.statusText || 'Contact'})`}
-                >
-                  <span
+              {directoryUsers
+                .filter(u => {
+                  const em = (u.email || '').toLowerCase().trim();
+                  return !em.includes('piyushtembhurkar') && !em.includes('bhaskarthalendra') && !em.includes('bhaskar');
+                })
+                .map(u => (
+                  <button
+                    key={u.id}
+                    type="button"
+                    onClick={() => addRecipient(u.email || '')}
                     className={clsx(
-                      'w-1.5 h-1.5 rounded-full',
-                      u.isOnline ? 'bg-emerald-400 animate-pulse' : 'bg-slate-400'
+                      'px-2.5 py-1 rounded-full text-[10px] transition-colors flex items-center gap-1.5 flex-shrink-0 border',
+                      u.isOnline
+                        ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/35 hover:bg-emerald-500/25'
+                        : 'bg-[var(--color-surface-2)] text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] hover:bg-[var(--color-accent-dim)] border-[var(--color-border-subtle)]'
                     )}
-                  />
-                  <span className="font-semibold">{u.name || u.email?.split('@')[0]}</span>
-                  {u.isOnline && (
-                    <span className="text-[9px] font-mono text-emerald-400 font-bold uppercase">Online</span>
-                  )}
-                  <span className="text-[var(--color-text-dim)]">({u.email})</span>
-                </button>
-              ))}
+                    title={`Add ${u.email || u.name} (${u.statusText || 'Contact'})`}
+                  >
+                    <span
+                      className={clsx(
+                        'w-1.5 h-1.5 rounded-full',
+                        u.isOnline ? 'bg-emerald-400 animate-pulse' : 'bg-slate-400'
+                      )}
+                    />
+                    <span className="font-semibold">{u.name || u.email?.split('@')[0]}</span>
+                    {u.isOnline && (
+                      <span className="text-[9px] font-mono text-emerald-400 font-bold uppercase">Online</span>
+                    )}
+                    <span className="text-[var(--color-text-dim)]">({u.email})</span>
+                  </button>
+                ))}
 
               <button
                 type="button"
@@ -702,7 +707,7 @@ function ComposeForm() {
                   type="text"
                   value={cc}
                   onChange={e => setCc(e.target.value)}
-                  placeholder="piyushtembhurkar12@gmail.com"
+                  placeholder="colleague@garudamail.local"
                   className="flex-1 text-[13px] bg-transparent text-[var(--color-text-primary)] placeholder:text-[var(--color-text-dim)] outline-none"
                 />
               </div>

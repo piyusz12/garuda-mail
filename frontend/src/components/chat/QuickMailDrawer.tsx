@@ -186,6 +186,10 @@ export default function QuickMailDrawer() {
     if (session?.user?.email && u.email.toLowerCase() === session.user.email.toLowerCase()) {
       return false;
     }
+    const em = (u.email || '').toLowerCase().trim();
+    if (em.includes('piyushtembhurkar') || em.includes('bhaskarthalendra') || em.includes('bhaskar')) {
+      return false;
+    }
     if (filter === 'online' && !u.isOnline) return false;
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
