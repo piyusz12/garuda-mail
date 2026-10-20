@@ -10,6 +10,7 @@ import {
 import clsx from 'clsx';
 import { useSession } from 'next-auth/react';
 import type { UserPresence } from '@/lib/presence';
+import { saveDispatchedEmailToStorage } from '@/lib/clientEmailStore';
 
 export interface QuickMailDrawerProps {
   initialContact?: UserPresence | null;
@@ -158,8 +159,14 @@ export default function QuickMailDrawer() {
       setSending(false);
       setSentSuccess(true);
 
+      if (data.email) {
+        saveDispatchedEmailToStorage(data.email);
+      }
+
       // Trigger custom event so Inbox or Sent lists update live
-      window.dispatchEvent(new CustomEvent('email-dispatched', { detail: data }));
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('email-dispatched', { detail: data }));
+      }
 
       // Reset after short delay or keep success notification
       setTimeout(() => {

@@ -14,6 +14,7 @@ import Link from 'next/link';
 import clsx from 'clsx';
 import type { EmailMessage, SecurityLevel } from '@/types/email';
 import { FALLBACK_EMAILS } from '@/lib/fallbackEmails';
+import { getDispatchedEmailsFromStorage } from '@/lib/clientEmailStore';
 import {
   decryptPrivateKeyWithPassphrase,
   decryptAsymmetricEnvelope,
@@ -103,8 +104,9 @@ export default function EmailDetailPage({ params }: { params: Promise<{ id: stri
         console.error('Error fetching email by ID', err);
       }
 
-      // Fallback email lookup
-      const fb = FALLBACK_EMAILS.find(e => e.id === id) || FALLBACK_EMAILS[0];
+      // Fallback email lookup (check client storage first, then fallback emails)
+      const clientEmail = getDispatchedEmailsFromStorage().find(e => e.id === id);
+      const fb = (clientEmail as any) || FALLBACK_EMAILS.find(e => e.id === id) || FALLBACK_EMAILS[0];
       if (fb) {
         const secLevel: SecurityLevel =
           fb.riskScore !== null && fb.riskScore !== undefined
@@ -130,7 +132,7 @@ export default function EmailDetailPage({ params }: { params: Promise<{ id: stri
           timestamp: fb.sentAt || fb.createdAt,
           read: true,
           starred: fb.starred || false,
-          attachments: (fb.attachments || []).map((att) => ({
+          attachments: (fb.attachments || []).map((att: any) => ({
             id: att.id,
             name: att.filename,
             filename: att.filename,

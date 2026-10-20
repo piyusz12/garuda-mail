@@ -1,49 +1,101 @@
 import fs from 'fs';
 import path from 'path';
 import { FALLBACK_EMAILS, type FallbackEmail } from './fallbackEmails';
+import { decryptPayload } from './crypto';
 
-// ── Ephemeral /tmp and in-memory fallback storage for dispatched emails ───
-const TMP_EMAILS_FILE = path.join(
-  process.env.VERCEL ? '/tmp' : process.env.TEMP || process.env.TMP || '.',
-  'garuda_emails_store.json'
-);
+// ── Ephemeral and persistent storage paths for dispatched emails ─────
+const getStorageFilePath = (): string => {
+  if (process.env.VERCEL) {
+    return '/tmp/garuda_emails_store.json';
+  }
+  const primaryDataDir = path.join(process.cwd(), '.garuda_data');
+  try {
+    if (!fs.existsSync(primaryDataDir)) {
+      fs.mkdirSync(primaryDataDir, { recursive: true });
+    }
+    return path.join(primaryDataDir, 'garuda_emails_store.json');
+  } catch {
+    const tempDir = process.env.TEMP || process.env.TMP || '.';
+    return path.join(tempDir, 'garuda_emails_store.json');
+  }
+};
+
+const TMP_EMAILS_FILE = getStorageFilePath();
 
 declare global {
   var __garudaCustomEmails: FallbackEmail[] | undefined;
 }
 
 export function readCustomEmails(): FallbackEmail[] {
-  if (global.__garudaCustomEmails && Array.isArray(global.__garudaCustomEmails)) {
-    return global.__garudaCustomEmails;
-  }
+  let diskEmails: FallbackEmail[] = [];
   try {
     if (fs.existsSync(TMP_EMAILS_FILE)) {
       const data = fs.readFileSync(TMP_EMAILS_FILE, 'utf-8');
       const list = JSON.parse(data);
       if (Array.isArray(list)) {
-        global.__garudaCustomEmails = list;
-        return list;
+        diskEmails = list;
       }
     }
-  } catch {}
-  if (!global.__garudaCustomEmails) {
-    global.__garudaCustomEmails = [];
+  } catch (err) {
+    console.warn('[EmailStore] Error reading custom emails from disk:', err);
   }
-  return global.__garudaCustomEmails;
+
+  // Also check /tmp fallback if local path differed
+  if (diskEmails.length === 0 && !process.env.VERCEL && process.env.TEMP) {
+    try {
+      const altPath = path.join(process.env.TEMP, 'garuda_emails_store.json');
+      if (fs.existsSync(altPath)) {
+        const altData = fs.readFileSync(altPath, 'utf-8');
+        const altList = JSON.parse(altData);
+        if (Array.isArray(altList) && altList.length > 0) {
+          diskEmails = altList;
+        }
+      }
+    } catch {}
+  }
+
+  const memEmails = (global.__garudaCustomEmails && Array.isArray(global.__garudaCustomEmails))
+    ? global.__garudaCustomEmails
+    : [];
+
+  // Merge disk and memory, preferring newer disk writes
+  const map = new Map<string, FallbackEmail>();
+  for (const item of memEmails) {
+    map.set(item.id, item);
+  }
+  for (const item of diskEmails) {
+    map.set(item.id, item);
+  }
+
+  const merged = Array.from(map.values()).sort((a, b) => {
+    const timeA = new Date(a.createdAt || a.sentAt || 0).getTime();
+    const timeB = new Date(b.createdAt || b.sentAt || 0).getTime();
+    return timeB - timeA;
+  });
+
+  global.__garudaCustomEmails = merged;
+  return merged;
 }
 
 export function saveCustomEmail(email: FallbackEmail) {
   const list = readCustomEmails();
   const existingIdx = list.findIndex(e => e.id === email.id);
   if (existingIdx >= 0) {
-    list[existingIdx] = email;
+    list[existingIdx] = { ...list[existingIdx], ...email };
   } else {
     list.unshift(email);
   }
   global.__garudaCustomEmails = list;
+
   try {
-    fs.writeFileSync(TMP_EMAILS_FILE, JSON.stringify(list), 'utf-8');
-  } catch {}
+    const dir = path.dirname(TMP_EMAILS_FILE);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(TMP_EMAILS_FILE, JSON.stringify(list, null, 2), 'utf-8');
+  } catch (err) {
+    console.warn('[EmailStore] Error saving email to disk:', err);
+  }
 }
 
 export function updateCustomEmail(id: string, updates: Partial<FallbackEmail>): boolean {
@@ -84,7 +136,7 @@ export function deleteCustomEmail(id: string, permanent: boolean = false): boole
     list = list.filter(e => e.id !== id);
     global.__garudaCustomEmails = list;
     try {
-      fs.writeFileSync(TMP_EMAILS_FILE, JSON.stringify(list), 'utf-8');
+      fs.writeFileSync(TMP_EMAILS_FILE, JSON.stringify(list, null, 2), 'utf-8');
     } catch {}
     return true;
   } else {
@@ -112,16 +164,22 @@ export function getServerFallbackEmailsResponse(
   const normalizedUserEmail = userEmail?.toLowerCase().trim();
 
   let list = combined.filter(e => {
-    const isSender = (userId && e.fromId === userId) || (normalizedUserEmail && e.from?.email?.toLowerCase() === normalizedUserEmail);
-    const matchedRecipient = e.recipients.find(r => 
-      (userId && r.userId === userId) || 
+    const isSender = (userId && e.fromId === userId) ||
+      (normalizedUserEmail && e.from?.email?.toLowerCase() === normalizedUserEmail);
+
+    const matchedRecipient = e.recipients?.find(r =>
+      (userId && r.userId === userId) ||
       (normalizedUserEmail && r.address?.toLowerCase() === normalizedUserEmail)
     );
 
     if (folder === 'sent') {
-      return isSender && !e.draft && e.folder !== 'trash';
+      // Show if current user is sender, OR in demo mode if folder is sent and not trash/draft
+      if (isSender) return !e.draft && e.folder !== 'trash';
+      // If user is unknown (e.g. demo token without email), show sent messages
+      if (!userId && !normalizedUserEmail) return e.folder === 'sent' && !e.draft;
+      return false;
     } else if (folder === 'drafts' || folder === 'draft') {
-      return isSender && Boolean(e.draft) && e.folder !== 'trash';
+      return (isSender || (!userId && !normalizedUserEmail)) && Boolean(e.draft) && e.folder !== 'trash';
     } else if (folder === 'starred') {
       return (e.starred || matchedRecipient?.starred) && e.folder !== 'trash';
     } else if (folder === 'trash') {
@@ -134,6 +192,7 @@ export function getServerFallbackEmailsResponse(
       if (matchedRecipient) {
         return matchedRecipient.folder === 'inbox' || !matchedRecipient.folder;
       }
+      // If sent by someone else, or showcase email addressed to analysts
       return !isSender && (e.folder === 'inbox' || !e.folder);
     }
   });
@@ -156,14 +215,14 @@ export function getServerFallbackEmailsResponse(
   for (const e of combined) {
     if (e.folder === 'trash') continue;
     const isSender = (userId && e.fromId === userId) || (normalizedUserEmail && e.from?.email?.toLowerCase() === normalizedUserEmail);
-    const matchedRecipient = e.recipients.find(r => 
-      (userId && r.userId === userId) || 
+    const matchedRecipient = e.recipients?.find(r =>
+      (userId && r.userId === userId) ||
       (normalizedUserEmail && r.address?.toLowerCase() === normalizedUserEmail)
     );
-    if (e.draft && isSender) {
+    if (e.draft && (isSender || (!userId && !normalizedUserEmail))) {
       draftsCount++;
     }
-    const isUnread = matchedRecipient ? !matchedRecipient.read : (e.recipients.length > 0 ? !e.recipients[0].read : false);
+    const isUnread = matchedRecipient ? !matchedRecipient.read : (e.recipients?.length > 0 ? !e.recipients[0].read : false);
     if (isUnread) {
       if (matchedRecipient?.folder === 'inbox' || (!isSender && e.folder === 'inbox')) {
         inboxUnread++;
@@ -174,8 +233,23 @@ export function getServerFallbackEmailsResponse(
     }
   }
 
+  // Decrypt message bodies and compute security previews
+  const decryptedList = list.map(e => {
+    const dec = decryptPayload(e.body);
+    const isAsymmetricV2 = typeof e.body === 'string' && e.body.includes('<!--GARUDA-E2EE-V2-->');
+    return {
+      ...e,
+      body: dec.plaintext,
+      rawCiphertext: dec.envelope ? ('ciphertext' in dec.envelope ? dec.envelope.ciphertext : null) : null,
+      rawBody: e.body,
+      preview: e.preview || (isAsymmetricV2 ? '[Asymmetric E2EE Encrypted Payload]' : dec.isEncrypted ? `[AES-256-GCM] ${dec.plaintext.slice(0, 120)}` : dec.plaintext.slice(0, 140)),
+      isEncrypted: dec.isEncrypted || isAsymmetricV2,
+      cryptoMetadata: dec.envelope || null,
+    };
+  });
+
   return {
-    emails: list,
+    emails: decryptedList,
     unreadCounts: {
       inbox: inboxUnread,
       starred: starredUnread,
@@ -185,6 +259,6 @@ export function getServerFallbackEmailsResponse(
       archive: 0,
     },
     page: 1,
-    total: list.length,
+    total: decryptedList.length,
   };
 }

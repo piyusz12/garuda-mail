@@ -52,3 +52,4 @@ next-env.d.ts
 
 certificates
 .env*.local
+.garuda_data/

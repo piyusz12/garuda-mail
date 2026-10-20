@@ -10,8 +10,10 @@ import AppShell from '@/components/layout/AppShell';
 import OnlineUsersBar from '@/components/chat/OnlineUsersBar';
 import Link from 'next/link';
 import clsx from 'clsx';
+import { useSession } from 'next-auth/react';
 import type { EmailMessage, SecurityLevel } from '@/types/email';
 import { FALLBACK_EMAILS } from '@/lib/fallbackEmails';
+import { getDispatchedEmailsFromStorage } from '@/lib/clientEmailStore';
 
 const fadeUp = { initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.25 } };
 
@@ -92,26 +94,68 @@ export default function InboxPage() {
     });
   };
 
+  const { data: session } = useSession();
+
   const fetchEmails = useCallback(async (isSilent = false) => {
     if (!isSilent) setRefreshing(true);
+    const userEmail = session?.user?.email?.toLowerCase().trim();
+    const userId = session?.user?.id;
+
+    // Dispatched emails where current user is a recipient, or if self-sent
+    const clientIncoming = getDispatchedEmailsFromStorage().filter(e => {
+      if (e.folder === 'trash' || e.draft) return false;
+      const matched = e.recipients?.some(r =>
+        (userEmail && r.address?.toLowerCase() === userEmail) ||
+        (userId && r.userId === userId)
+      );
+      // In demo mode without explicit userEmail, also show if incoming folder
+      if (!userEmail && !userId) return e.folder === 'inbox';
+      return matched;
+    });
+
     try {
       const res = await fetch('/api/emails?folder=inbox');
+      let baseList: any[] = [];
       if (res.ok) {
         const data = await res.json();
-        const list = (data.emails && data.emails.length > 0) ? data.emails : FALLBACK_EMAILS.filter(e => e.folder === 'inbox');
-        setEmails(mapToEmailMessages(list));
+        baseList = (data.emails && data.emails.length > 0)
+          ? data.emails
+          : FALLBACK_EMAILS.filter(e => e.folder === 'inbox');
       } else {
-        const fallbackList = FALLBACK_EMAILS.filter(e => e.folder === 'inbox');
-        setEmails(mapToEmailMessages(fallbackList));
+        baseList = FALLBACK_EMAILS.filter(e => e.folder === 'inbox');
       }
+
+      // Merge API list and client incoming emails, deduplicating by id
+      const map = new Map<string, any>();
+      for (const item of baseList) {
+        map.set(item.id, item);
+      }
+      for (const item of clientIncoming) {
+        if (!map.has(item.id)) {
+          map.set(item.id, item);
+        }
+      }
+
+      const mergedList = Array.from(map.values()).sort((a, b) => {
+        const tA = new Date(a.sentAt || a.createdAt || 0).getTime();
+        const tB = new Date(b.sentAt || b.createdAt || 0).getTime();
+        return tB - tA;
+      });
+
+      setEmails(mapToEmailMessages(mergedList));
     } catch {
       const fallbackList = FALLBACK_EMAILS.filter(e => e.folder === 'inbox');
-      setEmails(mapToEmailMessages(fallbackList));
+      const map = new Map<string, any>();
+      for (const item of fallbackList) map.set(item.id, item);
+      for (const item of clientIncoming) {
+        if (!map.has(item.id)) map.set(item.id, item);
+      }
+      setEmails(mapToEmailMessages(Array.from(map.values())));
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [session?.user?.email, session?.user?.id]);
 
   useEffect(() => {
     fetchEmails();

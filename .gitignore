@@ -51,3 +51,4 @@ htmlcov/
 .vercel
 .agents/
 skills-lock.json
+.garuda_data/

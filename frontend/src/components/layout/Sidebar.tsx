@@ -85,11 +85,16 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onCloseMobile
       } catch {}
     }
     loadCounts();
+    const handleDispatched = () => loadCounts();
+    window.addEventListener('email-dispatched', handleDispatched);
     const interval = setInterval(() => {
       if (typeof document !== 'undefined' && document.hidden) return;
       loadCounts();
-    }, 8000);
-    return () => clearInterval(interval);
+    }, 6000);
+    return () => {
+      window.removeEventListener('email-dispatched', handleDispatched);
+      clearInterval(interval);
+    };
   }, []);
 
   return (

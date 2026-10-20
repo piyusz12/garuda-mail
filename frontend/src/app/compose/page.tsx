@@ -12,6 +12,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import clsx from 'clsx';
 import { SUPPORTED_PROTOCOLS, ProtocolType, ProtocolSpec } from '@/lib/protocols';
 import type { CommSecurityAuditResult } from '@/lib/commSecurity';
+import { saveDispatchedEmailToStorage } from '@/lib/clientEmailStore';
 
 const fadeUp = { initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.3 } };
 
@@ -269,8 +270,18 @@ function ComposeForm() {
         throw new Error(data.error || 'Failed to dispatch email');
       }
 
+      if (data.email) {
+        saveDispatchedEmailToStorage(data.email);
+      }
+
+      // Notify any active components (Inbox, Sent, QuickMail)
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('email-dispatched', { detail: data }));
+      }
+
       setSending(false);
       setSent(true);
+      router.refresh();
       router.push('/sent');
     } catch (err: unknown) {
       setSending(false);
@@ -301,8 +312,16 @@ function ComposeForm() {
         }),
       });
 
-      if (!res.ok) throw new Error('Failed to save draft');
+      const draftData = await res.json();
+      if (!res.ok) throw new Error(draftData.error || 'Failed to save draft');
+      if (draftData.email) {
+        saveDispatchedEmailToStorage(draftData.email);
+      }
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('email-dispatched', { detail: draftData }));
+      }
       setSavingDraft(false);
+      router.refresh();
       router.push('/drafts');
     } catch (err: unknown) {
       setSavingDraft(false);

@@ -9,77 +9,133 @@ import {
 import AppShell from '@/components/layout/AppShell';
 import Link from 'next/link';
 import clsx from 'clsx';
+import { useSession } from 'next-auth/react';
 import type { EmailMessage } from '@/types/email';
+import { getDispatchedEmailsFromStorage } from '@/lib/clientEmailStore';
 
 const fadeUp = { initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.25 } };
 
+function mapToSentMessage(e: any): EmailMessage {
+  return {
+    id: e.id,
+    folder: 'sent',
+    from: {
+      name: e.from?.name || 'Me',
+      email: e.from?.email || '',
+      domain: (e.from?.email || '').split('@')[1] || '',
+    },
+    to: e.recipients?.map((r: any) => ({
+      name: r.name || r.user?.name || r.address,
+      email: r.address || r.user?.email || '',
+      domain: (r.address || '').split('@')[1] || '',
+    })) || [],
+    subject: e.subject || '(No Subject)',
+    preview: e.preview || e.body?.slice(0, 140) || '',
+    body: e.body || '',
+    timestamp: e.sentAt || e.createdAt || new Date().toISOString(),
+    read: true,
+    starred: e.starred || false,
+    attachments: e.attachments || [],
+    security: {
+      level: e.tlsVersion ? 'secure' : 'critical',
+      tlsVersion: e.tlsVersion || null,
+      cipher: e.cipher || null,
+      forwardSecrecy: e.forwardSecrecy ?? null,
+      starttls: e.starttls ?? null,
+      certificateStatus: 'valid',
+      riskScore: e.riskScore ?? 0,
+      anomalyScore: null,
+      findingsCount: 0,
+      sessionId: null,
+    },
+    threadId: e.threadId || `THREAD-${e.id}`,
+    labels: [],
+  };
+}
+
 export default function SentPage() {
+  const { data: session } = useSession();
   const [emails, setEmails] = useState<EmailMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   const fetchSent = useCallback(async (isSilent = false) => {
     if (!isSilent) setRefreshing(true);
+    const userEmail = session?.user?.email?.toLowerCase().trim();
+    const userId = session?.user?.id;
+
+    // Read client-side storage cache immediately
+    const clientStored = getDispatchedEmailsFromStorage().filter(e => {
+      if (e.folder !== 'sent' && e.draft) return false;
+      const isSender = (userId && e.fromId === userId) ||
+        (userEmail && e.from?.email?.toLowerCase() === userEmail) ||
+        (!userId && !userEmail);
+      return isSender;
+    });
+
     try {
       const res = await fetch('/api/emails?folder=sent');
+      let apiEmails: any[] = [];
       if (res.ok) {
         const data = await res.json();
         if (data.emails && Array.isArray(data.emails)) {
-          const mapped: EmailMessage[] = data.emails.map((e: any) => ({
-            id: e.id,
-            folder: 'sent',
-            from: {
-              name: e.from?.name || 'Me',
-              email: e.from?.email || '',
-              domain: (e.from?.email || '').split('@')[1] || '',
-            },
-            to: e.recipients?.map((r: any) => ({
-              name: r.name || r.user?.name || r.address,
-              email: r.address || r.user?.email || '',
-              domain: (r.address || '').split('@')[1] || '',
-            })) || [],
-            subject: e.subject || '(No Subject)',
-            preview: e.preview || e.body?.slice(0, 140) || '',
-            body: e.body || '',
-            timestamp: e.sentAt || e.createdAt,
-            read: true,
-            starred: e.starred || false,
-            attachments: e.attachments || [],
-            security: {
-              level: e.tlsVersion ? 'secure' : 'critical',
-              tlsVersion: e.tlsVersion || null,
-              cipher: e.cipher || null,
-              forwardSecrecy: e.forwardSecrecy ?? null,
-              starttls: e.starttls ?? null,
-              certificateStatus: 'valid',
-              riskScore: e.riskScore ?? 0,
-              anomalyScore: null,
-              findingsCount: 0,
-              sessionId: null,
-            },
-            threadId: e.threadId || `THREAD-${e.id}`,
-            labels: [],
-          }));
-          setEmails(mapped);
+          apiEmails = data.emails;
         }
-      } else {
-        setEmails([]);
       }
+
+      // Merge API emails and client-stored emails, deduplicating by id
+      const map = new Map<string, any>();
+      for (const item of apiEmails) {
+        map.set(item.id, item);
+      }
+      for (const item of clientStored) {
+        if (!map.has(item.id)) {
+          map.set(item.id, item);
+        }
+      }
+
+      const mergedList = Array.from(map.values()).sort((a, b) => {
+        const tA = new Date(a.sentAt || a.createdAt || 0).getTime();
+        const tB = new Date(b.sentAt || b.createdAt || 0).getTime();
+        return tB - tA;
+      });
+
+      setEmails(mergedList.map(mapToSentMessage));
     } catch {
-      // keep current emails
+      if (clientStored.length > 0) {
+        setEmails(clientStored.map(mapToSentMessage));
+      }
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [session?.user?.email, session?.user?.id]);
 
   useEffect(() => {
+    // Initial quick hydrate from storage
+    const initialClient = getDispatchedEmailsFromStorage().filter(e => e.folder === 'sent' && !e.draft);
+    if (initialClient.length > 0) {
+      setEmails(initialClient.map(mapToSentMessage));
+      setLoading(false);
+    }
+
     fetchSent();
+
+    const handleDispatched = () => {
+      fetchSent(true);
+    };
+
+    window.addEventListener('email-dispatched', handleDispatched);
+
     const interval = setInterval(() => {
       if (typeof document !== 'undefined' && document.hidden) return;
       fetchSent(true);
-    }, 6000);
-    return () => clearInterval(interval);
+    }, 4000);
+
+    return () => {
+      window.removeEventListener('email-dispatched', handleDispatched);
+      clearInterval(interval);
+    };
   }, [fetchSent]);
 
   return (

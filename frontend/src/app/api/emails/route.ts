@@ -28,37 +28,62 @@ export async function GET(request: NextRequest) {
   const userId = session.user.id;
   const userEmail = session.user.email?.toLowerCase().trim();
 
+  // ── Serverless cookie sync: recover recent dispatched emails if container restarted
+  try {
+    const cookieHeader = request.headers.get('cookie') || '';
+    const match = cookieHeader.match(/garuda_client_dispatched=([^;]+)/);
+    if (match) {
+      const decoded = decodeURIComponent(match[1]);
+      const clientEmails = JSON.parse(decoded);
+      if (Array.isArray(clientEmails)) {
+        for (const ce of clientEmails) {
+          if (ce && ce.id) saveCustomEmail(ce);
+        }
+      }
+    }
+  } catch {}
+
+  // If database is not configured (e.g. Vercel zero-db or offline demo), immediately use resilient fallback store
+  if (!process.env.DATABASE_URL) {
+    return NextResponse.json(getServerFallbackEmailsResponse(folder, search, userEmail, userId));
+  }
+
   try {
     // ── Auto-claim: Reconcile any unassigned incoming emails sent to this user's email address
     if (userEmail) {
-      const hasUnassigned = await prisma.emailRecipient.findFirst({
-        where: { address: userEmail, userId: null },
-        select: { id: true },
-      });
-      if (hasUnassigned) {
-        await prisma.emailRecipient.updateMany({
+      try {
+        const hasUnassigned = await prisma.emailRecipient.findFirst({
           where: { address: userEmail, userId: null },
-          data: { userId: userId },
+          select: { id: true },
         });
-      }
+        if (hasUnassigned) {
+          await prisma.emailRecipient.updateMany({
+            where: { address: userEmail, userId: null },
+            data: { userId: userId },
+          });
+        }
+      } catch {}
     }
 
     let rawEmails: Array<Record<string, any>> = [];
 
     if (folder === 'sent') {
-      // Sent emails
-      const whereClause: {
-        fromId: string;
-        draft: boolean;
-        OR?: Array<{ subject?: { contains: string }; body?: { contains: string } }>;
-      } = {
-        fromId: userId,
+      // Sent emails: match by fromId OR sender email
+      const whereClause: any = {
+        OR: [
+          { fromId: userId },
+          ...(userEmail ? [{ from: { email: userEmail } }] : []),
+        ],
         draft: false,
       };
       if (search) {
-        whereClause.OR = [
-          { subject: { contains: search } },
-          { body: { contains: search } },
+        whereClause.AND = [
+          {
+            OR: [
+              { subject: { contains: search } },
+              { body: { contains: search } },
+            ],
+          },
         ];
       }
       rawEmails = await prisma.email.findMany({
@@ -77,7 +102,13 @@ export async function GET(request: NextRequest) {
       });
     } else if (folder === 'drafts') {
       rawEmails = await prisma.email.findMany({
-        where: { fromId: userId, draft: true },
+        where: {
+          OR: [
+            { fromId: userId },
+            ...(userEmail ? [{ from: { email: userEmail } }] : []),
+          ],
+          draft: true,
+        },
         include: {
           from: { select: { id: true, name: true, email: true } },
           recipients: {
@@ -155,12 +186,7 @@ export async function GET(request: NextRequest) {
       }));
     }
 
-    // ── Resilient Showcase Fallback: If no custom emails exist for this user in DB, populate rich showcase emails
-    if (rawEmails.length === 0) {
-      return NextResponse.json(getServerFallbackEmailsResponse(folder, search, userEmail, userId));
-    }
-
-    // ── Merge custom memory/ephemeral emails if any were dispatched
+    // ── Merge custom memory/ephemeral emails BEFORE checking emptiness
     const customList = readCustomEmails();
     const existingIds = new Set(rawEmails.map(e => e.id));
     for (const c of customList) {
@@ -177,6 +203,11 @@ export async function GET(request: NextRequest) {
           rawEmails.unshift(c);
         }
       }
+    }
+
+    // ── Resilient Showcase Fallback: If no emails exist at all, populate rich showcase emails
+    if (rawEmails.length === 0) {
+      return NextResponse.json(getServerFallbackEmailsResponse(folder, search, userEmail, userId));
     }
 
     // ── Decrypt message bodies with AES-256-GCM for the authenticated user
