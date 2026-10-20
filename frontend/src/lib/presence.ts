@@ -1,4 +1,4 @@
-import { listAllUsers, type UserRecord } from '@/lib/users';
+import { listAllUsers } from '@/lib/users';
 
 export interface UserPresence {
   id: string;

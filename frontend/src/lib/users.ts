@@ -611,12 +611,9 @@ export async function deleteUserByEmail(email: string): Promise<boolean> {
   deletedUsers.add(normalized);
   saveDeletedUsers(deletedUsers);
 
-  let deleted = false;
-
   // In-memory
   if (inMemoryUsers.has(normalized)) {
     inMemoryUsers.delete(normalized);
-    deleted = true;
   }
 
   // /tmp file
@@ -625,16 +622,14 @@ export async function deleteUserByEmail(email: string): Promise<boolean> {
     if (tmp[normalized]) {
       delete tmp[normalized];
       fs.writeFileSync(TMP_USERS_FILE, JSON.stringify(tmp), 'utf-8');
-      deleted = true;
     }
   } catch {}
 
   // Prisma DB
   try {
-    const res = await prisma.user.deleteMany({
+    await prisma.user.deleteMany({
       where: { email: normalized },
     });
-    if (res.count > 0) deleted = true;
   } catch {}
 
   return true;

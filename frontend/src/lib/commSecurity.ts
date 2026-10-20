@@ -305,13 +305,6 @@ export async function auditDomainCommSecurity(inputDomain: string): Promise<Comm
     });
   }
 
-  const recommendations = [
-    mtaStsMode !== 'enforce' ? 'Deploy RFC 8461 MTA-STS in mode: enforce with max_age >= 604800 seconds.' : 'Maintain active MTA-STS TLS-RPT reporting endpoint to monitor MTA transport health.',
-    !hasDane ? 'Implement DANE / TLSA (RFC 7672) backed by sovereign DNSSEC root verification.' : 'Periodically rotate DANE TLSA SPKI records with automated rollover grace periods.',
-    !pqcEnabled ? 'Migrate outbound TLS transport to NIST FIPS 203 ML-KEM-768 hybrid key exchange.' : 'Conduct quarterly CBOM (Cryptographic Bill of Materials) audits against sovereign quantum roadmap.',
-    'Enforce HSTS preload with 2-year duration and COOP/CORP headers on all webmail and API entry points.',
-  ];
-
   return {
     domain: cleanDomain,
     score,

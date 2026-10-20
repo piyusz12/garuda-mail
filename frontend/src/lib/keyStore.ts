@@ -100,7 +100,7 @@ export function registerPublicKey(params: {
       });
 
       // Update peer trust records where this user was trusted to flag mismatch
-      for (const [key, trust] of trustStore.entries()) {
+      for (const trust of trustStore.values()) {
         if (trust.peerEmail === email && trust.trustedFingerprint !== encFp) {
           trust.warningFlag = true;
           trust.lastSeenFingerprint = encFp;

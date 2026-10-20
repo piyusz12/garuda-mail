@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   FileText, Download, Printer, X, Check, Copy,
-  Shield, Brain, Award, Fingerprint, Sparkles, ExternalLink
+  Shield, Brain, Award, Fingerprint, ExternalLink
 } from 'lucide-react';
 import { usePcapStore } from '@/lib/store/usePcapStore';
 

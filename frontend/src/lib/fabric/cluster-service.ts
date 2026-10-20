@@ -1,5 +1,5 @@
-import { listNodes, type FabricNode } from '@/lib/fabric/node-registry';
-import { scheduleWorkload, type WorkloadRequest, type ScheduleDecision } from '@/lib/fabric/scheduler';
+import { listNodes } from '@/lib/fabric/node-registry';
+import { scheduleWorkload } from '@/lib/fabric/scheduler';
 
 export interface ClusterMetrics {
   systemStatus: 'HEALTHY' | 'DEGRADED';
@@ -164,8 +164,8 @@ export function runBenchmark(count = 50): BenchmarkResult {
 export function runSIHDemo(demoId: number): DemoResult {
   switch (demoId) {
     case 1: {
-      const dec1 = scheduleWorkload({ capability: 'chat', model: 'qwen-local' });
-      const dec2 = scheduleWorkload({ capability: 'chat', model: 'qwen-local' });
+      scheduleWorkload({ capability: 'chat', model: 'qwen-local' });
+      scheduleWorkload({ capability: 'chat', model: 'qwen-local' });
       return {
         demoId: 1,
         title: 'Demo 1 — Distributed Inference',

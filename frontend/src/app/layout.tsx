@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import AuthProvider from "@/components/providers/AuthProvider";

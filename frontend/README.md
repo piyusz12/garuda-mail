@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Garuda Mail — Enterprise Frontend
+
+The Next.js enterprise web interface for **Garuda Mail (SIH26159)**, providing sovereign email operations, forensic PCAP visualization, zero-trust RBAC governance, and end-to-end cryptographic key management.
+
+## Tech Stack
+
+- **Framework**: Next.js 16 (App Router) + React 19 + TypeScript
+- **Styling**: Tailwind CSS + Framer Motion
+- **ORM & Database**: Prisma with SQLite (local dev) / PostgreSQL (production)
+- **Authentication**: NextAuth.js (JWT session tokens with RBAC)
+- **Cryptography**: Web Crypto API & Node.js Crypto (RSA-OAEP, RSA-PSS, AES-256-GCM, SHA-256)
+- **Data Visualization**: Recharts, @xyflow/react, Cytoscape
 
 ## Getting Started
 
-First, run the development server:
+From the `frontend/` directory:
 
 ```bash
+# 1. Install dependencies
+npm install
+
+# 2. Generate Prisma Client & seed development database
+npx prisma db push
+node prisma/seed.js
+
+# 3. Start local development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Visit [http://localhost:3000](http://localhost:3000) to access the console.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Testing & Quality
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+From the repository root:
 
-## Learn More
+```bash
+# Run all test suites (Pytest + Crypto + Audit + RBAC)
+python run.py test-all
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# Or run frontend-specific suites
+python run.py test-crypto
+python run.py test-audit
+python run.py test-rbac
+```

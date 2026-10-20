@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import {
-  Search, Bell, Wifi, Check, Clock,
+  Search, Bell, Check, Clock,
   ExternalLink, Settings as SettingsIcon, LogOut, Laptop,
   Menu, Smartphone, Copy, CheckCheck, QrCode, Sparkles, Shield, ShieldAlert,
   Zap

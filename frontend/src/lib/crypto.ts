@@ -434,7 +434,7 @@ export function decryptPayload(rawBody: string, secret?: string, recipientPrivat
         signatureVerified: false,
         senderFingerprint: envelope.keyFingerprint,
       };
-    } catch (err) {
+    } catch {
       return {
         plaintext: '[Encrypted Payload - Authenticated Key Required to Decrypt]',
         isEncrypted: true,
