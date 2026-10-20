@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useSearchParams } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 import {
   ShieldCheck, Lock, Mail, Users, KeyRound, CheckCircle2,
   Send, AlertCircle, ArrowUpRight, ShieldAlert, Cpu, Sparkles,
-  RefreshCw, Shield, FileText, UserCheck, ExternalLink
+  RefreshCw, Shield, FileText, UserCheck, ExternalLink, Zap, Loader2
 } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
 import Link from 'next/link';
@@ -42,11 +44,32 @@ const stagger = {
 };
 
 export default function UserDashboardClient({ currentUser }: UserDashboardClientProps) {
+  const searchParams = useSearchParams();
+  const adminRequired = searchParams.get('error') === 'admin_required';
+  const [adminSwitchLoading, setAdminSwitchLoading] = useState(false);
   const [recentMessages, setRecentMessages] = useState<RecentMessage[]>([]);
   const [loadingMessages, setLoadingMessages] = useState(true);
   const [onlinePeers, setOnlinePeers] = useState<number>(0);
   const [hasLocalKey, setHasLocalKey] = useState<boolean>(false);
   const [fingerprint, setFingerprint] = useState<string>('Generating / loading local key...');
+
+  const handleInstantAdmin = async () => {
+    setAdminSwitchLoading(true);
+    try {
+      const res = await signIn('credentials', {
+        email: 'admin@garudamail.local',
+        password: 'GarudaAdmin2026!',
+        redirect: false,
+      });
+      if (res?.ok) {
+        window.location.href = '/admin/dashboard';
+      } else {
+        window.location.href = '/login?instant=admin';
+      }
+    } catch {
+      window.location.href = '/login?instant=admin';
+    }
+  };
 
   useEffect(() => {
     // Check client-side cryptographic vault via single source of truth
@@ -94,6 +117,37 @@ export default function UserDashboardClient({ currentUser }: UserDashboardClient
     <AppShell title="Personal Security Dashboard" description="GARUDA — Sovereign End-to-End Encrypted Workspace">
       <motion.div initial="initial" animate="animate" variants={stagger} className="space-y-6">
 
+        {/* ── Admin Required Escalation Alert ── */}
+        {adminRequired && (
+          <motion.div
+            variants={fadeUp}
+            className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+          >
+            <div className="flex items-center gap-3">
+              <ShieldAlert className="text-rose-400 flex-shrink-0" size={20} />
+              <div>
+                <div className="text-xs font-bold text-rose-300">Administrator Privileges Required</div>
+                <div className="text-[11px] text-slate-400 mt-0.5">
+                  You attempted to access an administrative route. Use Instant Admin Login to elevate immediately.
+                </div>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={handleInstantAdmin}
+              disabled={adminSwitchLoading}
+              className="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white text-xs font-bold shadow-md shadow-rose-950/40 border border-rose-400/30 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+            >
+              {adminSwitchLoading ? (
+                <Loader2 size={13} className="animate-spin text-white" />
+              ) : (
+                <Zap size={13} className="text-yellow-200 fill-yellow-200" />
+              )}
+              <span>⚡ Elevate to Admin</span>
+            </button>
+          </motion.div>
+        )}
+
         {/* ── Welcome & Profile Hero Card ── */}
         <motion.div
           variants={fadeUp}
@@ -127,7 +181,29 @@ export default function UserDashboardClient({ currentUser }: UserDashboardClient
               </div>
             </div>
 
-            <div className="flex items-center gap-2 w-full sm:w-auto">
+            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+              {currentUser.role !== 'admin' && (
+                <button
+                  id="dashboard-instant-admin-btn"
+                  type="button"
+                  onClick={handleInstantAdmin}
+                  disabled={adminSwitchLoading}
+                  className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-rose-600 via-rose-500 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white text-xs font-bold shadow-md shadow-rose-950/30 border border-rose-400/30 transition-all active:scale-95 cursor-pointer disabled:opacity-50"
+                  title="Instant Admin Login — Elevate session to System Administrator"
+                >
+                  {adminSwitchLoading ? (
+                    <>
+                      <Loader2 size={13} className="animate-spin text-white" />
+                      <span>Switching to Admin...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Zap size={13} className="text-yellow-200 fill-yellow-200" />
+                      <span>⚡ Instant Admin Login</span>
+                    </>
+                  )}
+                </button>
+              )}
               <Link
                 href="/compose"
                 className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white text-xs font-semibold shadow-md shadow-indigo-500/20 transition-all active:scale-95"

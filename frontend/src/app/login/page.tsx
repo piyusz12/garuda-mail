@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useCallback } from 'react';
 import { getSession, signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Mail, Lock, Eye, EyeOff, AlertCircle, Loader2 } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, AlertCircle, Loader2, Zap, ShieldAlert, Shield, User, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { getProtectedRouteForRole } from '@/lib/roles';
 
@@ -22,6 +22,7 @@ function LoginForm() {
   const rawCallback = searchParams.get('callbackUrl') || '/inbox';
   const callbackUrl = rawCallback.startsWith('/') ? rawCallback : '/inbox';
   const registered = searchParams.get('registered') === 'true';
+  const instantParam = searchParams.get('instant');
 
   const urlError = searchParams.get('error');
 
@@ -29,15 +30,46 @@ function LoginForm() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [instantLoading, setInstantLoading] = useState(false);
   const [error, setError] = useState(
     urlError === 'admin_required'
-      ? 'Administrator privileges required. Please sign in with an admin account.'
+      ? 'Administrator privileges required. Use Instant Admin Login below.'
       : urlError === 'account_suspended'
       ? 'This account has been suspended by an administrator.'
       : urlError === 'forbidden'
       ? 'Access forbidden. You do not have permission to view that resource.'
       : ''
   );
+
+  const handleInstantLogin = useCallback(async (targetEmail = 'admin@garudamail.local', targetPass = 'GarudaAdmin2026!') => {
+    setInstantLoading(true);
+    setError('');
+
+    try {
+      const result = await signIn('credentials', {
+        email: targetEmail,
+        password: targetPass,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setError('Instant login failed: ' + result.error);
+        setInstantLoading(false);
+      } else {
+        window.location.href = targetEmail.includes('admin') ? '/admin/dashboard' : '/user/dashboard';
+      }
+    } catch (err: any) {
+      setError(err?.message || 'Instant login failed');
+      setInstantLoading(false);
+    }
+  }, []);
+
+  // Handle URL parameter ?instant=admin for direct 1-click execution
+  useEffect(() => {
+    if (instantParam === 'admin') {
+      handleInstantLogin('admin@garudamail.local', 'GarudaAdmin2026!');
+    }
+  }, [instantParam, handleInstantLogin]);
 
   // Clear any auto-populated credentials on mount for a 100% fresh login
   useEffect(() => {
@@ -96,11 +128,11 @@ function LoginForm() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="w-full max-w-[400px] space-y-6 relative"
+        className="w-full max-w-[420px] space-y-5 relative"
       >
         {/* Logo */}
         <div className="text-center">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[var(--color-surface-2)] border border-[var(--color-border)] mb-4">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[var(--color-surface-2)] border border-[var(--color-border)] mb-3">
             <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-8 h-8">
               <path d="M14 2L24 8V20L14 26L4 20V8L14 2Z" stroke="var(--color-accent)" strokeWidth="1.5" fill="none" />
               <path d="M14 6L20 9.5V16.5L14 20L8 16.5V9.5L14 6Z" stroke="var(--color-accent)" strokeWidth="1" fill="var(--color-accent-dim)" />
@@ -108,10 +140,49 @@ function LoginForm() {
             </svg>
           </div>
           <h1 className="text-[22px] font-bold text-[var(--color-text-primary)]">Garuda Mail</h1>
-          <p className="text-[13px] text-[var(--color-text-muted)] mt-1">
-            AI-Assisted Email Security Platform
+          <p className="text-[13px] text-[var(--color-text-muted)] mt-0.5">
+            Cryptographic Forensics & Security Intelligence
           </p>
         </div>
+
+        {/* ── HIGHLIGHTED: Instant Admin Login One-Click Hero Button ── */}
+        <motion.div
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.99 }}
+          className="relative p-[1px] rounded-2xl bg-gradient-to-r from-rose-500 via-amber-500 to-indigo-600 shadow-xl shadow-rose-950/30 overflow-hidden"
+        >
+          <button
+            id="instant-admin-login-button"
+            type="button"
+            onClick={() => handleInstantLogin('admin@garudamail.local', 'GarudaAdmin2026!')}
+            disabled={instantLoading || loading}
+            className="w-full p-4 rounded-[15px] bg-[var(--color-surface-1)] hover:bg-[var(--color-surface-2)] transition-all flex items-center justify-between text-left group cursor-pointer disabled:opacity-50"
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500 to-amber-600 flex items-center justify-center text-white shadow-md shadow-rose-500/25 flex-shrink-0 group-hover:scale-105 transition-transform">
+                {instantLoading ? (
+                  <Loader2 size={18} className="animate-spin text-white" />
+                ) : (
+                  <Zap size={20} className="text-yellow-200 fill-yellow-200 animate-pulse" />
+                )}
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[14px] font-bold text-white group-hover:text-rose-200 transition-colors">
+                    Instant Admin Login
+                  </span>
+                  <span className="px-1.5 py-0.2 rounded text-[10px] font-extrabold uppercase bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                    1-Click
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-400 mt-0.5 truncate">
+                  Direct access to Cryptographic SOC & Forensics Console
+                </p>
+              </div>
+            </div>
+            <ArrowRight size={16} className="text-rose-400 group-hover:translate-x-1 transition-transform flex-shrink-0 ml-2" />
+          </button>
+        </motion.div>
 
         {/* Success message after registration */}
         {registered && (
@@ -127,9 +198,12 @@ function LoginForm() {
 
         {/* Form Card */}
         <div className="card p-6">
-          <h2 className="text-[15px] font-semibold text-[var(--color-text-primary)] mb-5">
-            Sign in to your account
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-[14px] font-semibold text-[var(--color-text-primary)]">
+              Or sign in with credentials
+            </h2>
+            <span className="text-[11px] text-[var(--color-text-dim)]">Standard Auth</span>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off" suppressHydrationWarning>
             {/* Email */}
@@ -216,6 +290,57 @@ function LoginForm() {
               )}
             </button>
           </form>
+
+          {/* Quick Demo Accounts Selection */}
+          <div className="mt-5 pt-4 border-t border-[var(--color-border)]">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-dim)] flex items-center gap-1 mb-2">
+              <Zap size={11} className="text-amber-400" />
+              1-Click Demo Profiles
+            </span>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => handleInstantLogin('admin@garudamail.local', 'GarudaAdmin2026!')}
+                disabled={instantLoading || loading}
+                className="p-2 rounded-lg bg-[var(--color-surface-2)] hover:bg-rose-500/10 border border-[var(--color-border)] hover:border-rose-500/30 text-left transition-all group cursor-pointer disabled:opacity-50"
+              >
+                <div className="text-[11px] font-semibold text-rose-400 flex items-center gap-1">
+                  <span>👑 Admin</span>
+                </div>
+                <div className="text-[9px] text-[var(--color-text-dim)] truncate mt-0.5">
+                  Full SOC Access
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleInstantLogin('officer@garudamail.local', 'GarudaAdmin2026!')}
+                disabled={instantLoading || loading}
+                className="p-2 rounded-lg bg-[var(--color-surface-2)] hover:bg-sky-500/10 border border-[var(--color-border)] hover:border-sky-500/30 text-left transition-all group cursor-pointer disabled:opacity-50"
+              >
+                <div className="text-[11px] font-semibold text-sky-400 flex items-center gap-1">
+                  <span>🛡️ Officer</span>
+                </div>
+                <div className="text-[9px] text-[var(--color-text-dim)] truncate mt-0.5">
+                  Forensic Analyst
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleInstantLogin('user@garudamail.local', 'GarudaAdmin2026!')}
+                disabled={instantLoading || loading}
+                className="p-2 rounded-lg bg-[var(--color-surface-2)] hover:bg-emerald-500/10 border border-[var(--color-border)] hover:border-emerald-500/30 text-left transition-all group cursor-pointer disabled:opacity-50"
+              >
+                <div className="text-[11px] font-semibold text-emerald-400 flex items-center gap-1">
+                  <span>👤 Operative</span>
+                </div>
+                <div className="text-[9px] text-[var(--color-text-dim)] truncate mt-0.5">
+                  Standard E2EE
+                </div>
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Register link */}

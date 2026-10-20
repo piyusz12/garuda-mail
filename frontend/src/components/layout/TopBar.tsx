@@ -2,12 +2,12 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSession, signOut } from 'next-auth/react';
+import { useSession, signOut, signIn } from 'next-auth/react';
 import {
   Search, Bell, Check, Clock,
   ExternalLink, Settings as SettingsIcon, LogOut, Laptop,
   Menu, Smartphone, Copy, CheckCheck, QrCode, Sparkles, Shield, ShieldAlert,
-  Zap
+  Zap, Loader2
 } from 'lucide-react';
 import clsx from 'clsx';
 import Link from 'next/link';
@@ -26,6 +26,25 @@ export default function TopBar({ title, description, onOpenMobileMenu }: TopBarP
   const [activeDropdown, setActiveDropdown] = useState<'notifications' | 'api' | 'user' | null>(null);
   const [copied, setCopied] = useState(false);
   const [syncUrl, setSyncUrl] = useState('https://garuda-mail.vercel.app');
+  const [adminSwitchLoading, setAdminSwitchLoading] = useState(false);
+
+  const handleInstantAdminEscalate = async () => {
+    setAdminSwitchLoading(true);
+    try {
+      const res = await signIn('credentials', {
+        email: 'admin@garudamail.local',
+        password: 'GarudaAdmin2026!',
+        redirect: false,
+      });
+      if (res?.ok) {
+        window.location.href = '/admin/dashboard';
+      } else {
+        window.location.href = '/login?instant=admin';
+      }
+    } catch {
+      window.location.href = '/login?instant=admin';
+    }
+  };
 
   const [notifications, setNotifications] = useState([
     { id: 1, title: 'STARTTLS Downgrade Detected', desc: 'Plaintext IMAP session without TLS on port 143', time: '12m ago', unread: true, sev: 'critical' },
@@ -190,6 +209,26 @@ export default function TopBar({ title, description, onOpenMobileMenu }: TopBarP
             )}
           </button>
         </div>
+
+        {/* Instant Admin Escalation Button (visible whenever current user role is not admin) */}
+        {session?.user && session?.user?.role !== 'admin' && (
+          <button
+            id="topbar-instant-admin-btn"
+            type="button"
+            onClick={handleInstantAdminEscalate}
+            disabled={adminSwitchLoading}
+            className="flex items-center gap-1.5 h-8 px-2.5 rounded-lg text-[11px] font-bold text-rose-300 bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 hover:border-rose-500/50 shadow-sm transition-all active:scale-95 cursor-pointer disabled:opacity-50"
+            title="Instant Admin Login — Switch to Administrator"
+          >
+            {adminSwitchLoading ? (
+              <Loader2 size={12} className="animate-spin text-rose-300" />
+            ) : (
+              <Zap size={12} className="text-amber-400 fill-amber-400" />
+            )}
+            <span className="hidden sm:inline">⚡ Instant Admin</span>
+            <span className="sm:hidden text-[10px]">Admin</span>
+          </button>
+        )}
 
         {/* User Avatar Button with Jewel Gradient Ring */}
         <div className="relative">
@@ -367,13 +406,29 @@ export default function TopBar({ title, description, onOpenMobileMenu }: TopBarP
                 <ShieldAlert size={12} /> Admin Dashboard
               </Link>
             ) : (
-              <Link
-                href="/user/dashboard"
-                onClick={() => setActiveDropdown(null)}
-                className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold rounded-md bg-sky-500/15 text-sky-300 hover:bg-sky-500/25 border border-sky-500/30 transition-colors mt-2"
-              >
-                <Shield size={12} /> My Dashboard
-              </Link>
+              <>
+                <Link
+                  href="/user/dashboard"
+                  onClick={() => setActiveDropdown(null)}
+                  className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold rounded-md bg-sky-500/15 text-sky-300 hover:bg-sky-500/25 border border-sky-500/30 transition-colors mt-2"
+                >
+                  <Shield size={12} /> My Dashboard
+                </Link>
+                <button
+                  id="dropdown-instant-admin-btn"
+                  type="button"
+                  onClick={handleInstantAdminEscalate}
+                  disabled={adminSwitchLoading}
+                  className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-[11px] font-bold rounded-md bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white shadow-sm border border-rose-400/30 transition-all mt-1.5 cursor-pointer disabled:opacity-50"
+                >
+                  {adminSwitchLoading ? (
+                    <Loader2 size={12} className="animate-spin text-white" />
+                  ) : (
+                    <Zap size={12} className="text-yellow-200 fill-yellow-200" />
+                  )}
+                  <span>⚡ Instant Admin Login</span>
+                </button>
+              </>
             )}
             <Link
               href="/settings"
