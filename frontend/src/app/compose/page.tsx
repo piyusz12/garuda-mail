@@ -306,6 +306,18 @@ function ComposeForm() {
     }
   };
 
+  // Global Ctrl+Enter shortcut listener
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        handleSend();
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, [to, cc, subject, body, protocol, encrypted, attachments, showCustomSmtp, customHost, customPort, customUser, customPass, directoryUsers]);
+
   const handleSaveDraft = async () => {
     if (!to && !subject && !body) return;
     setSavingDraft(true);
@@ -730,7 +742,14 @@ function ComposeForm() {
           )}
           <div className="px-4 pt-3 pb-4">
             <textarea
+              id="compose-body-textarea"
               value={body}
+              onKeyDown={e => {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                  e.preventDefault();
+                  handleSend();
+                }
+              }}
               onChange={e => {
                 setBody(e.target.value);
                 if (error) setError('');
