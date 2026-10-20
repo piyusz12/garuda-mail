@@ -33,8 +33,15 @@ export async function GET(request: NextRequest) {
     const cookieHeader = request.headers.get('cookie') || '';
     const match = cookieHeader.match(/garuda_client_dispatched=([^;]+)/);
     if (match) {
-      const decoded = decodeURIComponent(match[1]);
-      const clientEmails = JSON.parse(decoded);
+      let rawVal = match[1];
+      for (let i = 0; i < 3; i++) {
+        if (rawVal.startsWith('%')) {
+          try { rawVal = decodeURIComponent(rawVal); } catch { break; }
+        } else {
+          break;
+        }
+      }
+      const clientEmails = JSON.parse(rawVal);
       if (Array.isArray(clientEmails)) {
         for (const ce of clientEmails) {
           if (ce && ce.id) saveCustomEmail(ce);
@@ -191,16 +198,25 @@ export async function GET(request: NextRequest) {
     const existingIds = new Set(rawEmails.map(e => e.id));
     for (const c of customList) {
       if (!existingIds.has(c.id)) {
-        const isSender = (userId && c.fromId === userId) || (userEmail && c.from?.email?.toLowerCase() === userEmail);
-        const matchedRecipient = c.recipients.find(r => (userId && r.userId === userId) || (userEmail && r.address?.toLowerCase() === userEmail));
-        if (folder === 'sent' && isSender && !c.draft) {
+        const isSender = (userId && c.fromId === userId) ||
+          (userEmail && (c.from?.email?.toLowerCase() === userEmail || c.from?.id === userId));
+        const matchedRecipient = c.recipients?.find(r =>
+          (userId && r.userId === userId) ||
+          (userEmail && r.address?.toLowerCase() === userEmail)
+        );
+
+        if (folder === 'sent' && (isSender || c.folder === 'sent') && !c.draft) {
           rawEmails.unshift(c);
-        } else if ((folder === 'drafts' || folder === 'draft') && isSender && c.draft) {
+        } else if ((folder === 'drafts' || folder === 'draft') && (isSender || c.folder === 'drafts') && c.draft) {
           rawEmails.unshift(c);
         } else if (folder === 'starred' && (c.starred || matchedRecipient?.starred)) {
           rawEmails.unshift(c);
-        } else if (folder === 'inbox' && matchedRecipient && matchedRecipient.folder === 'inbox') {
-          rawEmails.unshift(c);
+        } else if (folder === 'inbox') {
+          if (matchedRecipient && matchedRecipient.folder === 'inbox') {
+            rawEmails.unshift(c);
+          } else if (isSender && userEmail && c.recipients?.some(r => r.address?.toLowerCase() === userEmail)) {
+            rawEmails.unshift(c);
+          }
         }
       }
     }
@@ -490,6 +506,26 @@ export async function POST(request: NextRequest) {
     let createdEmail: any = null;
 
     try {
+      // Ensure sender exists in DB so foreign key constraint never fails
+      try {
+        const dbSender = await prisma.user.findUnique({ where: { id: sender.id } });
+        if (!dbSender) {
+          await prisma.user.upsert({
+            where: { email: senderEmail },
+            update: { name: sender.name || 'Garuda User' },
+            create: {
+              id: sender.id,
+              name: sender.name || 'Garuda User',
+              email: senderEmail,
+              role: 'user',
+              avatarColor: sender.avatarColor || '#38BDF8',
+            },
+          });
+        }
+      } catch (upsertErr) {
+        console.warn('[Emails POST] Sender upsert skipped:', upsertErr);
+      }
+
       createdEmail = await prisma.email.create({
         data: {
           id: emailId,
@@ -512,7 +548,7 @@ export async function POST(request: NextRequest) {
             create: resolvedRecipients.map(r => ({
               address: r.address,
               name: r.name,
-              userId: r.userId,
+              userId: null,
               type: r.type,
               folder: r.folder,
             })),
@@ -590,8 +626,28 @@ export async function POST(request: NextRequest) {
     );
 
     try {
-      const recent = readCustomEmails().slice(0, 5);
-      const cookiePayload = encodeURIComponent(JSON.stringify(recent));
+      const recent = readCustomEmails().slice(0, 5).map(e => ({
+        id: e.id,
+        subject: e.subject,
+        preview: e.preview,
+        fromId: e.fromId,
+        from: e.from,
+        tlsVersion: e.tlsVersion || 'TLS 1.3',
+        cipher: e.cipher || 'TLS_AES_256_GCM_SHA384',
+        folder: e.folder || 'sent',
+        draft: Boolean(e.draft),
+        createdAt: e.createdAt,
+        sentAt: e.sentAt,
+        recipients: (e.recipients || []).map((r: any) => ({
+          id: r.id,
+          address: r.address,
+          name: r.name,
+          folder: r.folder || 'inbox',
+          read: Boolean(r.read),
+          starred: Boolean(r.starred),
+        })),
+      }));
+      const cookiePayload = JSON.stringify(recent);
       if (cookiePayload.length < 3500) {
         response.cookies.set('garuda_client_dispatched', cookiePayload, {
           path: '/',

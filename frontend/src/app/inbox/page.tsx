@@ -106,15 +106,20 @@ export default function InboxPage() {
       if (e.folder === 'trash' || e.draft) return false;
       const matched = e.recipients?.some(r =>
         (userEmail && r.address?.toLowerCase() === userEmail) ||
-        (userId && r.userId === userId)
+        (userId && r.userId === userId) ||
+        (userEmail && r.address?.toLowerCase().includes(userEmail.split('@')[0]))
       );
       if (matched) return true;
       // Also self-sent: if sender is userEmail, and recipient includes userEmail
       if (userEmail && e.from?.email?.toLowerCase() === userEmail && e.recipients?.some(r => r.address?.toLowerCase() === userEmail)) {
         return true;
       }
-      // In demo mode without explicit userEmail, also show if incoming folder
-      if (!userEmail && !userId) return e.folder === 'inbox';
+      // If user addresses to themselves
+      if (userEmail && e.recipients?.some(r => r.address?.toLowerCase() === userEmail)) {
+        return true;
+      }
+      // In demo mode or if no explicit userEmail, also show if incoming folder
+      if (!userEmail && !userId) return e.folder === 'inbox' || !e.folder;
       return false;
     });
 

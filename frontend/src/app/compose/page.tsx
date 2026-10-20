@@ -199,6 +199,16 @@ function ComposeForm() {
           continue;
         }
 
+        // 4.5. Plain username without domain: default to @garudamail.local
+        const cleanName = query.replace(/[^a-z0-9._-]/g, '').trim();
+        if (cleanName && cleanName.length >= 2) {
+          const fallbackEmail = `${cleanName}@garudamail.local`;
+          if (!seen.has(fallbackEmail)) {
+            seen.add(fallbackEmail);
+            results.push({ email: fallbackEmail, name: displayName || cleanName });
+          }
+          continue;
+        }
       }
     }
 
@@ -212,6 +222,11 @@ function ComposeForm() {
             seen.add(clean);
             results.push({ email: clean });
           }
+        }
+      } else {
+        const singleClean = raw.trim().replace(/[^a-zA-Z0-9._-]/g, '').toLowerCase();
+        if (singleClean && singleClean.length >= 2) {
+          results.push({ email: `${singleClean}@garudamail.local`, name: singleClean });
         }
       }
     }

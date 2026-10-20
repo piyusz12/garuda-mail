@@ -55,8 +55,24 @@ function mapToSentMessage(e: any): EmailMessage {
 
 export default function SentPage() {
   const { data: session } = useSession();
-  const [emails, setEmails] = useState<EmailMessage[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [emails, setEmails] = useState<EmailMessage[]>(() => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const stored = getDispatchedEmailsFromStorage().filter(e => e.folder !== 'trash' && !e.draft);
+      return stored.map(mapToSentMessage);
+    } catch {
+      return [];
+    }
+  });
+  const [loading, setLoading] = useState(() => {
+    if (typeof window === 'undefined') return true;
+    try {
+      const stored = getDispatchedEmailsFromStorage().filter(e => e.folder !== 'trash' && !e.draft);
+      return stored.length === 0;
+    } catch {
+      return true;
+    }
+  });
   const [refreshing, setRefreshing] = useState(false);
 
   const fetchSent = useCallback(async (isSilent = false) => {
@@ -64,15 +80,10 @@ export default function SentPage() {
     const userEmail = session?.user?.email?.toLowerCase().trim();
     const userId = session?.user?.id;
 
-    // Read client-side storage cache immediately
+    // Read client-side storage cache immediately (all emails dispatched from this browser outbox)
     const clientStored = getDispatchedEmailsFromStorage().filter(e => {
       if (e.folder === 'trash' || e.draft) return false;
-      if (userEmail || userId) {
-        const isSender = (userId && e.fromId === userId) ||
-          (userEmail && e.from?.email?.toLowerCase() === userEmail);
-        if (isSender) return true;
-      }
-      return e.folder === 'sent' || !e.folder;
+      return true;
     });
 
     try {

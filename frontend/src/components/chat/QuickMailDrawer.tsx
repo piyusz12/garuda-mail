@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import clsx from 'clsx';
 import { useSession } from 'next-auth/react';
+import { usePathname } from 'next/navigation';
 import type { UserPresence } from '@/lib/presence';
 import { saveDispatchedEmailToStorage } from '@/lib/clientEmailStore';
 
@@ -192,6 +193,11 @@ export default function QuickMailDrawer() {
     }
     return true;
   });
+
+  const pathname = usePathname();
+  if (pathname === '/compose') {
+    return null;
+  }
 
   return (
     <>

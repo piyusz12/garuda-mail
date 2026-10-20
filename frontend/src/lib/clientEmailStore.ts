@@ -86,8 +86,7 @@ export function saveDispatchedEmailToStorage(email: ClientStoredEmail): void {
       const recentSummary = trimmed.slice(0, 5).map(e => ({
         id: e.id,
         subject: e.subject,
-        body: e.body,
-        preview: e.preview,
+        preview: e.preview || e.body?.slice(0, 140) || '',
         fromId: e.fromId,
         from: e.from,
         tlsVersion: e.tlsVersion || 'TLS 1.3',
@@ -105,11 +104,10 @@ export function saveDispatchedEmailToStorage(email: ClientStoredEmail): void {
           read: typeof r === 'string' ? false : Boolean(r.read),
           starred: typeof r === 'string' ? false : Boolean(r.starred),
         })),
-        attachments: e.attachments || [],
       }));
 
       const encoded = encodeURIComponent(JSON.stringify(recentSummary));
-      if (encoded.length < 3500) {
+      if (encoded.length < 3800) {
         document.cookie = `garuda_client_dispatched=${encoded}; path=/; max-age=604800; SameSite=Lax`;
       }
     } catch {}
