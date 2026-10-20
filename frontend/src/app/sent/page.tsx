@@ -66,11 +66,13 @@ export default function SentPage() {
 
     // Read client-side storage cache immediately
     const clientStored = getDispatchedEmailsFromStorage().filter(e => {
-      if (e.folder !== 'sent' && e.draft) return false;
-      const isSender = (userId && e.fromId === userId) ||
-        (userEmail && e.from?.email?.toLowerCase() === userEmail) ||
-        (!userId && !userEmail);
-      return isSender;
+      if (e.folder === 'trash' || e.draft) return false;
+      if (userEmail || userId) {
+        const isSender = (userId && e.fromId === userId) ||
+          (userEmail && e.from?.email?.toLowerCase() === userEmail);
+        if (isSender) return true;
+      }
+      return e.folder === 'sent' || !e.folder;
     });
 
     try {
@@ -113,7 +115,7 @@ export default function SentPage() {
 
   useEffect(() => {
     // Initial quick hydrate from storage
-    const initialClient = getDispatchedEmailsFromStorage().filter(e => e.folder === 'sent' && !e.draft);
+    const initialClient = getDispatchedEmailsFromStorage().filter(e => e.folder !== 'trash' && !e.draft);
     if (initialClient.length > 0) {
       setEmails(initialClient.map(mapToSentMessage));
       setLoading(false);

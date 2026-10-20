@@ -173,10 +173,11 @@ export function getServerFallbackEmailsResponse(
     );
 
     if (folder === 'sent') {
-      // Show if current user is sender, OR in demo mode if folder is sent and not trash/draft
       if (isSender) return !e.draft && e.folder !== 'trash';
-      // If user is unknown (e.g. demo token without email), show sent messages
-      if (!userId && !normalizedUserEmail) return e.folder === 'sent' && !e.draft;
+      // If user is unknown or demo environment, show all non-trash sent emails
+      if (!userId && !normalizedUserEmail) return (e.folder === 'sent' || !e.draft) && e.folder !== 'trash';
+      // Fallback: If marked as sent email in custom store, show in sent folder
+      if (e.folder === 'sent' && !e.draft) return true;
       return false;
     } else if (folder === 'drafts' || folder === 'draft') {
       return (isSender || (!userId && !normalizedUserEmail)) && Boolean(e.draft) && e.folder !== 'trash';
@@ -191,6 +192,10 @@ export function getServerFallbackEmailsResponse(
       if (e.folder === 'trash' || e.draft) return false;
       if (matchedRecipient) {
         return matchedRecipient.folder === 'inbox' || !matchedRecipient.folder;
+      }
+      // If sender addressed email to themselves
+      if (isSender && normalizedUserEmail && e.recipients?.some(r => r.address?.toLowerCase() === normalizedUserEmail)) {
+        return true;
       }
       // If sent by someone else, or showcase email addressed to analysts
       return !isSender && (e.folder === 'inbox' || !e.folder);

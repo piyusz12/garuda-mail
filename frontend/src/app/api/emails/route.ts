@@ -497,6 +497,7 @@ export async function POST(request: NextRequest) {
           body: storedBody,
           preview,
           fromId: sender.id,
+          folder: draft ? 'drafts' : 'sent',
           draft,
           threadId: threadId || undefined,
           inReplyTo: inReplyTo || undefined,
@@ -579,7 +580,7 @@ export async function POST(request: NextRequest) {
 
     saveCustomEmail(fallbackEmailObj);
 
-    return NextResponse.json(
+    const response = NextResponse.json(
       {
         message: draft ? 'Draft saved' : 'Email encrypted & dispatched successfully',
         email: createdEmail || fallbackEmailObj,
@@ -587,6 +588,20 @@ export async function POST(request: NextRequest) {
       },
       { status: 201 }
     );
+
+    try {
+      const recent = readCustomEmails().slice(0, 5);
+      const cookiePayload = encodeURIComponent(JSON.stringify(recent));
+      if (cookiePayload.length < 3500) {
+        response.cookies.set('garuda_client_dispatched', cookiePayload, {
+          path: '/',
+          maxAge: 604800,
+          sameSite: 'lax',
+        });
+      }
+    } catch {}
+
+    return response;
   } catch (error: unknown) {
     console.error('[Emails POST] Error:', error);
     const msg = error instanceof Error ? error.message : String(error);

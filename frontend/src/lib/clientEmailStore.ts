@@ -63,27 +63,55 @@ export function getDispatchedEmailsFromStorage(): ClientStoredEmail[] {
 export function saveDispatchedEmailToStorage(email: ClientStoredEmail): void {
   if (typeof window === 'undefined' || !email?.id) return;
   try {
+    const emailToSave: ClientStoredEmail = {
+      ...email,
+      folder: email.folder || (email.draft ? 'drafts' : 'sent'),
+      draft: Boolean(email.draft),
+      createdAt: email.createdAt || new Date().toISOString(),
+      sentAt: email.sentAt || (email.draft ? undefined : new Date().toISOString()),
+    };
+
     const list = getDispatchedEmailsFromStorage();
-    const existingIdx = list.findIndex(e => e.id === email.id);
+    const existingIdx = list.findIndex(e => e.id === emailToSave.id);
     if (existingIdx >= 0) {
-      list[existingIdx] = { ...list[existingIdx], ...email };
+      list[existingIdx] = { ...list[existingIdx], ...emailToSave };
     } else {
-      list.unshift(email);
+      list.unshift(emailToSave);
     }
     const trimmed = list.slice(0, MAX_STORED_EMAILS);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));
 
-    // Also mirror latest dispatched email IDs in a lightweight cookie so Vercel Lambdas can read it
+    // Mirror latest dispatched emails in cookies so Vercel Lambdas can read and sync them
     try {
-      const recentSummary = trimmed.slice(0, 10).map(e => ({
+      const recentSummary = trimmed.slice(0, 5).map(e => ({
         id: e.id,
         subject: e.subject,
-        folder: e.folder,
-        fromEmail: e.from?.email,
-        recipients: e.recipients?.map(r => r.address),
+        body: e.body,
+        preview: e.preview,
+        fromId: e.fromId,
+        from: e.from,
+        tlsVersion: e.tlsVersion || 'TLS 1.3',
+        cipher: e.cipher || 'TLS_AES_256_GCM_SHA384',
+        folder: e.folder || 'sent',
+        draft: Boolean(e.draft),
         createdAt: e.createdAt,
+        sentAt: e.sentAt,
+        recipients: (e.recipients || []).map((r: any) => ({
+          id: r.id || `rec-${Date.now()}`,
+          address: typeof r === 'string' ? r : r.address,
+          name: typeof r === 'string' ? r.split('@')[0] : r.name || r.address,
+          userId: typeof r === 'string' ? null : r.userId,
+          folder: typeof r === 'string' ? 'inbox' : r.folder || 'inbox',
+          read: typeof r === 'string' ? false : Boolean(r.read),
+          starred: typeof r === 'string' ? false : Boolean(r.starred),
+        })),
+        attachments: e.attachments || [],
       }));
-      document.cookie = `garuda_recent_dispatched=${encodeURIComponent(JSON.stringify(recentSummary))}; path=/; max-age=604800; SameSite=Lax`;
+
+      const encoded = encodeURIComponent(JSON.stringify(recentSummary));
+      if (encoded.length < 3500) {
+        document.cookie = `garuda_client_dispatched=${encoded}; path=/; max-age=604800; SameSite=Lax`;
+      }
     } catch {}
   } catch (err) {
     console.warn('[ClientEmailStore] Error saving to localStorage:', err);

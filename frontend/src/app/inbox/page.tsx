@@ -108,9 +108,14 @@ export default function InboxPage() {
         (userEmail && r.address?.toLowerCase() === userEmail) ||
         (userId && r.userId === userId)
       );
+      if (matched) return true;
+      // Also self-sent: if sender is userEmail, and recipient includes userEmail
+      if (userEmail && e.from?.email?.toLowerCase() === userEmail && e.recipients?.some(r => r.address?.toLowerCase() === userEmail)) {
+        return true;
+      }
       // In demo mode without explicit userEmail, also show if incoming folder
       if (!userEmail && !userId) return e.folder === 'inbox';
-      return matched;
+      return false;
     });
 
     try {
