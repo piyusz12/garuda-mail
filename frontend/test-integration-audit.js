@@ -140,7 +140,7 @@ async function runAuditTests() {
   const recoveredUser = verifyFallbackToken(token);
   assert(recoveredUser !== null, 'Token verified successfully');
   assert(recoveredUser.email === sampleUser.email, 'Recovered user email matches');
-  assert(recoveredUser.password === sampleUser.password, 'Bcrypt password hash preserved for seamless offline auth');
+  assert(!token.includes(sampleUser.password), 'Password hash securely omitted from client cookie payload (CWE-312 mitigation)');
 
   // Tampered token test
   const tamperedToken = token.slice(0, -4) + 'AAAA';

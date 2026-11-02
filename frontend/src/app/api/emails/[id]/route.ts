@@ -3,10 +3,25 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/db';
 import { decryptPayload } from '@/lib/crypto';
-import { FALLBACK_EMAILS } from '@/lib/fallbackEmails';
+import { FALLBACK_EMAILS, type FallbackEmail } from '@/lib/fallbackEmails';
 import { findCustomEmailById, updateCustomEmail, deleteCustomEmail } from '@/lib/emailStore';
 
 type Params = { params: Promise<{ id: string }> };
+
+function isUserAuthorizedForEmail(
+  email: { fromId?: string | null; from?: { email?: string | null } | null; recipients?: Array<{ userId?: string | null; address?: string | null }> },
+  userId: string,
+  userEmail?: string
+): boolean {
+  const normEmail = userEmail?.toLowerCase().trim();
+  const isSender = (userId && email.fromId === userId) ||
+    (normEmail && email.from?.email?.toLowerCase().trim() === normEmail);
+  const isRecipient = email.recipients?.some(r =>
+    (userId && r.userId === userId) ||
+    (normEmail && r.address?.toLowerCase().trim() === normEmail)
+  );
+  return Boolean(isSender || isRecipient);
+}
 
 // ── GET /api/emails/[id] — Fetch single email ────────────────────────
 
@@ -48,6 +63,14 @@ export async function GET(request: NextRequest, { params }: Params) {
     if (!email) {
       const fb = findCustomEmailById(id) || FALLBACK_EMAILS.find(e => e.id === id);
       if (fb) {
+        // Enforce strict sender/recipient ownership on fallback stores
+        if (!isUserAuthorizedForEmail(fb, session.user.id, userEmail)) {
+          return NextResponse.json(
+            { error: 'Forbidden: You do not have permission to view this email' },
+            { status: 403 }
+          );
+        }
+
         const decrypted = decryptPayload(fb.body);
         return NextResponse.json({
           email: {
@@ -98,21 +121,7 @@ export async function GET(request: NextRequest, { params }: Params) {
     });
   } catch (error: unknown) {
     const errMsg = error instanceof Error ? error.message : String(error);
-    console.warn('[Email GET] Unexpected error, returning fallback email:', errMsg);
-    const fallback = findCustomEmailById(id) || FALLBACK_EMAILS[0];
-    if (fallback) {
-      const decrypted = decryptPayload(fallback.body);
-      return NextResponse.json({
-        email: {
-          ...fallback,
-          body: decrypted.plaintext,
-          rawCiphertext: decrypted.envelope?.ciphertext || null,
-          isEncrypted: decrypted.isEncrypted,
-          cryptoMetadata: decrypted.envelope || null,
-          integrityVerified: decrypted.verified ?? true,
-        },
-      });
-    }
+    console.error('[Email GET] Error retrieving email:', errMsg);
     return NextResponse.json({ error: 'Failed to fetch email' }, { status: 500 });
   }
 }
@@ -129,6 +138,15 @@ export async function PATCH(request: NextRequest, { params }: Params) {
   const body = await request.json();
   const { read, starred, folder } = body;
   const userEmail = session.user.email?.toLowerCase().trim();
+
+  // Verify access before updating
+  const targetEmail = findCustomEmailById(id) || FALLBACK_EMAILS.find(e => e.id === id);
+  if (targetEmail && !isUserAuthorizedForEmail(targetEmail, session.user.id, userEmail)) {
+    return NextResponse.json(
+      { error: 'Forbidden: You do not have permission to modify this email' },
+      { status: 403 }
+    );
+  }
 
   // Update in fallback store
   const updates: { read?: boolean; starred?: boolean; folder?: string } = {};
@@ -167,6 +185,15 @@ export async function DELETE(request: NextRequest, { params }: Params) {
   const searchParams = request.nextUrl.searchParams;
   const permanent = searchParams.get('permanent') === 'true';
   const userEmail = session.user.email?.toLowerCase().trim();
+
+  // Verify access before deleting
+  const targetEmail = findCustomEmailById(id) || FALLBACK_EMAILS.find(e => e.id === id);
+  if (targetEmail && !isUserAuthorizedForEmail(targetEmail, session.user.id, userEmail)) {
+    return NextResponse.json(
+      { error: 'Forbidden: You do not have permission to delete this email' },
+      { status: 403 }
+    );
+  }
 
   // Delete/trash in fallback store
   deleteCustomEmail(id, permanent);
@@ -218,4 +245,3 @@ export async function DELETE(request: NextRequest, { params }: Params) {
 
   return NextResponse.json({ message: permanent ? 'Deleted permanently' : 'Moved to trash' });
 }
-

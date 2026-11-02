@@ -343,6 +343,15 @@ export function decryptAsymmetricEnvelope(params: {
 
 // ── Unified Decryption Helper (Auto-detects V2, V1, or Plaintext) ────────────
 
+const getEffectiveV1Secret = (explicitSecret?: string): string => {
+  if (explicitSecret) return explicitSecret;
+  if (process.env.NEXTAUTH_SECRET) return process.env.NEXTAUTH_SECRET;
+  if (process.env.NODE_ENV === 'production') {
+    console.warn('[SECURITY WARNING] Using fallback secret for legacy V1 envelope in production.');
+  }
+  return 'garuda-mail-sovereign-production-secret-2026';
+};
+
 export function decryptPayload(rawBody: string, secret?: string, recipientPrivateKey?: string): {
   plaintext: string;
   isEncrypted: boolean;
@@ -400,7 +409,7 @@ export function decryptPayload(rawBody: string, secret?: string, recipientPrivat
         .trim();
       const envelope: EncryptedEnvelope = JSON.parse(jsonStr);
 
-      const effectiveSecret = secret || process.env.NEXTAUTH_SECRET || 'garuda-mail-sovereign-production-secret-2026';
+      const effectiveSecret = getEffectiveV1Secret(secret);
       const key = crypto.pbkdf2Sync(effectiveSecret, 'garuda-salt-2026', 100000, 32, 'sha256');
 
       const expectedHmac = crypto.createHmac('sha256', key).update(envelope.ciphertext).digest('hex');
@@ -455,7 +464,7 @@ export function decryptPayload(rawBody: string, secret?: string, recipientPrivat
  * Legacy V1 helper preserved for backward compatibility
  */
 export function encryptPayload(plaintext: string, secret?: string): { envelopeString: string; envelope: EncryptedEnvelope } {
-  const effectiveSecret = secret || process.env.NEXTAUTH_SECRET || 'garuda-mail-sovereign-production-secret-2026';
+  const effectiveSecret = getEffectiveV1Secret(secret);
   const key = crypto.pbkdf2Sync(effectiveSecret, 'garuda-salt-2026', 100000, 32, 'sha256');
   const iv = crypto.randomBytes(12);
 

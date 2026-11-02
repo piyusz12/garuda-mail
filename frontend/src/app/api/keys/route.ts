@@ -19,6 +19,13 @@ export async function GET(request: NextRequest) {
   const audit = searchParams.get('audit') === 'true';
 
   if (audit) {
+    const role = (session.user as { role?: string }).role;
+    if (role !== 'admin' && role !== 'officer') {
+      return NextResponse.json(
+        { error: 'Forbidden: Administrator or Officer privileges required to inspect key audit records' },
+        { status: 403 }
+      );
+    }
     const logs = getKeyAuditLog(50);
     return NextResponse.json({ auditLogs: logs });
   }

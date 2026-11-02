@@ -11,28 +11,33 @@ function applySecurityHeaders(res: NextResponse): NextResponse {
   return res;
 }
 
+const STATIC_ASSET_REGEX = /\.(ico|png|jpg|jpeg|svg|css|js|webp|woff|woff2|ttf|map|txt|pem)$/i;
+
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  const isAdminRoute = pathname === '/admin' || pathname.startsWith('/admin/');
-  const isOfficerRoute = pathname === '/officer' || pathname.startsWith('/officer/');
+  const isAdminRoute = pathname === '/admin' || pathname.startsWith('/admin/') || pathname.startsWith('/api/admin/');
+  const isOfficerRoute = pathname === '/officer' || pathname.startsWith('/officer/') || pathname.startsWith('/api/ops/');
 
-  // Allow public routes and static assets
+  // Allow public routes and verified static assets only
   if (
     pathname.startsWith('/login') ||
     pathname.startsWith('/register') ||
     pathname.startsWith('/api/auth') ||
     pathname.startsWith('/api/register') ||
     pathname.startsWith('/api/health') ||
-      pathname.startsWith('/api/live') ||
-      pathname.startsWith('/api/ready') ||
+    pathname.startsWith('/api/live') ||
+    pathname.startsWith('/api/ready') ||
     pathname.startsWith('/_next') ||
     pathname.startsWith('/rootCA.pem') ||
-    pathname.includes('.')
+    STATIC_ASSET_REGEX.test(pathname)
   ) {
     return applySecurityHeaders(NextResponse.next());
   }
 
-  const configuredSecret = process.env.NEXTAUTH_SECRET || 'garuda-mail-sovereign-production-secret-2026';
+  const configuredSecret = process.env.NEXTAUTH_SECRET || (process.env.NODE_ENV === 'production' ? (() => {
+    console.error('[SECURITY WARNING] NEXTAUTH_SECRET is not configured for production.');
+    return 'garuda-mail-sovereign-production-secret-2026';
+  })() : 'garuda-mail-sovereign-production-secret-2026');
 
   // Verify JWT session token safely
   const token = await getToken({
@@ -94,7 +99,11 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(deniedUrl);
   }
 
+  // Officer route protection
   if (isOfficerRoute && role !== 'officer' && role !== 'admin') {
+    if (pathname.startsWith('/api/')) {
+      return NextResponse.json({ error: 'Forbidden: Officer privileges required' }, { status: 403 });
+    }
     const deniedUrl = req.nextUrl.clone();
     deniedUrl.pathname = '/user/dashboard';
     deniedUrl.searchParams.set('error', 'officer_required');
@@ -106,6 +115,6 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-      '/((?!login|register|api/auth|api/register|api/health|api/live|api/ready|_next|static|favicon\\.ico|rootCA\\.pem).*)',
+    '/((?!login|register|api/auth|api/register|api/health|api/live|api/ready|_next|static|favicon\\.ico|rootCA\\.pem).*)',
   ],
 };

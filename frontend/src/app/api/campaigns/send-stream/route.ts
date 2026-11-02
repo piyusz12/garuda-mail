@@ -1,4 +1,6 @@
 import { NextRequest } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import { isEmailSuppressed } from '@/lib/email/rfc8058';
 
 export const dynamic = 'force-dynamic';
@@ -11,6 +13,13 @@ interface FailedRecord {
 }
 
 export async function POST(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) {
+    return new Response(JSON.stringify({ error: 'Unauthorized: Session required' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
   let body: any = {};
   try {
     body = await req.json();

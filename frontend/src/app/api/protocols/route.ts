@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { SUPPORTED_PROTOCOLS, ProtocolType } from '@/lib/protocols';
+import { SUPPORTED_PROTOCOLS } from '@/lib/protocols';
 import { verifySmtpConnection, verifyImapConnection } from '@/lib/mailer';
 import os from 'os';
 
@@ -33,8 +33,16 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions);
-  if (!session) {
+  if (!session?.user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const role = (session.user as { role?: string })?.role;
+  if (role !== 'admin' && role !== 'officer') {
+    return NextResponse.json(
+      { error: 'Forbidden: Administrator or Officer privileges required to run network protocol tests' },
+      { status: 403 }
+    );
   }
 
   try {

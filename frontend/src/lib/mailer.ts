@@ -147,15 +147,54 @@ export async function sendEmail(opts: SendEmailOptions): Promise<SendResult> {
 /**
  * Verify live SMTP connectivity
  */
+function isSafeExternalHost(host: string): boolean {
+  if (!host) return false;
+  const h = host.toLowerCase().trim();
+
+  if (
+    h === 'localhost' ||
+    h === '127.0.0.1' ||
+    h === '0.0.0.0' ||
+    h === '::1' ||
+    h === 'metadata.google.internal' ||
+    h.endsWith('.internal')
+  ) {
+    return false;
+  }
+
+  const ipv4Match = h.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  if (ipv4Match) {
+    const oct1 = parseInt(ipv4Match[1], 10);
+    const oct2 = parseInt(ipv4Match[2], 10);
+    if (oct1 === 127 || oct1 === 10 || oct1 === 0) return false;
+    if (oct1 === 172 && oct2 >= 16 && oct2 <= 31) return false;
+    if (oct1 === 192 && oct2 === 168) return false;
+    if (oct1 === 169 && oct2 === 254) return false;
+  }
+
+  return true;
+}
+
 export async function verifySmtpConnection(config: SmtpConfig): Promise<{ success: boolean; message: string }> {
   try {
     if (!config.host || !config.user || !config.pass) {
       return { success: false, message: 'Host, username, and password are required' };
     }
-    const isPort465 = config.port === 465;
+
+    const targetPort = config.port || (config.secure ? 465 : 587);
+    const ALLOWED_SMTP_PORTS = [25, 465, 587, 2525];
+    if (!ALLOWED_SMTP_PORTS.includes(targetPort)) {
+      return { success: false, message: `Invalid port ${targetPort}. Only standard mail ports (${ALLOWED_SMTP_PORTS.join(', ')}) are permitted.` };
+    }
+
+    if (!isSafeExternalHost(config.host)) {
+      return { success: false, message: 'Security violation: Connections to private, loopback, or internal cloud networks are forbidden.' };
+    }
+
+    const isPort465 = targetPort === 465;
     const testTransporter = nodemailer.createTransport({
       host: config.host,
-      port: config.port || (isPort465 ? 465 : 587),
+      port: targetPort,
       secure: isPort465,
       auth: { user: config.user, pass: config.pass },
       tls: {
@@ -167,7 +206,7 @@ export async function verifySmtpConnection(config: SmtpConfig): Promise<{ succes
     });
 
     await testTransporter.verify();
-    return { success: true, message: `Successfully connected to ${config.host}:${config.port || 587} with TLS authentication` };
+    return { success: true, message: `Successfully connected to ${config.host}:${targetPort} with TLS authentication` };
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : 'SMTP connection failed';
     return { success: false, message: msg };

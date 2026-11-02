@@ -21,9 +21,15 @@ export interface UserRecord {
   updatedAt: Date;
 }
 
-const SECRET = process.env.NEXTAUTH_SECRET || 'garuda-mail-sovereign-production-secret-2026';
+const SECRET = (() => {
+  const s = process.env.NEXTAUTH_SECRET;
+  if (!s && process.env.NODE_ENV === 'production') {
+    console.error('[SECURITY ERROR] NEXTAUTH_SECRET is not configured in production.');
+  }
+  return s || 'garuda-mail-sovereign-production-secret-2026';
+})();
 
-const DEFAULT_PASSWORD_HASH = process.env.BUILTIN_PASSWORD_HASH || '$2b$10$Q7yt/OlFiwCLf0nQ.Qt/7uQsV5ppAOKkKQz584bFbHFsTfxeJs18u';
+const DEFAULT_PASSWORD_HASH = process.env.BUILTIN_PASSWORD_HASH || '$2b$10$ERav20pYVAJZjfu4/Xv/7uS9q/TaYSnHYKkiD5ruK49rahJq5UuTa';
 
 // ── Built-in Seed Users (development/demo mode only) ──────────────────
 const DEMO_MODE = process.env.DEMO_MODE === 'true' || process.env.DEMO_MODE !== 'false';
@@ -209,7 +215,7 @@ export function createFallbackToken(user: UserRecord): string {
     status: user.status || 'active',
     department: user.department,
     avatarColor: user.avatarColor,
-    pwdHash: user.password,
+
     exp: Date.now() + 30 * 24 * 60 * 60 * 1000,
   };
   const b64 = Buffer.from(JSON.stringify(payload)).toString('base64url');
@@ -349,15 +355,8 @@ export async function findUserByEmail(
 
 // ── Verify Password ──────────────────────────────────────────────────
 export async function verifyUserPassword(user: UserRecord, passwordInput: string): Promise<boolean> {
-  // Built-in instant login bypass for admin and demo accounts (enables 1-click Instant Admin Login)
-  if (
-    passwordInput === 'GarudaAdmin2026!' ||
-    passwordInput === 'GarudaSecurity2026!' ||
-    passwordInput === 'admin' ||
-    passwordInput === 'instant-admin-pass-2026' ||
-    passwordInput === 'GarudaDemo2026!'
-  ) {
-    return true;
+  if (!user || !user.password || !passwordInput) {
+    return false;
   }
   try {
     return await bcrypt.compare(passwordInput, user.password);
