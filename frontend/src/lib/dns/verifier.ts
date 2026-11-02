@@ -106,23 +106,35 @@ export async function verifyDomainAuthentication(
           const keyBuf = Buffer.from(cleanP, 'base64');
           const kMatch = fullRecord.match(/(?:^|;|\s)k\s*=\s*([A-Za-z0-9-]+)/i);
           const keyType = (kMatch?.[1] ?? 'rsa').toLowerCase();
-          let importKey = keyBuf;
+          let parsedKey: any = null;
 
           if (keyType === 'ed25519') {
             if (keyBuf.length !== 32) continue;
             // Ed25519 SubjectPublicKeyInfo header (RFC 8463 / RFC 8410: 1.3.101.112)
-            importKey = Buffer.concat([
+            const ed25519Spki = Buffer.concat([
               Buffer.from('302a300506032b6570032100', 'hex'),
               keyBuf,
             ]);
-          } else if (keyType !== 'rsa') {
+            parsedKey = createPublicKey({ key: ed25519Spki, format: 'der', type: 'spki' });
+          } else if (keyType === 'rsa') {
+            // RFC 6376 §3.6.1 specifies DER-encoded RSAPublicKey (PKCS#1); support SPKI as fallback
+            try {
+              parsedKey = createPublicKey({ key: keyBuf, format: 'der', type: 'pkcs1' });
+            } catch {
+              try {
+                parsedKey = createPublicKey({ key: keyBuf, format: 'der', type: 'spki' });
+              } catch {
+                parsedKey = null;
+              }
+            }
+          } else {
             continue;
           }
 
-          const parsedKey = createPublicKey({ key: importKey, format: 'der', type: 'spki' });
           if (
-            (parsedKey.asymmetricKeyType === 'rsa' && (parsedKey.asymmetricKeyDetails?.modulusLength ?? 0) >= 1024) ||
-            parsedKey.asymmetricKeyType === 'ed25519'
+            parsedKey &&
+            ((parsedKey.asymmetricKeyType === 'rsa' && (parsedKey.asymmetricKeyDetails?.modulusLength ?? 0) >= 1024) ||
+              parsedKey.asymmetricKeyType === 'ed25519')
           ) {
             dkimFound = fullRecord;
             isDkimVerified = true;
