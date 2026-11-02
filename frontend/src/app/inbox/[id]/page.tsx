@@ -728,7 +728,7 @@ function SecurityHeader({ email, expanded, onToggle }: {
               </Link>
               <Link
                 href="/crypto"
-                className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium rounded-md text-[var(--color-text-secondary)] hover:text-white bg-[var(--color-surface-2)] hover:bg-[var(--color-surface-3)] transition-colors border border-[var(--color-border-subtle)]"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium rounded-md text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] dark:hover:text-white bg-[var(--color-surface-2)] hover:bg-[var(--color-surface-3)] transition-colors border border-[var(--color-border-subtle)]"
               >
                 <Shield size={12} />
                 Crypto Posture
@@ -736,7 +736,7 @@ function SecurityHeader({ email, expanded, onToggle }: {
               </Link>
               <Link
                 href="/analysis"
-                className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium rounded-md text-[var(--color-text-muted)] hover:text-white bg-[var(--color-surface-2)] hover:bg-[var(--color-surface-3)] transition-colors border border-[var(--color-border-subtle)]"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium rounded-md text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] dark:hover:text-white bg-[var(--color-surface-2)] hover:bg-[var(--color-surface-3)] transition-colors border border-[var(--color-border-subtle)]"
               >
                 <RefreshCw size={12} />
                 PCAP Analysis

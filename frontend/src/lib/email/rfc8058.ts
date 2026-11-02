@@ -1,6 +1,15 @@
 import crypto from 'crypto';
 
-const SECRET_SALT = process.env.NEXTAUTH_SECRET || 'garuda-rfc8058-token-salt-secure-key';
+function getSecretSalt(): string {
+  const secret = process.env.NEXTAUTH_SECRET || process.env.UNSUBSCRIBE_SECRET;
+  if (!secret) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('NEXTAUTH_SECRET or UNSUBSCRIBE_SECRET must be set in production to sign unsubscribe tokens');
+    }
+    return 'garuda-rfc8058-token-salt-secure-key';
+  }
+  return secret;
+}
 
 export interface UnsubscribePayload {
   email: string;
@@ -17,6 +26,7 @@ export interface Rfc8058Headers {
  * Generate a cryptographically signed one-click unsubscribe token.
  */
 export function generateUnsubscribeToken(email: string, campaignId: string = 'general'): string {
+  const salt = getSecretSalt();
   const payload: UnsubscribePayload = {
     email: email.toLowerCase().trim(),
     campaignId,
@@ -24,7 +34,7 @@ export function generateUnsubscribeToken(email: string, campaignId: string = 'ge
   };
   const jsonStr = JSON.stringify(payload);
   const base64Data = Buffer.from(jsonStr).toString('base64url');
-  const hmac = crypto.createHmac('sha256', SECRET_SALT).update(base64Data).digest('base64url');
+  const hmac = crypto.createHmac('sha256', salt).update(base64Data).digest('base64url');
   return `${base64Data}.${hmac}`;
 }
 
@@ -36,8 +46,12 @@ export function verifyUnsubscribeToken(token: string): UnsubscribePayload | null
     const [base64Data, hmac] = token.split('.');
     if (!base64Data || !hmac) return null;
 
-    const expectedHmac = crypto.createHmac('sha256', SECRET_SALT).update(base64Data).digest('base64url');
-    if (!crypto.timingSafeEqual(Buffer.from(hmac), Buffer.from(expectedHmac))) {
+    const salt = getSecretSalt();
+    const expectedHmac = crypto.createHmac('sha256', salt).update(base64Data).digest('base64url');
+    const hmacBuf = Buffer.from(hmac);
+    const expectedHmacBuf = Buffer.from(expectedHmac);
+
+    if (hmacBuf.length !== expectedHmacBuf.length || !crypto.timingSafeEqual(hmacBuf, expectedHmacBuf)) {
       return null;
     }
 

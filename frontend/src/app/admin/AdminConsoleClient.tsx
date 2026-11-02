@@ -665,7 +665,7 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
               </div>
               <Link
                 href="/dashboard"
-                className="flex items-center gap-1.5 text-xs text-sky-400 hover:text-sky-300 font-semibold"
+                className="flex items-center gap-1.5 text-xs text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 font-semibold"
               >
                 Full Forensic Dashboard <ArrowUpRight size={13} />
               </Link>

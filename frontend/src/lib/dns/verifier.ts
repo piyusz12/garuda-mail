@@ -1,3 +1,4 @@
+import { createPublicKey } from 'crypto';
 import * as dns from 'dns/promises';
 
 export interface DnsRecordStatus {
@@ -61,7 +62,7 @@ export async function verifyDomainAuthentication(
 
   // 1. Verify SPF Record
   let spfFound: string | null = null;
-  let spfTtl: number | null = null;
+  const spfTtl: number | null = null;
   let isSpfVerified = false;
 
   try {
@@ -70,13 +71,13 @@ export async function verifyDomainAuthentication(
       const fullRecord = chunk.join('');
       if (fullRecord.startsWith('v=spf1')) {
         spfFound = fullRecord;
-        if (fullRecord.includes('include:_spf.garudamail.com') || fullRecord.includes('garudamail.com') || fullRecord.includes('~all') || fullRecord.includes('-all')) {
+        if (/(^|\s)[+]?include:_spf\.garudamail\.com(\s|$)/i.test(fullRecord)) {
           isSpfVerified = true;
         }
         break;
       }
     }
-  } catch (err: unknown) {
+  } catch {
     // DNS resolution failure (NXDOMAIN / TIMEOUT / NODATA)
     spfFound = null;
   }
@@ -84,27 +85,62 @@ export async function verifyDomainAuthentication(
   // 2. Verify DKIM Record
   const dkimHost = `${selector}._domainkey.${cleanDomain}`;
   let dkimFound: string | null = null;
-  let dkimTtl: number | null = null;
+  const dkimTtl: number | null = null;
   let isDkimVerified = false;
 
   try {
     const dkimRecords = await dns.resolveTxt(dkimHost);
     for (const chunk of dkimRecords) {
       const fullRecord = chunk.join('');
-      if (fullRecord.includes('v=DKIM1') || fullRecord.includes('k=rsa') || fullRecord.includes('p=')) {
-        dkimFound = fullRecord;
-        isDkimVerified = true;
-        break;
+      // RFC 6376: v=DKIM1 is optional. If present, it MUST be DKIM1. Reject unsupported versions.
+      const vMatch = fullRecord.match(/(?:^|;\s*)v\s*=\s*([^;\s]+)/i);
+      if (vMatch && vMatch[1].toUpperCase() !== 'DKIM1') {
+        continue;
+      }
+
+      const pMatch = fullRecord.match(/(?:^|;|\s)p\s*=\s*([A-Za-z0-9+/=\s]+?)(?:;|$)/);
+      if (pMatch && pMatch[1]) {
+        const cleanP = pMatch[1].replace(/\s+/g, '');
+        if (!cleanP) continue;
+        try {
+          const keyBuf = Buffer.from(cleanP, 'base64');
+          const kMatch = fullRecord.match(/(?:^|;|\s)k\s*=\s*([A-Za-z0-9-]+)/i);
+          const keyType = (kMatch?.[1] ?? 'rsa').toLowerCase();
+          let importKey = keyBuf;
+
+          if (keyType === 'ed25519') {
+            if (keyBuf.length !== 32) continue;
+            // Ed25519 SubjectPublicKeyInfo header (RFC 8463 / RFC 8410: 1.3.101.112)
+            importKey = Buffer.concat([
+              Buffer.from('302a300506032b6570032100', 'hex'),
+              keyBuf,
+            ]);
+          } else if (keyType !== 'rsa') {
+            continue;
+          }
+
+          const parsedKey = createPublicKey({ key: importKey, format: 'der', type: 'spki' });
+          if (
+            (parsedKey.asymmetricKeyType === 'rsa' && (parsedKey.asymmetricKeyDetails?.modulusLength ?? 0) >= 1024) ||
+            parsedKey.asymmetricKeyType === 'ed25519'
+          ) {
+            dkimFound = fullRecord;
+            isDkimVerified = true;
+            break;
+          }
+        } catch {
+          // Unusable or malformed key
+        }
       }
     }
-  } catch (err: unknown) {
+  } catch {
     dkimFound = null;
   }
 
   // 3. Verify DMARC Record
   const dmarcHost = `_dmarc.${cleanDomain}`;
   let dmarcFound: string | null = null;
-  let dmarcTtl: number | null = null;
+  const dmarcTtl: number | null = null;
   let isDmarcVerified = false;
 
   try {
@@ -117,7 +153,7 @@ export async function verifyDomainAuthentication(
         break;
       }
     }
-  } catch (err: unknown) {
+  } catch {
     dmarcFound = null;
   }
 

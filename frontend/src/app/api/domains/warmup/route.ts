@@ -28,8 +28,10 @@ const WARMUP_SCHEDULE: WarmupDayPlan[] = [
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const currentDay = parseInt(searchParams.get('day') || '8', 10);
-  const currentPlan = WARMUP_SCHEDULE.find((p) => p.day >= currentDay) || WARMUP_SCHEDULE[WARMUP_SCHEDULE.length - 1];
+  const parsed = parseInt(searchParams.get('day') || '8', 10);
+  const currentDay = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 1), 28) : 8;
+  const currentPlan =
+    [...WARMUP_SCHEDULE].reverse().find((p) => p.day <= currentDay) || WARMUP_SCHEDULE[0];
 
   return NextResponse.json({
     success: true,

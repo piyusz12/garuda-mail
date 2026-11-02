@@ -139,7 +139,7 @@ export const useCampaignStore = create<CampaignState>()(
       maxPerHour: 500,
 
       // Step 4 Defaults
-      preflightPassed: true,
+      preflightPassed: false,
       acknowledgedConsent: false,
 
       setStep: (step: WizardStep) => {
@@ -219,9 +219,9 @@ export const useCampaignStore = create<CampaignState>()(
         // 2. Missing Alt Text Check
         const missingAltImages: AltTextWarning[] = [];
         imgTags.forEach((tag, idx) => {
-          const hasAlt = /alt\s*=\s*["'][^"']+["']/i.test(tag);
+          const hasAlt = /\salt\s*=\s*["'][^"']*["']/i.test(tag);
           if (!hasAlt) {
-            const srcMatch = tag.match(/src\s*=\s*["']([^"']+)["']/i);
+            const srcMatch = tag.match(/\ssrc\s*=\s*["']([^"']+)["']/i);
             missingAltImages.push({
               src: srcMatch ? srcMatch[1] : `image_${idx + 1}`,
               index: idx + 1

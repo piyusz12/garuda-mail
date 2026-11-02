@@ -335,7 +335,7 @@ export default function InvestigationsPage() {
                   </h3>
                   <button
                     onClick={() => setIsCreateModalOpen(false)}
-                    className="p-1 rounded text-[var(--color-text-muted)] hover:text-white"
+                    className="p-1 rounded text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] dark:hover:text-white"
                   >
                     <X size={18} />
                   </button>

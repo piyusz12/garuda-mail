@@ -278,7 +278,7 @@ export default function UserDashboardClient({ currentUser }: UserDashboardClient
                 </div>
                 <Link
                   href="/crypto"
-                  className="text-xs text-sky-400 hover:text-sky-300 flex items-center gap-1 font-medium"
+                  className="text-xs text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 flex items-center gap-1 font-medium"
                 >
                   Manage Keys <ArrowUpRight size={12} />
                 </Link>

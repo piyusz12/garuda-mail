@@ -241,7 +241,7 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onCloseMobile
                       'flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] font-medium transition-all duration-150',
                       isActive
                         ? clsx(item.activeBg, 'shadow-sm font-semibold')
-                        : 'text-rose-300/80 hover:text-white hover:bg-rose-500/10 border border-transparent',
+                        : 'text-rose-700 dark:text-rose-300/80 hover:text-rose-950 dark:hover:text-white hover:bg-rose-500/10 border border-transparent',
                       collapsed && 'md:justify-center md:px-0'
                     )}
                   >

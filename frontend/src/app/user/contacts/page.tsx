@@ -49,7 +49,7 @@ export default function UserContactsPage() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <Link
             href="/user/dashboard"
-            className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] dark:hover:text-white transition-colors"
           >
             <ArrowLeft size={14} /> Back to User Dashboard
           </Link>

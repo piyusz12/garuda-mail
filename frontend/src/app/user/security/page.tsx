@@ -28,7 +28,7 @@ export default function UserSecurityPage() {
       <div className="max-w-4xl mx-auto space-y-6">
         <Link
           href="/user/dashboard"
-          className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] dark:hover:text-white transition-colors"
         >
           <ArrowLeft size={14} /> Back to User Dashboard
         </Link>
@@ -47,7 +47,7 @@ export default function UserSecurityPage() {
             </div>
             <Link
               href="/crypto"
-              className="flex items-center gap-1 text-xs text-sky-400 hover:text-sky-300 font-semibold"
+              className="flex items-center gap-1 text-xs text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 font-semibold"
             >
               Rotate Keys <ArrowUpRight size={13} />
             </Link>

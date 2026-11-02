@@ -68,7 +68,7 @@ export default function OnlineUsersBar() {
         <button
           type="button"
           onClick={() => handleOpenQuickMail()}
-          className="text-[11px] text-[var(--color-accent)] hover:text-white hover:bg-[var(--color-accent-dim)] px-2 py-0.5 rounded transition-colors flex items-center gap-1 font-medium"
+          className="text-[11px] text-[var(--color-accent)] hover:text-sky-800 dark:hover:text-white hover:bg-[var(--color-accent-dim)] px-2 py-0.5 rounded transition-colors flex items-center gap-1 font-medium"
         >
           <span>All Peers</span>
           <ChevronRight size={12} />

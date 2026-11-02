@@ -189,21 +189,26 @@ body {
     transform: scale(0.98);
   }
   .btn-primary {
-    background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%);
+    background: #0284C7;
     color: #ffffff;
     font-weight: 600;
-    box-shadow: 0 1px 3px rgba(2, 132, 199, 0.25), 0 1px 2px rgba(2, 132, 199, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.25);
-    border: 1px solid rgba(2, 132, 199, 0.6);
+    box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.08);
+    border: 1px solid #0369A1;
   }
   .btn-primary:hover {
-    background: linear-gradient(135deg, #0369A1 0%, #075985 100%);
-    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    background: #0369A1;
     color: #ffffff;
+    box-shadow: 0 2px 4px -1px rgba(15, 23, 42, 0.12);
   }
   html.dark .btn-primary {
-    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-    box-shadow: 0 0 15px -3px rgba(56, 189, 248, 0.35);
-    border-color: rgba(56, 189, 248, 0.5);
+    background: #0284C7;
+    color: #ffffff;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+    border-color: #0369A1;
+  }
+  html.dark .btn-primary:hover {
+    background: #0369A1;
+    color: #ffffff;
   }
   .btn-secondary {
     background: #FFFFFF;
@@ -360,66 +365,48 @@ body {
     transform: translateY(-1px);
   }
 
-  /* Dual-Theme Gradient Text */
+  /* Developer-Grade Solid Semantic Typography (High-contrast, zero AI slop) */
   .text-gradient-brand {
-    background: linear-gradient(135deg, #0284C7 0%, #4F46E5 50%, #7E22CE 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: var(--color-text-primary);
+    font-weight: 700;
   }
   html.dark .text-gradient-brand {
-    background: linear-gradient(135deg, #38BDF8 0%, #818CF8 50%, #C084FC 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: var(--color-text-primary);
   }
   .text-gradient-cyan {
-    background: linear-gradient(135deg, #0284C7 0%, #0D9488 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: #0369A1;
+    font-weight: 600;
   }
   html.dark .text-gradient-cyan {
-    background: linear-gradient(135deg, #38BDF8 0%, #06B6D4 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: #38BDF8;
   }
   .text-gradient-emerald {
-    background: linear-gradient(135deg, #059669 0%, #047857 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: #047857;
+    font-weight: 600;
   }
   html.dark .text-gradient-emerald {
-    background: linear-gradient(135deg, #34D399 0%, #059669 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: #34D399;
   }
   .text-gradient-amber {
-    background: linear-gradient(135deg, #D97706 0%, #B45309 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: #B45309;
+    font-weight: 600;
   }
   html.dark .text-gradient-amber {
-    background: linear-gradient(135deg, #FBBF24 0%, #D97706 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: #FBBF24;
   }
   .text-gradient-rose {
-    background: linear-gradient(135deg, #E11D48 0%, #BE123C 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: #BE123C;
+    font-weight: 600;
   }
   html.dark .text-gradient-rose {
-    background: linear-gradient(135deg, #FB7185 0%, #E11D48 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: #FB7185;
   }
   .text-gradient-purple {
-    background: linear-gradient(135deg, #7E22CE 0%, #4F46E5 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: #6D28D9;
+    font-weight: 600;
   }
   html.dark .text-gradient-purple {
-    background: linear-gradient(135deg, #C084FC 0%, #818CF8 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: #C084FC;
   }
 
   /* Mobile safe area helpers */

@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server';
+import { isEmailSuppressed } from '@/lib/email/rfc8058';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,9 +20,22 @@ export async function POST(req: NextRequest) {
 
   const totalRecipients = body.recipientCount || 2500;
   const isRetry = Boolean(body.isRetry);
-  const previousFailedCount = body.failedRecords?.length || 38;
+  const inputFailedRecords: FailedRecord[] = Array.isArray(body.failedRecords) ? body.failedRecords : [];
+  const nonRetryableRecords = inputFailedRecords.filter((r) => r.retryable === false);
+  const retryableRecords = inputFailedRecords.filter((r) => r.retryable !== false);
 
-  const targetCount = isRetry ? previousFailedCount : totalRecipients;
+  if (isRetry && retryableRecords.length === 0) {
+    return new Response(JSON.stringify({ error: 'No retryable records available.' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  const sampleRecipients: string[] = Array.isArray(body.recipients) && body.recipients.length > 0
+    ? body.recipients
+    : ['chief-security@enterprise-corp.net', 'compliance-auditor@defense-gov.org', 'sysadmin@infrastructure-cloud.io'];
+
+  const targetCount = isRetry ? retryableRecords.length : totalRecipients;
 
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
@@ -31,18 +45,18 @@ export async function POST(req: NextRequest) {
       };
 
       let sent = 0;
-      let failed = 0;
-      const failedRecords: FailedRecord[] = [];
+      let failed = isRetry ? nonRetryableRecords.length : 0;
+      const failedRecords: FailedRecord[] = isRetry ? [...nonRetryableRecords] : [];
 
       // Step 1: Initial Handshake
       sendEvent({
         progress: 0,
         sent: 0,
-        failed: 0,
+        failed,
         total: targetCount,
         status: 'INITIALIZING_QUEUE',
         message: isRetry ? 'Idempotently re-queueing unconfirmed recipients...' : 'Segmenting audience into parallel worker chunks...',
-        failedRecords: [],
+        failedRecords,
       });
 
       // Batch progression loop
@@ -50,15 +64,28 @@ export async function POST(req: NextRequest) {
       for (let i = 1; i <= steps; i++) {
         await new Promise((resolve) => setTimeout(resolve, 350));
 
-        const batchSent = Math.floor(targetCount / steps);
+        const batchSent = Math.floor(targetCount / steps) + (i <= targetCount % steps ? 1 : 0);
         sent += batchSent;
+
+        // Check suppression list against campaign recipient identities
+        if (!isRetry && i === 1) {
+          for (const addr of sampleRecipients) {
+            if (isEmailSuppressed(addr)) {
+              failed += 1;
+              sent = Math.max(0, sent - 1);
+              failedRecords.push({
+                email: addr,
+                code: 'SUPPRESSED_UNSUBSCRIBED',
+                reason: 'Recipient previously opted out via RFC 8058 one-click directive',
+                retryable: false,
+              });
+            }
+          }
+        }
 
         // Simulate real-world partial failure anomalies on fresh runs
         if (!isRetry && (i === 3 || i === 7)) {
-          const failBatchCount = i === 3 ? 12 : 8;
-          failed += failBatchCount;
-          sent -= failBatchCount;
-          failedRecords.push(
+          const generatedFailures: FailedRecord[] = [
             {
               email: `corp-relay-${i}-invalid@legacy-exchange.org`,
               code: 'HARD_BOUNCE',
@@ -71,7 +98,10 @@ export async function POST(req: NextRequest) {
               reason: '421 4.7.0 ISP rate limit reached. Re-queue recommended.',
               retryable: true,
             }
-          );
+          ];
+          failed += generatedFailures.length;
+          sent = Math.max(0, sent - generatedFailures.length);
+          failedRecords.push(...generatedFailures);
         }
 
         const percent = Math.min(Math.round((i / steps) * 100), 100);

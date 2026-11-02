@@ -19,6 +19,14 @@ export const CampaignStep2Schema = z.object({
   subjectVariantB: z.string().optional().or(z.literal('')),
   abSplitRatio: z.number().min(10).max(50).default(20),
   winningMetric: z.enum(['OPEN_RATE', 'CLICK_RATE']).default('OPEN_RATE'),
+}).superRefine((val, ctx) => {
+  if (val.isAbTest && (!val.subjectVariantB || val.subjectVariantB.trim().length < 5)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['subjectVariantB'],
+      message: 'A/B testing is enabled: Subject Variant B must be at least 5 characters',
+    });
+  }
 });
 
 export const CampaignStep3Schema = z.object({
@@ -27,6 +35,23 @@ export const CampaignStep3Schema = z.object({
   scheduledTime: z.string().optional().or(z.literal('')),
   warmupThrottling: z.boolean().default(true),
   maxPerHour: z.number().min(10).max(50000).default(500),
+}).superRefine((val, ctx) => {
+  if (val.sendScheduleType === 'SCHEDULED') {
+    if (!val.scheduledDate || !val.scheduledDate.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['scheduledDate'],
+        message: 'Please select a scheduled send date',
+      });
+    }
+    if (!val.scheduledTime || !val.scheduledTime.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['scheduledTime'],
+        message: 'Please select a scheduled send time',
+      });
+    }
+  }
 });
 
 export const CampaignStep4Schema = z.object({

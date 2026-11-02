@@ -312,7 +312,7 @@ export default function ReportsPage() {
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => setPreviewReport(rpt)}
-                          className="btn btn-ghost text-[11px] py-1 px-2 text-[var(--color-accent)] hover:text-white flex items-center gap-1"
+                          className="btn btn-ghost text-[11px] py-1 px-2 text-[var(--color-accent)] hover:text-sky-700 dark:hover:text-white flex items-center gap-1"
                         >
                           <Eye size={13} /> Preview
                         </button>
@@ -364,7 +364,7 @@ export default function ReportsPage() {
                     </button>
                     <button
                       onClick={() => setPreviewReport(null)}
-                      className="p-1 rounded text-[var(--color-text-muted)] hover:text-white"
+                      className="p-1 rounded text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] dark:hover:text-white"
                     >
                       <X size={18} />
                     </button>

@@ -297,7 +297,7 @@ export default function QuickMailDrawer() {
                   type="button"
                   onClick={fetchPresence}
                   disabled={loadingUsers}
-                  className="p-1.5 rounded-md hover:bg-white/10 text-slate-300 hover:text-white transition-colors"
+                  className="p-1.5 rounded-md hover:bg-[var(--color-surface-2)] text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] dark:hover:text-white transition-colors"
                   title="Refresh presence"
                 >
                   <RefreshCw size={14} className={clsx(loadingUsers && 'animate-spin')} />
@@ -305,7 +305,7 @@ export default function QuickMailDrawer() {
                 <button
                   type="button"
                   onClick={() => setIsOpen(false)}
-                  className="p-1.5 rounded-md hover:bg-white/10 text-slate-300 hover:text-white transition-colors"
+                  className="p-1.5 rounded-md hover:bg-[var(--color-surface-2)] text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] dark:hover:text-white transition-colors"
                   title="Close"
                 >
                   <X size={16} />

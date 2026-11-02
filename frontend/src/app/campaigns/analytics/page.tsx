@@ -122,6 +122,9 @@ export default function CampaignAnalyticsPage() {
     if (typeof valA === 'number' && typeof valB === 'number') {
       return sortOrder === 'asc' ? valA - valB : valB - valA;
     }
+    if (typeof valA === 'string' && typeof valB === 'string') {
+      return sortOrder === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+    }
     return 0;
   });
 
@@ -310,20 +313,28 @@ export default function CampaignAnalyticsPage() {
                   <th className="p-3 font-semibold text-[var(--color-text-primary)]">Audience</th>
                   <th className="p-3 font-semibold text-[var(--color-text-primary)] text-right">Sent</th>
                   <th
-                    className="p-3 font-semibold text-[var(--color-text-primary)] text-right cursor-pointer hover:text-sky-500"
-                    onClick={() => handleSort('deliveryRate')}
+                    className="p-3 font-semibold text-[var(--color-text-primary)] text-right"
+                    aria-sort={sortField === 'deliveryRate' ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none'}
                   >
-                    <span className="inline-flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => handleSort('deliveryRate')}
+                      className="inline-flex items-center gap-1 cursor-pointer hover:text-sky-500 font-semibold"
+                    >
                       Delivery <ArrowUpDown className="w-3 h-3" />
-                    </span>
+                    </button>
                   </th>
                   <th
-                    className="p-3 font-semibold text-[var(--color-text-primary)] text-right cursor-pointer hover:text-sky-500"
-                    onClick={() => handleSort('openRate')}
+                    className="p-3 font-semibold text-[var(--color-text-primary)] text-right"
+                    aria-sort={sortField === 'openRate' ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none'}
                   >
-                    <span className="inline-flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => handleSort('openRate')}
+                      className="inline-flex items-center gap-1 cursor-pointer hover:text-sky-500 font-semibold"
+                    >
                       Open Rate <ArrowUpDown className="w-3 h-3" />
-                    </span>
+                    </button>
                   </th>
                   <th className="p-3 font-semibold text-[var(--color-text-primary)] text-right">Bounces</th>
                   <th className="p-3 font-semibold text-[var(--color-text-primary)] text-center">Status</th>

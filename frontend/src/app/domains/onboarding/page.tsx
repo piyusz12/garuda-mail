@@ -57,7 +57,7 @@ export default function DomainOnboardingPage() {
       friendlyName: 'DomainKeys Identified Mail (DKIM)',
       conceptTranslation: 'Attaches a tamper-proof cryptographic signature to every outgoing payload using 2048-bit asymmetric keys.',
       recordType: 'TXT',
-      host: 'garuda._domainkey',
+      host: `${selector}._domainkey`,
       expectedValue: 'v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0tG...',
       foundValue: 'v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0tG...',
       isVerified: true,
@@ -80,6 +80,21 @@ export default function DomainOnboardingPage() {
 
   const [warmupData, setWarmupData] = useState<any[]>([]);
   const [currentDay, setCurrentDay] = useState(8);
+
+  const [verifiedTarget, setVerifiedTarget] = useState<{ domain: string; selector: string } | null>({
+    domain: 'enterprise-cyber.org',
+    selector: 'garuda'
+  });
+
+  const handleDomainChange = (val: string) => {
+    setDomain(val);
+    setVerifiedTarget(null);
+  };
+
+  const handleSelectorChange = (val: string) => {
+    setSelector(val);
+    setVerifiedTarget(null);
+  };
 
   useEffect(() => {
     // Fetch warmup schedule trajectory
@@ -112,6 +127,7 @@ export default function DomainOnboardingPage() {
       const data = await res.json();
       if (data.success && data.data?.records) {
         setRecords(data.data.records);
+        setVerifiedTarget({ domain, selector });
         announce('DNS propagation check complete.');
       }
     } catch {
@@ -121,7 +137,10 @@ export default function DomainOnboardingPage() {
     }
   };
 
-  const isFullyCompliant = records.spf.isVerified && records.dkim.isVerified && records.dmarc.isVerified;
+  const isTargetVerified = verifiedTarget !== null && verifiedTarget.domain.toLowerCase().trim() === domain.toLowerCase().trim() && verifiedTarget.selector.toLowerCase().trim() === selector.toLowerCase().trim();
+  const isFullyCompliant = isTargetVerified && Boolean(records.spf?.isVerified && records.dkim?.isVerified && records.dmarc?.isVerified);
+  const verifiedCount = isTargetVerified ? [records.spf?.isVerified, records.dkim?.isVerified, records.dmarc?.isVerified].filter(Boolean).length : 0;
+  const missingCount = 3 - verifiedCount;
 
   return (
     <AppShell
@@ -130,37 +149,68 @@ export default function DomainOnboardingPage() {
     >
       <div className="max-w-6xl mx-auto space-y-6">
         {/* ── Top Status Banner ── */}
-        <motion.div {...fadeUp} className="card-elevated p-6 border-l-4 border-l-sky-500 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <Globe className="w-5 h-5 text-sky-500" />
-              <h2 className="text-lg font-bold text-[var(--color-text-primary)]">
-                Active Domain: <span className="font-mono text-sky-600 dark:text-sky-400">{domain}</span>
-              </h2>
-              {isFullyCompliant ? (
-                <span className="badge badge-healthy flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5" /> Fully Authenticated
-                </span>
-              ) : (
-                <span className="badge badge-high flex items-center gap-1">
-                  <AlertTriangle className="w-3.5 h-3.5" /> Action Required (1 Record Missing)
-                </span>
-              )}
+        <motion.div {...fadeUp} className="card-elevated p-6 border-l-4 border-l-sky-500 space-y-4">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <Globe className="w-5 h-5 text-sky-500" />
+                <h2 className="text-lg font-bold text-[var(--color-text-primary)]">
+                  Active Domain: <span className="font-mono text-sky-600 dark:text-sky-400">{domain || 'custom-domain.com'}</span>
+                </h2>
+                {isFullyCompliant ? (
+                  <span className="badge badge-healthy flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Fully Authenticated
+                  </span>
+                ) : (
+                  <span className="badge badge-high flex items-center gap-1">
+                    <AlertTriangle className="w-3.5 h-3.5" /> Action Required ({missingCount} {missingCount === 1 ? 'Record' : 'Records'} Missing)
+                  </span>
+                )}
+              </div>
+              <p className="text-sm text-[var(--color-text-dim)]">
+                Mailbox providers enforce SPF, DKIM, and DMARC for senders dispatching &gt;5,000 emails/day. Missing records result in spam routing or outright rejection.
+              </p>
             </div>
-            <p className="text-sm text-[var(--color-text-dim)]">
-              Mailbox providers enforce SPF, DKIM, and DMARC for senders dispatching &gt;5,000 emails/day. Missing records result in spam routing or outright rejection.
-            </p>
+
+            <button
+              onClick={handleVerify}
+              disabled={isVerifying || !domain.trim()}
+              className="btn btn-primary flex items-center gap-2 px-4 py-2 shrink-0 text-sm font-semibold cursor-pointer disabled:opacity-50"
+              aria-label="Verify DNS propagation"
+            >
+              <RefreshCw className={`w-4 h-4 ${isVerifying ? 'animate-spin' : ''}`} />
+              {isVerifying ? 'Polling Resolvers...' : 'Check DNS Records'}
+            </button>
           </div>
 
-          <button
-            onClick={handleVerify}
-            disabled={isVerifying}
-            className="btn btn-primary flex items-center gap-2 px-4 py-2 shrink-0 text-sm font-semibold"
-            aria-label="Verify DNS propagation"
-          >
-            <RefreshCw className={`w-4 h-4 ${isVerifying ? 'animate-spin' : ''}`} />
-            {isVerifying ? 'Polling Resolvers...' : 'Recheck Propagation'}
-          </button>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 border-t border-[var(--color-border)]">
+            <div className="sm:col-span-2 space-y-1">
+              <label htmlFor="domain-input" className="text-xs font-semibold text-[var(--color-text-dim)]">
+                Target Sending Domain
+              </label>
+              <input
+                id="domain-input"
+                type="text"
+                value={domain}
+                onChange={(e) => handleDomainChange(e.target.value)}
+                placeholder="e.g. enterprise-cyber.org"
+                className="w-full px-3 py-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-1)] text-sm font-mono text-[var(--color-text-primary)]"
+              />
+            </div>
+            <div className="space-y-1">
+              <label htmlFor="selector-input" className="text-xs font-semibold text-[var(--color-text-dim)]">
+                DKIM Selector
+              </label>
+              <input
+                id="selector-input"
+                type="text"
+                value={selector}
+                onChange={(e) => handleSelectorChange(e.target.value)}
+                placeholder="e.g. garuda"
+                className="w-full px-3 py-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-1)] text-sm font-mono text-[var(--color-text-primary)]"
+              />
+            </div>
+          </div>
         </motion.div>
 
         {/* ── Path Switcher: Express vs Advanced ── */}

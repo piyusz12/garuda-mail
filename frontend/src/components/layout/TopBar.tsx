@@ -162,7 +162,7 @@ export default function TopBar({ title, description, onOpenMobileMenu }: TopBarP
         <button
           type="button"
           onClick={() => window.dispatchEvent(new CustomEvent('open-quick-mail'))}
-          className="flex items-center gap-1.5 h-8 px-2 sm:px-2.5 rounded-lg text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 hover:border-emerald-500/50 transition-all cursor-pointer shadow-sm"
+          className="flex items-center gap-1.5 h-8 px-2 sm:px-2.5 rounded-lg text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 hover:border-emerald-500/50 transition-all cursor-pointer shadow-sm"
           title="View Online Users & Send Quick Email"
         >
           <span className="relative flex h-2 w-2">
@@ -183,13 +183,13 @@ export default function TopBar({ title, description, onOpenMobileMenu }: TopBarP
             className={clsx(
               "relative flex items-center justify-center gap-1.5 h-8 px-2.5 rounded-lg transition-all",
               activeDropdown === 'api'
-                ? "bg-sky-500/20 text-sky-300 border border-sky-500/40 shadow-sm"
-                : "text-[var(--color-text-muted)] hover:text-sky-300 hover:bg-sky-500/10 border border-transparent"
+                ? "bg-sky-500/20 text-sky-700 dark:text-sky-300 border border-sky-500/40 shadow-sm"
+                : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)] border border-transparent"
             )}
           >
             <Laptop size={14} className="text-sky-400 hidden sm:inline" />
             <Smartphone size={14} className="text-cyan-400" />
-            <span className="text-[10px] font-semibold text-cyan-300 hidden lg:inline">Cross-Device</span>
+            <span className="text-[11px] font-semibold text-[var(--color-text-secondary)] hidden lg:inline">Cross-Device</span>
           </button>
         </div>
 
@@ -220,7 +220,7 @@ export default function TopBar({ title, description, onOpenMobileMenu }: TopBarP
             onClick={() => setActiveDropdown(activeDropdown === 'notifications' ? null : 'notifications')}
             className={clsx(
               "relative flex items-center justify-center w-8 h-8 rounded-lg transition-colors",
-              activeDropdown === 'notifications' ? "bg-[var(--color-surface-3)] text-white" : "text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)]"
+              activeDropdown === 'notifications' ? "bg-[var(--color-surface-3)] text-[var(--color-text-primary)]" : "text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)]"
             )}
           >
             <Bell size={16} />
@@ -239,7 +239,7 @@ export default function TopBar({ title, description, onOpenMobileMenu }: TopBarP
             type="button"
             onClick={handleInstantAdminEscalate}
             disabled={adminSwitchLoading}
-            className="flex items-center gap-1.5 h-8 px-2.5 rounded-lg text-[11px] font-bold text-rose-300 bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 hover:border-rose-500/50 shadow-sm transition-all active:scale-95 cursor-pointer disabled:opacity-50"
+            className="flex items-center gap-1.5 h-8 px-2.5 rounded-lg text-[11px] font-bold text-rose-700 dark:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 hover:border-rose-500/50 shadow-sm transition-all active:scale-95 cursor-pointer disabled:opacity-50"
             title="Instant Admin Login — Switch to Administrator"
           >
             {adminSwitchLoading ? (
@@ -423,7 +423,7 @@ export default function TopBar({ title, description, onOpenMobileMenu }: TopBarP
               <Link
                 href="/admin/dashboard"
                 onClick={() => setActiveDropdown(null)}
-                className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold rounded-md bg-rose-500/15 text-rose-300 hover:bg-rose-500/25 border border-rose-500/30 transition-colors mt-2"
+                className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold rounded-md bg-rose-500/15 text-rose-700 dark:text-rose-300 hover:bg-rose-500/20 border border-rose-500/30 transition-colors mt-2"
               >
                 <ShieldAlert size={12} /> Admin Dashboard
               </Link>
@@ -432,7 +432,7 @@ export default function TopBar({ title, description, onOpenMobileMenu }: TopBarP
                 <Link
                   href="/user/dashboard"
                   onClick={() => setActiveDropdown(null)}
-                  className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold rounded-md bg-sky-500/15 text-sky-300 hover:bg-sky-500/25 border border-sky-500/30 transition-colors mt-2"
+                  className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold rounded-md bg-sky-500/15 text-sky-700 dark:text-sky-300 hover:bg-sky-500/20 border border-sky-500/30 transition-colors mt-2"
                 >
                   <Shield size={12} /> My Dashboard
                 </Link>
@@ -441,7 +441,7 @@ export default function TopBar({ title, description, onOpenMobileMenu }: TopBarP
                   type="button"
                   onClick={handleInstantAdminEscalate}
                   disabled={adminSwitchLoading}
-                  className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-[11px] font-bold rounded-md bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white shadow-sm border border-rose-400/30 transition-all mt-1.5 cursor-pointer disabled:opacity-50"
+                  className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-[11px] font-bold rounded-md bg-slate-900 hover:bg-slate-800 text-white dark:bg-rose-600 dark:hover:bg-rose-500 shadow-sm border border-slate-700 dark:border-rose-500/40 transition-all mt-1.5 cursor-pointer disabled:opacity-50"
                 >
                   {adminSwitchLoading ? (
                     <Loader2 size={12} className="animate-spin text-white" />
