@@ -173,7 +173,7 @@ function LoginForm() {
         <motion.div
           whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.99 }}
-          className="relative p-[1px] rounded-2xl bg-gradient-to-r from-rose-500 via-amber-500 to-indigo-600 shadow-xl shadow-rose-950/30 overflow-hidden"
+          className="relative rounded-xl border border-rose-500/30 bg-rose-500/5 dark:bg-rose-500/10 shadow-sm overflow-hidden"
         >
           <button
             id="instant-admin-login-button"
@@ -183,7 +183,7 @@ function LoginForm() {
             className="w-full p-4 rounded-[15px] bg-[var(--color-surface-1)] hover:bg-[var(--color-surface-2)] transition-all flex items-center justify-between text-left group cursor-pointer disabled:opacity-50"
           >
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500 to-amber-600 flex items-center justify-center text-white shadow-md shadow-rose-500/25 flex-shrink-0 group-hover:scale-105 transition-transform">
+              <div className="w-10 h-10 rounded-xl bg-rose-600 dark:bg-rose-500 flex items-center justify-center text-white shadow-sm flex-shrink-0 group-hover:scale-105 transition-transform">
                 {instantLoading ? (
                   <Loader2 size={18} className="animate-spin text-white" />
                 ) : (
@@ -192,10 +192,10 @@ function LoginForm() {
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[14px] font-bold text-[var(--color-text-primary)] group-hover:text-rose-500 dark:group-hover:text-rose-200 transition-colors">
+                  <span className="text-[14px] font-bold text-[var(--color-text-primary)] group-hover:text-rose-600 dark:group-hover:text-rose-300 transition-colors">
                     Instant Admin Login
                   </span>
-                  <span className="px-1.5 py-0.2 rounded text-[10px] font-extrabold uppercase bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                  <span className="px-1.5 py-0.5 rounded text-[10px] font-bold uppercase bg-rose-500/10 dark:bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-500/30">
                     1-Click
                   </span>
                 </div>
@@ -204,7 +204,7 @@ function LoginForm() {
                 </p>
               </div>
             </div>
-            <ArrowRight size={16} className="text-rose-400 group-hover:translate-x-1 transition-transform flex-shrink-0 ml-2" />
+            <ArrowRight size={16} className="text-rose-600 dark:text-rose-400 group-hover:translate-x-1 transition-transform flex-shrink-0 ml-2" />
           </button>
         </motion.div>
 
@@ -302,7 +302,7 @@ function LoginForm() {
               type="submit"
               suppressHydrationWarning
               disabled={loading || !email || !password}
-              className="w-full h-10 flex items-center justify-center gap-2 text-[13px] font-semibold rounded-xl bg-gradient-to-r from-sky-500 via-indigo-500 to-purple-600 hover:from-sky-400 hover:via-indigo-400 hover:to-purple-500 text-white shadow-lg shadow-indigo-500/25 disabled:opacity-50 disabled:pointer-events-none transition-all duration-200 active:scale-[0.98] border border-white/20 cursor-pointer"
+              className="btn btn-primary w-full h-10 text-[13px] font-semibold rounded-lg shadow-sm cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
             >
               {loading ? (
                 <>
@@ -328,7 +328,7 @@ function LoginForm() {
                 disabled={instantLoading || loading}
                 className="p-2 rounded-lg bg-[var(--color-surface-2)] hover:bg-rose-500/10 border border-[var(--color-border)] hover:border-rose-500/30 text-left transition-all group cursor-pointer disabled:opacity-50"
               >
-                <div className="text-[11px] font-semibold text-rose-400 flex items-center gap-1">
+                <div className="text-[11px] font-semibold text-rose-700 dark:text-rose-400 flex items-center gap-1">
                   <span>👑 Admin</span>
                 </div>
                 <div className="text-[9px] text-[var(--color-text-dim)] truncate mt-0.5">
@@ -342,7 +342,7 @@ function LoginForm() {
                 disabled={instantLoading || loading}
                 className="p-2 rounded-lg bg-[var(--color-surface-2)] hover:bg-sky-500/10 border border-[var(--color-border)] hover:border-sky-500/30 text-left transition-all group cursor-pointer disabled:opacity-50"
               >
-                <div className="text-[11px] font-semibold text-sky-400 flex items-center gap-1">
+                <div className="text-[11px] font-semibold text-sky-700 dark:text-sky-400 flex items-center gap-1">
                   <span>🛡️ Officer</span>
                 </div>
                 <div className="text-[9px] text-[var(--color-text-dim)] truncate mt-0.5">
@@ -356,7 +356,7 @@ function LoginForm() {
                 disabled={instantLoading || loading}
                 className="p-2 rounded-lg bg-[var(--color-surface-2)] hover:bg-emerald-500/10 border border-[var(--color-border)] hover:border-emerald-500/30 text-left transition-all group cursor-pointer disabled:opacity-50"
               >
-                <div className="text-[11px] font-semibold text-emerald-400 flex items-center gap-1">
+                <div className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
                   <span>👤 Operative</span>
                 </div>
                 <div className="text-[9px] text-[var(--color-text-dim)] truncate mt-0.5">

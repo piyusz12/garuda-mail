@@ -414,7 +414,7 @@ export default function AnomaliesPage() {
         {activeTab === 'drift' && (
           <div className="space-y-6 animate-in fade-in duration-200">
             {/* Top Enterprise Baseline Summary */}
-            <div className="card p-5 bg-gradient-to-r from-amber-950/20 via-[var(--color-surface-2)] to-purple-950/20 border-l-4 border-l-amber-500 space-y-3">
+            <div className="card p-5 bg-[var(--color-surface-1)] border-[var(--color-border)] border-l-4 border-l-amber-500 space-y-3">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400">
@@ -530,7 +530,7 @@ export default function AnomaliesPage() {
               </div>
 
               {/* Actionable Root Cause Card */}
-              <div className="p-4 rounded-xl bg-gradient-to-r from-rose-950/30 to-amber-950/20 border border-rose-500/30 space-y-2 text-[12px]">
+              <div className="p-4 rounded-xl bg-rose-500/5 dark:bg-rose-950/20 border border-rose-500/30 space-y-2 text-[12px]">
                 <div className="flex items-center gap-2 text-rose-400 font-bold">
                   <AlertCircle size={16} />
                   <span>Automated Root Cause Diagnosis for Drift</span>

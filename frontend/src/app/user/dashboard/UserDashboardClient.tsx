@@ -126,7 +126,7 @@ export default function UserDashboardClient({ currentUser }: UserDashboardClient
             <div className="flex items-center gap-3">
               <ShieldAlert className="text-rose-400 flex-shrink-0" size={20} />
               <div>
-                <div className="text-xs font-bold text-rose-300">Administrator Privileges Required</div>
+                <div className="text-xs font-bold text-rose-800 dark:text-rose-300">Administrator Privileges Required</div>
                 <div className="text-[11px] text-[var(--color-text-muted)] mt-0.5">
                   You attempted to access an administrative route. Use Instant Admin Login to elevate immediately.
                 </div>
@@ -136,7 +136,7 @@ export default function UserDashboardClient({ currentUser }: UserDashboardClient
               type="button"
               onClick={handleInstantAdmin}
               disabled={adminSwitchLoading}
-              className="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white text-xs font-bold shadow-md shadow-rose-950/40 border border-rose-400/30 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+              className="px-3.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-sm transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
             >
               {adminSwitchLoading ? (
                 <Loader2 size={13} className="animate-spin text-white" />
@@ -165,11 +165,11 @@ export default function UserDashboardClient({ currentUser }: UserDashboardClient
                   <h2 className="text-xl font-bold text-[var(--color-text-primary)] tracking-tight">
                     Welcome, {currentUser.name || 'Operative'}
                   </h2>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                     {currentUser.status.toUpperCase()}
                   </span>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-sky-500/15 text-sky-300 border border-sky-500/30 uppercase">
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-sky-500/10 dark:bg-sky-500/15 text-sky-800 dark:text-sky-300 border border-sky-500/30 uppercase">
                     {currentUser.role}
                   </span>
                 </div>
@@ -188,7 +188,7 @@ export default function UserDashboardClient({ currentUser }: UserDashboardClient
                   type="button"
                   onClick={handleInstantAdmin}
                   disabled={adminSwitchLoading}
-                  className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-rose-600 via-rose-500 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white text-xs font-bold shadow-md shadow-rose-950/30 border border-rose-400/30 transition-all active:scale-95 cursor-pointer disabled:opacity-50"
+                  className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-sm transition-all active:scale-95 cursor-pointer disabled:opacity-50"
                   title="Instant Admin Login — Elevate session to System Administrator"
                 >
                   {adminSwitchLoading ? (
@@ -206,7 +206,7 @@ export default function UserDashboardClient({ currentUser }: UserDashboardClient
               )}
               <Link
                 href="/compose"
-                className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white text-xs font-semibold shadow-md shadow-indigo-500/20 transition-all active:scale-95"
+                className="btn btn-primary flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-semibold shadow-sm transition-all active:scale-95"
               >
                 <Send size={13} /> Compose Encrypted
               </Link>
@@ -225,10 +225,10 @@ export default function UserDashboardClient({ currentUser }: UserDashboardClient
           <motion.div variants={fadeUp} className="card p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-1)]">
             <div className="flex items-center justify-between text-[var(--color-text-muted)] mb-2">
               <span className="text-xs font-medium uppercase tracking-wider">E2EE Protocol</span>
-              <Lock size={15} className="text-sky-400" />
+              <Lock size={15} className="text-sky-600 dark:text-sky-400" />
             </div>
             <div className="text-lg font-bold text-[var(--color-text-primary)] tracking-tight">RSA-OAEP + AES</div>
-            <p className="text-[11px] text-emerald-400 mt-1 flex items-center gap-1">
+            <p className="text-[11px] text-emerald-700 dark:text-emerald-400 mt-1 font-medium flex items-center gap-1">
               <CheckCircle2 size={11} /> 2048-bit Zero-Knowledge
             </p>
           </motion.div>
@@ -236,16 +236,16 @@ export default function UserDashboardClient({ currentUser }: UserDashboardClient
           <motion.div variants={fadeUp} className="card p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-1)]">
             <div className="flex items-center justify-between text-[var(--color-text-muted)] mb-2">
               <span className="text-xs font-medium uppercase tracking-wider">Digital Signatures</span>
-              <ShieldCheck size={15} className="text-indigo-400" />
+              <ShieldCheck size={15} className="text-indigo-600 dark:text-indigo-400" />
             </div>
             <div className="text-lg font-bold text-[var(--color-text-primary)] tracking-tight">RSA-PSS SHA-256</div>
-            <p className="text-[11px] text-indigo-300 mt-1">Tamper-evident verification</p>
+            <p className="text-[11px] text-indigo-700 dark:text-indigo-300 mt-1 font-medium">Tamper-evident verification</p>
           </motion.div>
 
           <motion.div variants={fadeUp} className="card p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-1)]">
             <div className="flex items-center justify-between text-[var(--color-text-muted)] mb-2">
               <span className="text-xs font-medium uppercase tracking-wider">Online Participants</span>
-              <Users size={15} className="text-emerald-400" />
+              <Users size={15} className="text-emerald-600 dark:text-emerald-400" />
             </div>
             <div className="text-lg font-bold text-[var(--color-text-primary)] tracking-tight">{onlinePeers} Active</div>
             <p className="text-[11px] text-[var(--color-text-muted)] mt-1">Local network directory</p>
@@ -254,7 +254,7 @@ export default function UserDashboardClient({ currentUser }: UserDashboardClient
           <motion.div variants={fadeUp} className="card p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-1)]">
             <div className="flex items-center justify-between text-[var(--color-text-muted)] mb-2">
               <span className="text-xs font-medium uppercase tracking-wider">Client Key Vault</span>
-              <KeyRound size={15} className="text-amber-400" />
+              <KeyRound size={15} className="text-amber-600 dark:text-amber-400" />
             </div>
             <div className="text-lg font-bold text-[var(--color-text-primary)] tracking-tight">
               {hasLocalKey ? 'Secured' : 'Pending'}
@@ -273,7 +273,7 @@ export default function UserDashboardClient({ currentUser }: UserDashboardClient
             <div className="card p-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-1)] space-y-4">
               <div className="flex items-center justify-between border-b border-[var(--color-border-subtle)] pb-3">
                 <div className="flex items-center gap-2">
-                  <KeyRound size={16} className="text-sky-400" />
+                  <KeyRound size={16} className="text-sky-600 dark:text-sky-400" />
                   <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">Cryptographic Identity</h3>
                 </div>
                 <Link
@@ -297,7 +297,7 @@ export default function UserDashboardClient({ currentUser }: UserDashboardClient
               </div>
 
               <div className="p-3.5 rounded-lg bg-emerald-500/[0.07] border border-emerald-500/20 space-y-2">
-                <div className="flex items-center gap-2 text-xs font-semibold text-emerald-400">
+                <div className="flex items-center gap-2 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
                   <ShieldCheck size={14} /> Zero-Knowledge Security Guarantees
                 </div>
                 <ul className="text-[11px] text-[var(--color-text-secondary)] space-y-1 list-disc list-inside">
@@ -329,7 +329,7 @@ export default function UserDashboardClient({ currentUser }: UserDashboardClient
             <div className="card p-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-1)] space-y-4">
               <div className="flex items-center justify-between border-b border-[var(--color-border-subtle)] pb-3">
                 <div className="flex items-center gap-2">
-                  <Mail size={16} className="text-indigo-400" />
+                  <Mail size={16} className="text-indigo-600 dark:text-indigo-400" />
                   <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">Recent Encrypted Messages</h3>
                 </div>
                 <Link

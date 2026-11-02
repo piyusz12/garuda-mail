@@ -30,36 +30,36 @@ const userNav = [
 ];
 
 const adminNav = [
-  { name: 'Admin Dashboard', href: '/admin/dashboard', icon: ShieldAlert, color: 'text-rose-400', activeBg: 'bg-rose-500/15 border-rose-500/30 text-rose-300' },
-  { name: 'User Management', href: '/admin/users', icon: Users, color: 'text-rose-400', activeBg: 'bg-rose-500/15 border-rose-500/30 text-rose-300' },
-  { name: 'Roles & RBAC', href: '/admin/roles', icon: Shield, color: 'text-purple-400', activeBg: 'bg-purple-500/15 border-purple-500/30 text-purple-400' },
-  { name: 'Audit Logs', href: '/admin/audit-logs', icon: FileText, color: 'text-indigo-400', activeBg: 'bg-indigo-500/15 border-indigo-500/30 text-indigo-400' },
+  { name: 'Admin Dashboard', href: '/admin/dashboard', icon: ShieldAlert, color: 'text-rose-600 dark:text-rose-400', activeBg: 'bg-rose-500/10 dark:bg-rose-500/15 border-rose-500/20 dark:border-rose-500/30 text-rose-800 dark:text-rose-300 font-semibold' },
+  { name: 'User Management', href: '/admin/users', icon: Users, color: 'text-rose-600 dark:text-rose-400', activeBg: 'bg-rose-500/10 dark:bg-rose-500/15 border-rose-500/20 dark:border-rose-500/30 text-rose-800 dark:text-rose-300 font-semibold' },
+  { name: 'Roles & RBAC', href: '/admin/roles', icon: Shield, color: 'text-purple-600 dark:text-purple-400', activeBg: 'bg-purple-500/10 dark:bg-purple-500/15 border-purple-500/20 dark:border-purple-500/30 text-purple-800 dark:text-purple-300 font-semibold' },
+  { name: 'Audit Logs', href: '/admin/audit-logs', icon: FileText, color: 'text-indigo-600 dark:text-indigo-400', activeBg: 'bg-indigo-500/10 dark:bg-indigo-500/15 border-indigo-500/20 dark:border-indigo-500/30 text-indigo-800 dark:text-indigo-300 font-semibold' },
 ];
 
 const emailNav = [
-  { name: 'Inbox', href: '/inbox', icon: Inbox, countKey: 'inbox' as const, color: 'text-sky-600 dark:text-sky-400', activeBg: 'bg-sky-500/10 border-sky-500/30 text-sky-700 dark:text-sky-300 font-semibold' },
-  { name: 'Sent', href: '/sent', icon: Send, color: 'text-indigo-600 dark:text-indigo-400', activeBg: 'bg-indigo-500/10 border-indigo-500/30 text-indigo-700 dark:text-indigo-300 font-semibold' },
-  { name: 'Drafts', href: '/drafts', icon: FileEdit, countKey: 'drafts' as const, color: 'text-amber-400', activeBg: 'bg-amber-500/15 border-amber-500/30 text-amber-400' },
-  { name: 'Starred', href: '/starred', icon: Star, color: 'text-yellow-400', activeBg: 'bg-yellow-500/15 border-yellow-500/30 text-yellow-400' },
-  { name: 'Archive', href: '/archive', icon: Archive, color: 'text-emerald-400', activeBg: 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400' },
-  { name: 'Trash', href: '/trash', icon: Trash2, color: 'text-rose-400', activeBg: 'bg-rose-500/15 border-rose-500/30 text-rose-400' },
+  { name: 'Inbox', href: '/inbox', icon: Inbox, countKey: 'inbox' as const, color: 'text-sky-600 dark:text-sky-400', activeBg: 'bg-sky-500/10 dark:bg-sky-500/15 border-sky-500/20 dark:border-sky-500/30 text-sky-800 dark:text-sky-300 font-semibold' },
+  { name: 'Sent', href: '/sent', icon: Send, color: 'text-indigo-600 dark:text-indigo-400', activeBg: 'bg-indigo-500/10 dark:bg-indigo-500/15 border-indigo-500/20 dark:border-indigo-500/30 text-indigo-800 dark:text-indigo-300 font-semibold' },
+  { name: 'Drafts', href: '/drafts', icon: FileEdit, countKey: 'drafts' as const, color: 'text-amber-600 dark:text-amber-400', activeBg: 'bg-amber-500/10 dark:bg-amber-500/15 border-amber-500/20 dark:border-amber-500/30 text-amber-800 dark:text-amber-300 font-semibold' },
+  { name: 'Starred', href: '/starred', icon: Star, color: 'text-yellow-600 dark:text-yellow-400', activeBg: 'bg-yellow-500/10 dark:bg-yellow-500/15 border-yellow-500/20 dark:border-yellow-500/30 text-yellow-800 dark:text-yellow-300 font-semibold' },
+  { name: 'Archive', href: '/archive', icon: Archive, color: 'text-emerald-600 dark:text-emerald-400', activeBg: 'bg-emerald-500/10 dark:bg-emerald-500/15 border-emerald-500/20 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-300 font-semibold' },
+  { name: 'Trash', href: '/trash', icon: Trash2, color: 'text-rose-600 dark:text-rose-400', activeBg: 'bg-rose-500/10 dark:bg-rose-500/15 border-rose-500/20 dark:border-rose-500/30 text-rose-800 dark:text-rose-300 font-semibold' },
 ];
 
 const systemNav = [
-  { name: 'Overview', href: '/dashboard', icon: LayoutDashboard, color: 'text-sky-400', activeBg: 'bg-sky-500/15 border-sky-500/30 text-sky-400' },
-  { name: 'AI Fabric', href: '/fabric', icon: Cpu, color: 'text-purple-400', activeBg: 'bg-purple-500/15 border-purple-500/30 text-purple-400' },
-  { name: 'Autonomous Ops', href: '/operations', icon: Activity, color: 'text-cyan-400', activeBg: 'bg-cyan-500/15 border-cyan-500/30 text-cyan-400' },
-  { name: 'GARUDA Lab', href: '/lab', icon: FlaskConical, color: 'text-amber-400', activeBg: 'bg-amber-500/15 border-amber-500/30 text-amber-300' },
-  { name: 'Analysis', href: '/analysis', icon: Upload, color: 'text-indigo-400', activeBg: 'bg-indigo-500/15 border-indigo-500/30 text-indigo-400' },
-  { name: 'Sessions', href: '/sessions', icon: Network, color: 'text-blue-400', activeBg: 'bg-blue-500/15 border-blue-500/30 text-blue-400' },
-  { name: 'Findings', href: '/findings', icon: AlertTriangle, color: 'text-amber-400', activeBg: 'bg-amber-500/15 border-amber-500/30 text-amber-400' },
-  { name: 'Crypto Posture', href: '/crypto', icon: Shield, color: 'text-emerald-400', activeBg: 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400' },
-  { name: 'Certificates & CA', href: '/certificates', icon: Award, color: 'text-rose-400', activeBg: 'bg-rose-500/15 border-rose-500/30 text-rose-400' },
-  { name: 'AI Anomalies', href: '/anomalies', icon: Brain, color: 'text-fuchsia-400', activeBg: 'bg-fuchsia-500/15 border-fuchsia-500/30 text-fuchsia-400' },
-  { name: 'Investigations', href: '/investigations', icon: SearchIcon, color: 'text-violet-400', activeBg: 'bg-violet-500/15 border-violet-500/30 text-violet-400' },
-  { name: 'CBOM', href: '/cbom', icon: Layers, color: 'text-teal-400', activeBg: 'bg-teal-500/15 border-teal-500/30 text-teal-400' },
-  { name: 'Reports', href: '/reports', icon: FileText, color: 'text-[var(--color-text-secondary)]', activeBg: 'bg-sky-500/15 border-sky-500/30 text-sky-500 dark:text-sky-400' },
-  { name: 'Settings', href: '/settings', icon: Settings, color: 'text-[var(--color-text-muted)]', activeBg: 'bg-sky-500/15 border-sky-500/30 text-sky-500 dark:text-sky-400' },
+  { name: 'Overview', href: '/dashboard', icon: LayoutDashboard, color: 'text-sky-600 dark:text-sky-400', activeBg: 'bg-sky-500/10 dark:bg-sky-500/15 border-sky-500/20 dark:border-sky-500/30 text-sky-800 dark:text-sky-300 font-semibold' },
+  { name: 'AI Fabric', href: '/fabric', icon: Cpu, color: 'text-purple-600 dark:text-purple-400', activeBg: 'bg-purple-500/10 dark:bg-purple-500/15 border-purple-500/20 dark:border-purple-500/30 text-purple-800 dark:text-purple-300 font-semibold' },
+  { name: 'Autonomous Ops', href: '/operations', icon: Activity, color: 'text-cyan-600 dark:text-cyan-400', activeBg: 'bg-cyan-500/10 dark:bg-cyan-500/15 border-cyan-500/20 dark:border-cyan-500/30 text-cyan-800 dark:text-cyan-300 font-semibold' },
+  { name: 'GARUDA Lab', href: '/lab', icon: FlaskConical, color: 'text-amber-600 dark:text-amber-400', activeBg: 'bg-amber-500/10 dark:bg-amber-500/15 border-amber-500/20 dark:border-amber-500/30 text-amber-800 dark:text-amber-300 font-semibold' },
+  { name: 'Analysis', href: '/analysis', icon: Upload, color: 'text-indigo-600 dark:text-indigo-400', activeBg: 'bg-indigo-500/10 dark:bg-indigo-500/15 border-indigo-500/20 dark:border-indigo-500/30 text-indigo-800 dark:text-indigo-300 font-semibold' },
+  { name: 'Sessions', href: '/sessions', icon: Network, color: 'text-blue-600 dark:text-blue-400', activeBg: 'bg-blue-500/10 dark:bg-blue-500/15 border-blue-500/20 dark:border-blue-500/30 text-blue-800 dark:text-blue-300 font-semibold' },
+  { name: 'Findings', href: '/findings', icon: AlertTriangle, color: 'text-amber-600 dark:text-amber-400', activeBg: 'bg-amber-500/10 dark:bg-amber-500/15 border-amber-500/20 dark:border-amber-500/30 text-amber-800 dark:text-amber-300 font-semibold' },
+  { name: 'Crypto Posture', href: '/crypto', icon: Shield, color: 'text-emerald-600 dark:text-emerald-400', activeBg: 'bg-emerald-500/10 dark:bg-emerald-500/15 border-emerald-500/20 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-300 font-semibold' },
+  { name: 'Certificates & CA', href: '/certificates', icon: Award, color: 'text-rose-600 dark:text-rose-400', activeBg: 'bg-rose-500/10 dark:bg-rose-500/15 border-rose-500/20 dark:border-rose-500/30 text-rose-800 dark:text-rose-300 font-semibold' },
+  { name: 'AI Anomalies', href: '/anomalies', icon: Brain, color: 'text-fuchsia-600 dark:text-fuchsia-400', activeBg: 'bg-fuchsia-500/10 dark:bg-fuchsia-500/15 border-fuchsia-500/20 dark:border-fuchsia-500/30 text-fuchsia-800 dark:text-fuchsia-300 font-semibold' },
+  { name: 'Investigations', href: '/investigations', icon: SearchIcon, color: 'text-violet-600 dark:text-violet-400', activeBg: 'bg-violet-500/10 dark:bg-violet-500/15 border-violet-500/20 dark:border-violet-500/30 text-violet-800 dark:text-violet-300 font-semibold' },
+  { name: 'CBOM', href: '/cbom', icon: Layers, color: 'text-teal-600 dark:text-teal-400', activeBg: 'bg-teal-500/10 dark:bg-teal-500/15 border-teal-500/20 dark:border-teal-500/30 text-teal-800 dark:text-teal-300 font-semibold' },
+  { name: 'Reports', href: '/reports', icon: FileText, color: 'text-[var(--color-text-secondary)]', activeBg: 'bg-sky-500/10 dark:bg-sky-500/15 border-sky-500/20 dark:border-sky-500/30 text-sky-800 dark:text-sky-300 font-semibold' },
+  { name: 'Settings', href: '/settings', icon: Settings, color: 'text-[var(--color-text-muted)]', activeBg: 'bg-sky-500/10 dark:bg-sky-500/15 border-sky-500/20 dark:border-sky-500/30 text-sky-800 dark:text-sky-300 font-semibold' },
 ];
 
 interface SidebarProps {
@@ -163,7 +163,7 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onCloseMobile
             onClick={onCloseMobile}
             className={clsx(
               'flex items-center justify-center gap-2 rounded-xl font-semibold transition-all duration-200',
-              'bg-gradient-to-r from-sky-500 via-indigo-500 to-purple-600 hover:from-sky-400 hover:via-indigo-400 hover:to-purple-500 text-white shadow-lg shadow-indigo-500/25 active:scale-[0.97] border border-white/20',
+              'btn btn-primary shadow-sm hover:shadow active:scale-[0.98]',
               collapsed ? 'w-full md:w-9 h-9 md:mx-auto' : 'w-full h-9 px-4 text-[13px]'
             )}
           >

@@ -170,7 +170,7 @@ export default function TopBar({ title, description, onOpenMobileMenu }: TopBarP
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
           </span>
           <span className="hidden sm:inline">Online Peers</span>
-          <Zap size={12} className="text-emerald-400" />
+          <Zap size={12} className="text-emerald-600 dark:text-emerald-400" />
         </button>
 
         <div className="w-px h-5 bg-[var(--color-border)] mx-1 sm:mx-2" />
@@ -187,8 +187,8 @@ export default function TopBar({ title, description, onOpenMobileMenu }: TopBarP
                 : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)] border border-transparent"
             )}
           >
-            <Laptop size={14} className="text-sky-400 hidden sm:inline" />
-            <Smartphone size={14} className="text-cyan-400" />
+            <Laptop size={14} className="text-sky-600 dark:text-sky-400 hidden sm:inline" />
+            <Smartphone size={14} className="text-cyan-600 dark:text-cyan-400" />
             <span className="text-[11px] font-semibold text-[var(--color-text-secondary)] hidden lg:inline">Cross-Device</span>
           </button>
         </div>
@@ -329,16 +329,16 @@ export default function TopBar({ title, description, onOpenMobileMenu }: TopBarP
                 <span className="text-[10px] uppercase tracking-wider text-[var(--color-text-muted)] font-semibold">
                   Live Cloud Production URL
                 </span>
-                <span className="text-[10px] text-cyan-400 font-mono">Any Device</span>
+                <span className="text-[10px] text-cyan-700 dark:text-cyan-400 font-mono font-medium">Any Device</span>
               </div>
               <div className="flex items-center justify-between gap-2 p-1.5 rounded bg-[var(--color-surface-3)] border border-default">
-                <span className="text-[11px] font-mono text-cyan-300 truncate">
+                <span className="text-[11px] font-mono text-cyan-800 dark:text-cyan-300 font-semibold truncate">
                   {syncUrl}
                 </span>
                 <button
                   type="button"
                   onClick={handleCopyLink}
-                  className="flex items-center gap-1 px-2 py-1 text-[10px] font-semibold rounded bg-[var(--color-accent-dim)] text-[var(--color-accent)] hover:bg-[var(--color-accent-muted)] transition-colors flex-shrink-0"
+                  className="flex items-center gap-1 px-2 py-1 text-[10px] font-semibold rounded bg-[var(--color-accent-dim)] text-[var(--color-accent)] hover:bg-sky-600 hover:text-white transition-colors flex-shrink-0"
                 >
                   {copied ? <CheckCheck size={11} /> : <Copy size={11} />}
                   <span>{copied ? 'Copied!' : 'Copy'}</span>
@@ -348,7 +348,7 @@ export default function TopBar({ title, description, onOpenMobileMenu }: TopBarP
 
             {/* Mobile Camera Scan QR Graphic */}
             <div className="p-3 rounded-lg bg-gradient-to-br from-[var(--color-surface-2)] to-[var(--color-surface-1)] border border-cyan-500/20 text-center space-y-2">
-              <div className="flex items-center justify-center gap-1.5 text-[11px] font-semibold text-cyan-300">
+              <div className="flex items-center justify-center gap-1.5 text-[11px] font-semibold text-cyan-800 dark:text-cyan-300">
                 <QrCode size={13} />
                 <span>Open on Mobile Camera</span>
               </div>

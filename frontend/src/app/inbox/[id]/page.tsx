@@ -382,16 +382,16 @@ export default function EmailDetailPage({ params }: { params: Promise<{ id: stri
 
         {/* ── End-to-End Encryption (E2EE) Forensic Inspection Card ── */}
         {(email.isEncrypted || email.cryptoMetadata || email.security.cipher?.includes('AES-256-GCM')) && (
-          <motion.div {...fadeUp} className="card p-4 border border-emerald-500/30 bg-emerald-950/10">
+          <motion.div {...fadeUp} className="card p-4 border border-emerald-500/30 bg-emerald-500/5 dark:bg-emerald-950/20">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-emerald-500/20">
               <div className="flex items-center gap-2.5">
                 <div className="w-7 h-7 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
                   <Lock size={14} />
                 </div>
                 <div>
-                  <div className="text-[13px] font-bold text-emerald-400 flex items-center gap-1.5">
+                  <div className="text-[13px] font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5">
                     <span>End-to-End Encrypted (AES-256-GCM)</span>
-                    <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300">
+                    <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 font-bold">
                       PQC Kyber-768
                     </span>
                   </div>
@@ -409,7 +409,7 @@ export default function EmailDetailPage({ params }: { params: Promise<{ id: stri
                   className={clsx(
                     'px-2.5 py-1 rounded text-[11px] font-medium transition-colors border',
                     !viewCiphertext
-                      ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                      ? 'bg-emerald-500/15 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border-emerald-500/40'
                       : 'text-[var(--color-text-dim)] border-transparent hover:text-[var(--color-text-primary)]'
                   )}
                 >

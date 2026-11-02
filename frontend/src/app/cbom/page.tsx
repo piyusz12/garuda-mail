@@ -291,7 +291,7 @@ export default function CbomPage() {
               </div>
 
               {/* Branch 4: POP3 / 110 Legacy */}
-              <div className="p-4 rounded-xl bg-gradient-to-r from-rose-950/30 to-[var(--color-surface-2)] border border-rose-500/40 space-y-2.5">
+              <div className="p-4 rounded-xl bg-rose-500/5 dark:bg-rose-950/20 border border-rose-500/40 space-y-2.5">
                 <div className="flex items-center justify-between text-rose-400 font-bold text-[13px]">
                   <span className="flex items-center gap-2">
                     <AlertTriangle size={14} /> └── ⚠️ POP3 Legacy Mail Service (Port 110 / RFC 1939)

@@ -632,7 +632,7 @@ function ComposeForm() {
 
             {/* Live Recipient Communication Security Shield Badge */}
             {targetCommSecurity && (
-              <div className="mx-4 my-1 px-3 py-1.5 rounded-lg bg-gradient-to-r from-cyan-950/40 via-[var(--color-surface-2)] to-blue-950/30 border border-cyan-500/30 flex items-center justify-between gap-2 text-[11px] animate-in fade-in">
+              <div className="mx-4 my-1 px-3 py-1.5 rounded-lg bg-cyan-500/5 dark:bg-cyan-950/30 border border-cyan-500/30 flex items-center justify-between gap-2 text-[11px] animate-in fade-in">
                 <div className="flex items-center gap-2 flex-wrap">
                   <ShieldCheck size={14} className="text-cyan-400 flex-shrink-0" />
                   <span className="font-semibold text-cyan-300">Target Security:</span>

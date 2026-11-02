@@ -150,13 +150,13 @@ export default function CryptoPosturePage() {
             className={clsx(
               'flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-[12px] font-semibold transition-all border',
               activeTab === 'comm-security'
-                ? 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-300 border-cyan-500/40 shadow-sm shadow-cyan-500/10'
+                ? 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-800 dark:text-cyan-300 border-cyan-500/40 shadow-sm shadow-cyan-500/10'
                 : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] bg-[var(--color-surface-2)] border-transparent'
             )}
           >
             <Radio size={14} className={activeTab === 'comm-security' ? 'text-cyan-400 animate-pulse' : ''} />
             <span>Communication Security & STRIPTLS Shield</span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-300 font-mono">
+            <span className="text-[10px] px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-800 dark:text-cyan-300 font-mono">
               RFC 8461 / 7672
             </span>
           </button>
@@ -167,13 +167,13 @@ export default function CryptoPosturePage() {
             className={clsx(
               'flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-[12px] font-semibold transition-all border',
               activeTab === 'posture'
-                ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-indigo-300 border-indigo-500/40 shadow-sm shadow-indigo-500/10'
+                ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-indigo-800 dark:text-indigo-300 border-indigo-500/40 shadow-sm shadow-indigo-500/10'
                 : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] bg-[var(--color-surface-2)] border-transparent'
             )}
           >
             <Shield size={14} />
             <span>Cipher Suites & TLS Posture</span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded bg-indigo-500/20 text-indigo-300 font-mono">
+            <span className="text-[10px] px-1.5 py-0.2 rounded bg-indigo-500/20 text-indigo-800 dark:text-indigo-300 font-mono">
               NIST SP 800-52r2
             </span>
           </button>
@@ -184,13 +184,13 @@ export default function CryptoPosturePage() {
             className={clsx(
               'flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-[12px] font-semibold transition-all border',
               activeTab === 'key-management'
-                ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 border-purple-500/40 shadow-sm shadow-purple-500/10'
+                ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-800 dark:text-purple-300 border-purple-500/40 shadow-sm shadow-purple-500/10'
                 : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] bg-[var(--color-surface-2)] border-transparent'
             )}
           >
             <Key size={14} />
             <span>Key Management & Fingerprint Trust</span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-300 font-mono">
+            <span className="text-[10px] px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-800 dark:text-purple-300 font-mono">
               Phase 4-6 E2EE
             </span>
           </button>
@@ -200,7 +200,7 @@ export default function CryptoPosturePage() {
         {activeTab === 'comm-security' && (
           <div className="space-y-6 animate-in fade-in duration-200">
             {/* ── Domain Search & Probe Bar ── */}
-            <div className="card p-4 sm:p-5 border-l-4 border-l-cyan-500 bg-gradient-to-r from-cyan-950/20 via-[var(--color-surface-2)] to-transparent space-y-3">
+            <div className="card p-4 sm:p-5 border-l-4 border-l-cyan-500 bg-[var(--color-surface-1)] border-[var(--color-border)] space-y-3 shadow-sm">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <div>
                   <h3 className="text-sm sm:text-base font-bold text-[var(--color-text-primary)] flex items-center gap-2">
@@ -226,7 +226,7 @@ export default function CryptoPosturePage() {
                       className={clsx(
                         'px-2 py-0.5 rounded text-[10px] font-mono font-medium transition-colors border',
                         domainInput === d
-                          ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40 font-bold'
+                          ? 'bg-cyan-500/20 text-cyan-800 dark:text-cyan-300 border-cyan-500/40 font-bold'
                           : 'bg-[var(--color-surface-3)] text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] border-[var(--color-border-subtle)]'
                       )}
                     >
@@ -256,7 +256,7 @@ export default function CryptoPosturePage() {
                 <button
                   type="submit"
                   disabled={loadingAudit}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-[12px] transition-all disabled:opacity-50 flex-shrink-0 shadow-lg shadow-cyan-500/20"
+                  className="btn btn-primary flex items-center gap-1.5 px-4 py-2 rounded-lg text-white font-semibold text-[12px] shadow-sm transition-all disabled:opacity-50 flex-shrink-0"
                 >
                   {loadingAudit ? (
                     <>
@@ -291,7 +291,7 @@ export default function CryptoPosturePage() {
                         {auditResult.score}/100
                       </span>
                     </div>
-                    <div className="text-[10px] text-cyan-300/80 font-mono">
+                    <div className="text-[10px] text-cyan-800 dark:text-cyan-300/80 font-mono">
                       Target: <span className="font-bold">{auditResult.domain}</span>
                     </div>
                   </div>
@@ -329,7 +329,7 @@ export default function CryptoPosturePage() {
                         Max Age: {auditResult.mtaSts.maxAge.toLocaleString()}s (MX Matched)
                       </p>
                     </div>
-                    <div className="text-[10px] text-indigo-300/70 font-mono truncate">
+                    <div className="text-[10px] text-indigo-800 dark:text-indigo-300/70 font-mono truncate">
                       {auditResult.mtaSts.policyUrl}
                     </div>
                   </div>
@@ -348,7 +348,7 @@ export default function CryptoPosturePage() {
                         {auditResult.transportEncryption.pqcReadiness.algorithm}
                       </p>
                     </div>
-                    <div className="text-[10px] text-purple-300/70 font-mono">
+                    <div className="text-[10px] text-purple-800 dark:text-purple-300/70 font-mono">
                       NIST FIPS 203 (ML-KEM) Shield
                     </div>
                   </div>
@@ -370,7 +370,7 @@ export default function CryptoPosturePage() {
 
                     <div className="space-y-3 text-[12px]">
                       <div className="p-3 rounded-lg bg-[var(--color-surface-2)] border border-[var(--color-border-subtle)] space-y-1.5">
-                        <div className="flex items-center justify-between text-[11px] font-semibold text-cyan-300">
+                        <div className="flex items-center justify-between text-[11px] font-semibold text-cyan-800 dark:text-cyan-300">
                           <span>MTA-STS Specification</span>
                           <span className="font-mono text-[10px] px-1.5 rounded bg-cyan-500/20">RFC 8461</span>
                         </div>
@@ -384,7 +384,7 @@ export default function CryptoPosturePage() {
                       </div>
 
                       <div className="p-3 rounded-lg bg-[var(--color-surface-2)] border border-[var(--color-border-subtle)] space-y-1.5">
-                        <div className="flex items-center justify-between text-[11px] font-semibold text-indigo-300">
+                        <div className="flex items-center justify-between text-[11px] font-semibold text-indigo-800 dark:text-indigo-300">
                           <span>DANE TLSA Certificate Pinning</span>
                           <span className="font-mono text-[10px] px-1.5 rounded bg-indigo-500/20">RFC 7672</span>
                         </div>
@@ -415,7 +415,7 @@ export default function CryptoPosturePage() {
                     <div className="space-y-3 text-[12px]">
                       <div className="p-3 rounded-lg bg-[var(--color-surface-2)] border border-[var(--color-border-subtle)] space-y-1">
                         <span className="text-[10px] uppercase font-semibold text-[var(--color-text-dim)] block">Negotiated Cipher Suite</span>
-                        <span className="font-mono text-cyan-300 font-bold block">{auditResult.transportEncryption.preferredCipher}</span>
+                        <span className="font-mono text-cyan-800 dark:text-cyan-300 font-bold block">{auditResult.transportEncryption.preferredCipher}</span>
                         <p className="text-[11px] text-[var(--color-text-secondary)] pt-1">
                           Key Exchange: {auditResult.transportEncryption.keyExchange}
                         </p>
@@ -458,7 +458,7 @@ export default function CryptoPosturePage() {
                           </div>
                           <p className="text-[11px] text-[var(--color-text-secondary)]">{f.explanation}</p>
                           {f.remediation && (
-                            <p className="text-[11px] text-cyan-300 font-medium pt-0.5">
+                            <p className="text-[11px] text-cyan-800 dark:text-cyan-300 font-medium pt-0.5">
                               💡 <b>Remediation:</b> {f.remediation}
                             </p>
                           )}
@@ -717,7 +717,7 @@ export default function CryptoPosturePage() {
                   <h3 className="text-base font-bold text-[var(--color-text-primary)]">
                     PQC Readiness & Hybrid Key-Agreement Engine
                   </h3>
-                  <span className="px-2 py-0.5 rounded font-mono text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                  <span className="px-2 py-0.5 rounded font-mono text-[10px] font-bold bg-purple-500/20 text-purple-800 dark:text-purple-300 border border-purple-500/30">
                     IETF RFC 10024
                   </span>
                   <span className="px-2 py-0.5 rounded font-mono text-[10px] font-bold bg-sky-500/20 text-sky-300 border border-sky-500/30">
@@ -740,7 +740,7 @@ export default function CryptoPosturePage() {
 
           {/* Handshake Analysis Pipeline */}
           <div className="p-3.5 rounded-lg bg-[var(--color-surface-2)] border border-[var(--color-border-subtle)] space-y-2">
-            <div className="text-[11px] font-bold uppercase tracking-wider text-purple-300 flex items-center gap-1.5">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-purple-800 dark:text-purple-300 flex items-center gap-1.5">
               <Terminal size={14} /> PQC Detection Pipeline: ClientHello supported_groups Inspection
             </div>
             <div className="grid grid-cols-1 md:grid-cols-5 gap-2 text-[11px] font-mono items-center">
@@ -756,7 +756,7 @@ export default function CryptoPosturePage() {
               <div className="text-center text-slate-500">──►</div>
               <div className="p-2 rounded bg-purple-950/40 border border-purple-500/40 text-center">
                 <div className="text-[9px] text-purple-400">PQC ENGINE</div>
-                <div className="font-bold text-purple-300">Hybrid ML-KEM?</div>
+                <div className="font-bold text-purple-800 dark:text-purple-300">Hybrid ML-KEM?</div>
               </div>
             </div>
             <p className="text-[12px] text-rose-300/90 pt-1">
@@ -782,21 +782,21 @@ export default function CryptoPosturePage() {
                 </thead>
                 <tbody className="divide-y divide-[var(--color-border-subtle)] font-mono text-[11px]">
                   <tr>
-                    <td className="py-2 px-3 font-bold text-purple-300">X25519MLKEM768</td>
+                    <td className="py-2 px-3 font-bold text-purple-800 dark:text-purple-300">X25519MLKEM768</td>
                     <td className="py-2 px-3 text-slate-400">0x11EC</td>
                     <td className="py-2 px-3 text-slate-300">X25519 (ECDHE) + ML-KEM-768 (Lattice)</td>
                     <td className="py-2 px-3 text-slate-300">NIST Level 3 (AES-192 Equivalent)</td>
                     <td className="py-2 px-3 text-rose-400 font-bold">MISSING IN CLIENTHELLO ⚠️</td>
                   </tr>
                   <tr>
-                    <td className="py-2 px-3 font-bold text-purple-300">SecP256r1MLKEM768</td>
+                    <td className="py-2 px-3 font-bold text-purple-800 dark:text-purple-300">SecP256r1MLKEM768</td>
                     <td className="py-2 px-3 text-slate-400">0x11ED</td>
                     <td className="py-2 px-3 text-slate-300">NIST P-256 + ML-KEM-768 (FIPS 203)</td>
                     <td className="py-2 px-3 text-slate-300">NIST Level 3 (FIPS Regulated Enterprise)</td>
                     <td className="py-2 px-3 text-rose-400 font-bold">MISSING IN CLIENTHELLO ⚠️</td>
                   </tr>
                   <tr>
-                    <td className="py-2 px-3 font-bold text-purple-300">SecP384r1MLKEM1024</td>
+                    <td className="py-2 px-3 font-bold text-purple-800 dark:text-purple-300">SecP384r1MLKEM1024</td>
                     <td className="py-2 px-3 text-slate-400">0x11EE</td>
                     <td className="py-2 px-3 text-slate-300">NIST P-384 + ML-KEM-1024 (Top Secret)</td>
                     <td className="py-2 px-3 text-slate-300">NIST Level 5 (CNSA 2.0 National Defense)</td>

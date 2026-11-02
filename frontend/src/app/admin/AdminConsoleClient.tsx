@@ -290,8 +290,8 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
               className={clsx(
                 'flex items-center justify-between p-3.5 rounded-xl border text-[13px] shadow-lg',
                 notification.type === 'success'
-                  ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
-                  : 'bg-rose-500/10 border-rose-500/30 text-rose-300'
+                  ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-800 dark:text-emerald-300'
+                  : 'bg-rose-500/10 border-rose-500/30 text-rose-800 dark:text-rose-300'
               )}
             >
               <div className="flex items-center gap-2">
@@ -313,7 +313,7 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
         </AnimatePresence>
 
         {/* ── Top Privileged Overview Banner ── */}
-        <div className="p-5 rounded-2xl bg-gradient-to-r from-rose-950/30 via-purple-950/20 to-slate-900 border border-rose-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="card p-5 rounded-2xl border-l-4 border-l-rose-500 border-[var(--color-border)] bg-[var(--color-surface-1)] flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
           <div className="flex items-center gap-3.5">
             <div className="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400">
               <ShieldAlert size={24} />
@@ -323,7 +323,7 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
                 <span className="text-[11px] font-semibold uppercase tracking-wider text-rose-400">
                   Privileged Root Session
                 </span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-rose-500/20 text-rose-800 dark:text-rose-300 border border-rose-500/30">
                   ROLE: ADMIN
                 </span>
               </div>
@@ -373,7 +373,7 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
                 className={clsx(
                   'flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all whitespace-nowrap',
                   active
-                    ? 'bg-rose-500/15 text-rose-300 border border-rose-500/30 font-semibold'
+                    ? 'bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-500/30 font-semibold'
                     : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)]'
                 )}
               >
@@ -434,21 +434,21 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
                   <span className="text-[var(--color-text-muted)] block text-[10px] uppercase font-semibold">Authentication Guard</span>
                   <div className="flex items-center justify-between">
                     <span className="font-semibold text-[var(--color-text-primary)]">NextAuth JWT Session</span>
-                    <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-300 font-bold">HEALTHY</span>
+                    <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 font-bold">HEALTHY</span>
                   </div>
                 </div>
                 <div className="p-3 rounded-xl bg-[var(--color-surface-2)] border border-[var(--color-border-subtle)] space-y-1">
                   <span className="text-[var(--color-text-muted)] block text-[10px] uppercase font-semibold">Database Persistence</span>
                   <div className="flex items-center justify-between">
                     <span className="font-semibold text-[var(--color-text-primary)]">Prisma Multi-Tier Store</span>
-                    <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-300 font-bold">OPERATIONAL</span>
+                    <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 font-bold">OPERATIONAL</span>
                   </div>
                 </div>
                 <div className="p-3 rounded-xl bg-[var(--color-surface-2)] border border-[var(--color-border-subtle)] space-y-1">
                   <span className="text-[var(--color-text-muted)] block text-[10px] uppercase font-semibold">Zero-Knowledge Invariant</span>
                   <div className="flex items-center justify-between">
                     <span className="font-semibold text-[var(--color-text-primary)]">Web Crypto E2EE V2</span>
-                    <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-300 font-bold">ENFORCED</span>
+                    <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 font-bold">ENFORCED</span>
                   </div>
                 </div>
               </div>
@@ -507,7 +507,7 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
                           </div>
                           <span>{u.name}</span>
                           {isCurrentUser && (
-                            <span className="text-[9px] px-1.5 py-0.2 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30">
+                            <span className="text-[9px] px-1.5 py-0.2 rounded bg-sky-500/20 text-sky-800 dark:text-sky-300 border border-sky-500/30">
                               YOU
                             </span>
                           )}
@@ -518,8 +518,8 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
                             className={clsx(
                               'px-2 py-0.5 rounded-full text-[10px] font-semibold border uppercase',
                               u.role === 'admin'
-                                ? 'bg-rose-500/15 text-rose-300 border-rose-500/30'
-                                : 'bg-sky-500/15 text-sky-300 border-sky-500/30'
+                                ? 'bg-rose-500/15 text-rose-800 dark:text-rose-300 border-rose-500/30'
+                                : 'bg-sky-500/15 text-sky-800 dark:text-sky-300 border-sky-500/30'
                             )}
                           >
                             {u.role}
@@ -557,8 +557,8 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
                               className={clsx(
                                 'px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-colors border',
                                 isSuspended
-                                  ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/25'
-                                  : 'bg-amber-500/15 text-amber-300 border-amber-500/30 hover:bg-amber-500/25'
+                                  ? 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/25'
+                                  : 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-500/30 hover:bg-amber-500/25'
                               )}
                             >
                               {isSuspended ? 'Reactivate' : 'Suspend'}
@@ -620,7 +620,7 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
               <div className="p-4 rounded-xl bg-[var(--color-surface-2)] border border-rose-500/20 space-y-2">
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30 uppercase">
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-800 dark:text-rose-300 border border-rose-500/30 uppercase">
                   ROLE: ADMIN
                 </span>
                 <p className="font-semibold text-[var(--color-text-primary)]">Privileged System Administrator</p>
@@ -634,7 +634,7 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
               </div>
 
               <div className="p-4 rounded-xl bg-[var(--color-surface-2)] border border-sky-500/20 space-y-2">
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-sky-500/20 text-sky-300 border border-sky-500/30 uppercase">
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-sky-500/20 text-sky-800 dark:text-sky-300 border border-sky-500/30 uppercase">
                   ROLE: USER
                 </span>
                 <p className="font-semibold text-[var(--color-text-primary)]">Standard Communicator</p>
@@ -665,7 +665,7 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
               </div>
               <Link
                 href="/dashboard"
-                className="flex items-center gap-1.5 text-xs text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 font-semibold"
+                className="flex items-center gap-1.5 text-xs text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-800 dark:text-sky-300 font-semibold"
               >
                 Full Forensic Dashboard <ArrowUpRight size={13} />
               </Link>
@@ -702,7 +702,7 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
                 </h3>
                 <p className="text-xs text-[var(--color-text-muted)] mt-0.5">Immutable record of security and administrative operations</p>
               </div>
-              <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">
+              <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-indigo-500/15 text-indigo-800 dark:text-indigo-300 border border-indigo-500/30">
                 {auditLogs.length} Events
               </span>
             </div>
@@ -732,7 +732,7 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
                         <td className="py-2.5 px-4 font-mono text-[10px] text-[var(--color-text-muted)] whitespace-nowrap">
                           {new Date(log.createdAt).toLocaleString()}
                         </td>
-                        <td className="py-2.5 px-4 font-mono text-[11px] font-bold text-sky-300">
+                        <td className="py-2.5 px-4 font-mono text-[11px] font-bold text-sky-800 dark:text-sky-300">
                           {log.action}
                         </td>
                         <td className="py-2.5 px-4 text-[var(--color-text-secondary)] text-[11px]">
@@ -749,8 +749,8 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
                             className={clsx(
                               'px-1.5 py-0.5 rounded text-[9px] font-bold uppercase',
                               log.status === 'SUCCESS'
-                                ? 'bg-emerald-500/20 text-emerald-300'
-                                : 'bg-rose-500/20 text-rose-300'
+                                ? 'bg-emerald-500/20 text-emerald-800 dark:text-emerald-300'
+                                : 'bg-rose-500/20 text-rose-800 dark:text-rose-300'
                             )}
                           >
                             {log.status}
@@ -768,7 +768,7 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
         {/* ── TAB 6: SETTINGS & DANGER ZONE ── */}
         {activeTab === 'settings' && (
           <div className="space-y-6">
-            <div className="card p-6 rounded-2xl border border-rose-500/30 bg-gradient-to-br from-rose-950/20 via-[var(--color-surface-1)] to-[var(--color-surface-1)] space-y-4">
+            <div className="card p-6 rounded-2xl border border-rose-500/30 bg-[var(--color-surface-1)] space-y-4">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
