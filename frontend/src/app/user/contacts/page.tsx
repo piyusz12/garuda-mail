@@ -89,7 +89,7 @@ export default function UserContactsPage() {
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-semibold text-white truncate">{contact.name}</span>
+                      <span className="text-xs font-semibold text-[var(--color-text-primary)] truncate">{contact.name}</span>
                       {contact.isOnline && (
                         <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" title="Online" />
                       )}

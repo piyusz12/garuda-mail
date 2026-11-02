@@ -152,13 +152,13 @@ export default function AutonomousOperationsPage() {
                 <Activity className="w-6 h-6 animate-pulse" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-3">
+                <h1 className="text-2xl font-bold tracking-tight text-[var(--color-text-primary)] flex items-center gap-3">
                   Autonomous Operations &amp; Health
                   <span className="badge badge-accent text-[11px] font-medium">
                     Self-Healing Active
                   </span>
                 </h1>
-                <p className="text-xs text-slate-400 mt-1">
+                <p className="text-xs text-[var(--color-text-muted)] mt-1">
                   Closed-loop node telemetry, workload prediction, and allowlisted automated recovery within strict security boundaries.
                 </p>
               </div>
@@ -166,13 +166,13 @@ export default function AutonomousOperationsPage() {
           </div>
 
           {/* Autonomy Mode Selector */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 p-1 bg-[#0F172A] border border-slate-800 rounded-xl w-full lg:w-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 p-1 bg-[var(--color-surface-1)] border border-[var(--color-border)] rounded-xl w-full lg:w-auto">
             <button
               onClick={() => handleModeChange('OBSERVE')}
               className={`flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
                 mode === 'OBSERVE'
                   ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20 font-semibold'
-                  : 'text-slate-400 hover:text-white'
+                  : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]'
               }`}
             >
               <Shield className="w-3.5 h-3.5" />
@@ -183,7 +183,7 @@ export default function AutonomousOperationsPage() {
               className={`flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
                 mode === 'RECOMMEND_AND_APPROVE'
                   ? 'bg-amber-600 text-white shadow-lg shadow-amber-500/20 font-semibold'
-                  : 'text-slate-400 hover:text-white'
+                  : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]'
               }`}
             >
               <CheckCircle2 className="w-3.5 h-3.5" />
@@ -194,7 +194,7 @@ export default function AutonomousOperationsPage() {
               className={`flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
                 mode === 'BOUNDED_AUTOMATION'
                   ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/20 font-semibold'
-                  : 'text-slate-400 hover:text-white'
+                  : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]'
               }`}
             >
               <Zap className="w-3.5 h-3.5" />
@@ -206,62 +206,62 @@ export default function AutonomousOperationsPage() {
       {actionNotice && (
         <div className="p-3 bg-cyan-950/60 border border-cyan-500/40 rounded-xl text-xs text-cyan-200 flex items-center justify-between animate-fadeIn">
           <span>{actionNotice}</span>
-          <button onClick={() => setActionNotice(null)} className="text-cyan-400 hover:text-white">✕</button>
+          <button onClick={() => setActionNotice(null)} className="text-cyan-400 hover:text-[var(--color-text-primary)]">✕</button>
         </div>
       )}
 
       {/* ── KPI Overview Cards ── */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <div className="p-4 rounded-xl bg-gradient-to-b from-sky-500/[0.08] to-[#0F172A]/70 border border-slate-800/80 border-t-2 border-t-sky-500/80 shadow-lg shadow-sky-500/10 backdrop-blur-sm card-hover">
-          <div className="text-[11px] uppercase tracking-wider text-slate-400 font-medium">Active Jobs</div>
-          <div className="text-2xl font-bold text-white mt-1">
+        <div className="p-4 rounded-xl bg-gradient-to-b from-sky-500/[0.08] to-[var(--color-surface-1)] border border-[var(--color-border)] border-t-2 border-t-sky-500/80 shadow-lg shadow-sky-500/10 backdrop-blur-sm card-hover">
+          <div className="text-[11px] uppercase tracking-wider text-[var(--color-text-muted)] font-medium">Active Jobs</div>
+          <div className="text-2xl font-bold text-[var(--color-text-primary)] mt-1">
             {overview?.active_jobs_count ?? 3}
           </div>
           <div className="text-[10px] text-sky-400 font-medium mt-1">Across eligible nodes</div>
         </div>
 
-        <div className="p-4 rounded-xl bg-gradient-to-b from-amber-500/[0.08] to-[#0F172A]/70 border border-slate-800/80 border-t-2 border-t-amber-500/80 shadow-lg shadow-amber-500/10 backdrop-blur-sm card-hover">
-          <div className="text-[11px] uppercase tracking-wider text-slate-400 font-medium">Queued Jobs</div>
+        <div className="p-4 rounded-xl bg-gradient-to-b from-amber-500/[0.08] to-[var(--color-surface-1)] border border-[var(--color-border)] border-t-2 border-t-amber-500/80 shadow-lg shadow-amber-500/10 backdrop-blur-sm card-hover">
+          <div className="text-[11px] uppercase tracking-wider text-[var(--color-text-muted)] font-medium">Queued Jobs</div>
           <div className="text-2xl font-bold text-amber-400 mt-1">
             {overview?.queued_jobs_count ?? 1}
           </div>
-          <div className="text-[10px] text-slate-400 mt-1">Waiting for capacity</div>
+          <div className="text-[10px] text-[var(--color-text-muted)] mt-1">Waiting for capacity</div>
         </div>
 
-        <div className="p-4 rounded-xl bg-gradient-to-b from-purple-500/[0.08] to-[#0F172A]/70 border border-slate-800/80 border-t-2 border-t-purple-500/80 shadow-lg shadow-purple-500/10 backdrop-blur-sm card-hover">
-          <div className="text-[11px] uppercase tracking-wider text-slate-400 font-medium">Pending Approvals</div>
+        <div className="p-4 rounded-xl bg-gradient-to-b from-purple-500/[0.08] to-[var(--color-surface-1)] border border-[var(--color-border)] border-t-2 border-t-purple-500/80 shadow-lg shadow-purple-500/10 backdrop-blur-sm card-hover">
+          <div className="text-[11px] uppercase tracking-wider text-[var(--color-text-muted)] font-medium">Pending Approvals</div>
           <div className="text-2xl font-bold text-purple-400 mt-1">
             {overview?.pending_approvals_count ?? 1}
           </div>
-          <div className="text-[10px] text-slate-400 mt-1">Human review gated</div>
+          <div className="text-[10px] text-[var(--color-text-muted)] mt-1">Human review gated</div>
         </div>
 
-        <div className="p-4 rounded-xl bg-gradient-to-b from-emerald-500/[0.08] to-[#0F172A]/70 border border-slate-800/80 border-t-2 border-t-emerald-500/80 shadow-lg shadow-emerald-500/10 backdrop-blur-sm card-hover">
-          <div className="text-[11px] uppercase tracking-wider text-slate-400 font-medium">Recoveries</div>
+        <div className="p-4 rounded-xl bg-gradient-to-b from-emerald-500/[0.08] to-[var(--color-surface-1)] border border-[var(--color-border)] border-t-2 border-t-emerald-500/80 shadow-lg shadow-emerald-500/10 backdrop-blur-sm card-hover">
+          <div className="text-[11px] uppercase tracking-wider text-[var(--color-text-muted)] font-medium">Recoveries</div>
           <div className="text-2xl font-bold text-emerald-400 mt-1">2</div>
           <div className="text-[10px] text-emerald-400 font-medium mt-1">Allowlisted self-heals</div>
         </div>
 
-        <div className="p-4 rounded-xl bg-gradient-to-b from-cyan-500/[0.08] to-[#0F172A]/70 border border-slate-800/80 border-t-2 border-t-cyan-500/80 shadow-lg shadow-cyan-500/10 backdrop-blur-sm card-hover">
-          <div className="text-[11px] uppercase tracking-wider text-slate-400 font-medium">GPU VRAM Usage</div>
-          <div className="text-2xl font-bold text-white mt-1">
-            {metrics?.gpu.used_vram_gb ?? 11.2} <span className="text-xs text-slate-400 font-normal">/ {metrics?.gpu.total_vram_gb ?? 32} GB</span>
+        <div className="p-4 rounded-xl bg-gradient-to-b from-cyan-500/[0.08] to-[var(--color-surface-1)] border border-[var(--color-border)] border-t-2 border-t-cyan-500/80 shadow-lg shadow-cyan-500/10 backdrop-blur-sm card-hover">
+          <div className="text-[11px] uppercase tracking-wider text-[var(--color-text-muted)] font-medium">GPU VRAM Usage</div>
+          <div className="text-2xl font-bold text-[var(--color-text-primary)] mt-1">
+            {metrics?.gpu.used_vram_gb ?? 11.2} <span className="text-xs text-[var(--color-text-muted)] font-normal">/ {metrics?.gpu.total_vram_gb ?? 32} GB</span>
           </div>
           <div className="text-[10px] text-emerald-400 font-medium mt-1">Headroom safe (35%)</div>
         </div>
 
-        <div className="p-4 rounded-xl bg-gradient-to-b from-blue-500/[0.08] to-[#0F172A]/70 border border-slate-800/80 border-t-2 border-t-blue-500/80 shadow-lg shadow-blue-500/10 backdrop-blur-sm card-hover">
-          <div className="text-[11px] uppercase tracking-wider text-slate-400 font-medium">P95 TTFT Latency</div>
+        <div className="p-4 rounded-xl bg-gradient-to-b from-blue-500/[0.08] to-[var(--color-surface-1)] border border-[var(--color-border)] border-t-2 border-t-blue-500/80 shadow-lg shadow-blue-500/10 backdrop-blur-sm card-hover">
+          <div className="text-[11px] uppercase tracking-wider text-[var(--color-text-muted)] font-medium">P95 TTFT Latency</div>
           <div className="text-2xl font-bold text-cyan-400 mt-1">
-            {metrics?.ai_inference.time_to_first_token_avg_ms ?? 36.4} <span className="text-xs text-slate-400 font-normal">ms</span>
+            {metrics?.ai_inference.time_to_first_token_avg_ms ?? 36.4} <span className="text-xs text-[var(--color-text-muted)] font-normal">ms</span>
           </div>
-          <div className="text-[10px] text-slate-400 mt-1">SLO target: 80.0 ms</div>
+          <div className="text-[10px] text-[var(--color-text-muted)] mt-1">SLO target: 80.0 ms</div>
         </div>
       </div>
 
       {/* ── Autonomous Closed-Loop Feedback Pipeline ── */}
-      <div className="p-5 rounded-2xl bg-gradient-to-r from-[#0F172A]/90 via-[#1E293B]/60 to-[#0F172A]/90 border border-slate-800/80">
-        <div className="text-xs uppercase tracking-widest text-slate-400 font-semibold mb-4 flex items-center justify-between">
+      <div className="p-5 rounded-2xl bg-gradient-to-r from-[var(--color-surface-1)] via-[var(--color-surface-2)] to-[var(--color-surface-1)] border border-[var(--color-border)]">
+        <div className="text-xs uppercase tracking-widest text-[var(--color-text-muted)] font-semibold mb-4 flex items-center justify-between">
           <span>Continuous Health &amp; Safeguard Lifecycle</span>
           <span className="text-cyan-400 flex items-center gap-1">
             <RefreshCw className="w-3.5 h-3.5 animate-spin" /> Telemetry Feedback Active
@@ -281,10 +281,10 @@ export default function AutonomousOperationsPage() {
           ].map((item, idx) => (
             <div
               key={item.step}
-              className={`p-2.5 rounded-xl bg-slate-900/60 border ${item.color} flex flex-col justify-center items-center shadow-sm`}
+              className={`p-2.5 rounded-xl bg-[var(--color-surface-2)] border ${item.color} flex flex-col justify-center items-center shadow-sm`}
             >
               <span className="font-bold tracking-wider text-[11px]">{item.step}</span>
-              <span className="text-[9px] text-slate-400 mt-0.5">{item.sub}</span>
+              <span className="text-[9px] text-[var(--color-text-muted)] mt-0.5">{item.sub}</span>
             </div>
           ))}
         </div>
@@ -294,9 +294,9 @@ export default function AutonomousOperationsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left: Workload Forecasting & Capacity */}
         <div className="space-y-6">
-          <div className="p-5 rounded-2xl bg-[#0F172A]/70 border border-slate-800 shadow-sm space-y-4">
+          <div className="p-5 rounded-2xl bg-[var(--color-surface-1)] border border-[var(--color-border)] shadow-sm space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-white flex items-center gap-2">
+              <h2 className="text-sm font-semibold text-[var(--color-text-primary)] flex items-center gap-2">
                 <BarChart3 className="w-4 h-4 text-cyan-400" />
                 Predictive Workload Assessment
               </h2>
@@ -306,14 +306,14 @@ export default function AutonomousOperationsPage() {
             </div>
 
             <div className="space-y-3 text-xs">
-              <div className="flex justify-between items-center py-2 border-b border-slate-800">
-                <span className="text-slate-400">Predicted Queue Depth</span>
-                <span className="text-white font-semibold font-mono">
+              <div className="flex justify-between items-center py-2 border-b border-[var(--color-border)]">
+                <span className="text-[var(--color-text-muted)]">Predicted Queue Depth</span>
+                <span className="text-[var(--color-text-primary)] font-semibold font-mono">
                   {predictions?.predicted_queue_depth ?? 18} jobs
                 </span>
               </div>
-              <div className="flex justify-between items-center py-2 border-b border-slate-800">
-                <span className="text-slate-400">Expected Resource Pressure</span>
+              <div className="flex justify-between items-center py-2 border-b border-[var(--color-border)]">
+                <span className="text-[var(--color-text-muted)]">Expected Resource Pressure</span>
                 <span
                   className={`font-semibold px-2 py-0.5 rounded text-[11px] ${
                     predictions?.expected_resource_pressure === 'HIGH'
@@ -324,59 +324,59 @@ export default function AutonomousOperationsPage() {
                   {predictions?.expected_resource_pressure ?? 'MEDIUM'}
                 </span>
               </div>
-              <div className="flex justify-between items-center py-2 border-b border-slate-800">
-                <span className="text-slate-400">Model Prewarm Recommended</span>
+              <div className="flex justify-between items-center py-2 border-b border-[var(--color-border)]">
+                <span className="text-[var(--color-text-muted)]">Model Prewarm Recommended</span>
                 <span className="text-emerald-400 font-semibold flex items-center gap-1">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   {predictions?.model_warmup_recommended ? 'YES (qwen-2.5-coder-7b)' : 'NO'}
                 </span>
               </div>
-              <div className="flex justify-between items-center py-2 border-b border-slate-800">
-                <span className="text-slate-400">Additional Worker Demand</span>
-                <span className="text-slate-300 font-semibold font-mono">
+              <div className="flex justify-between items-center py-2 border-b border-[var(--color-border)]">
+                <span className="text-[var(--color-text-muted)]">Additional Worker Demand</span>
+                <span className="text-[var(--color-text-secondary)] font-semibold font-mono">
                   {predictions?.additional_worker_needed ?? 'POSSIBLE'}
                 </span>
               </div>
             </div>
 
-            <div className="p-3 bg-slate-900/80 rounded-xl border border-slate-800 text-xs text-slate-300 leading-relaxed">
+            <div className="p-3 bg-[var(--color-surface-2)] rounded-xl border border-[var(--color-border)] text-xs text-[var(--color-text-secondary)] leading-relaxed">
               <span className="font-semibold text-cyan-400">Predictor Assessment: </span>
               {predictions?.reasoning || 'Anticipating morning forensic ingestion spike. Recommending model prewarming on high-memory Node B.'}
             </div>
           </div>
 
           {/* Model Lifecycle & VRAM Allocation */}
-          <div className="p-5 rounded-2xl bg-[#0F172A]/70 border border-slate-800 shadow-sm space-y-4">
-            <h2 className="text-sm font-semibold text-white flex items-center gap-2">
+          <div className="p-5 rounded-2xl bg-[var(--color-surface-1)] border border-[var(--color-border)] shadow-sm space-y-4">
+            <h2 className="text-sm font-semibold text-[var(--color-text-primary)] flex items-center gap-2">
               <Cpu className="w-4 h-4 text-purple-400" />
               Model Lifecycle &amp; Memory Bounds
             </h2>
 
             <div className="space-y-3 text-xs">
-              <div className="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 flex justify-between items-center">
+              <div className="p-2.5 rounded-xl bg-[var(--color-surface-2)] border border-[var(--color-border)] flex justify-between items-center">
                 <div>
-                  <div className="font-medium text-white">qwen-local (1.5B GGUF)</div>
-                  <div className="text-[10px] text-slate-400">Node A (RTX 4060) · 2.2 GB VRAM</div>
+                  <div className="font-medium text-[var(--color-text-primary)]">qwen-local (1.5B GGUF)</div>
+                  <div className="text-[10px] text-[var(--color-text-muted)]">Node A (RTX 4060) · 2.2 GB VRAM</div>
                 </div>
                 <span className="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-500/30 text-[10px] font-mono">
                   READY
                 </span>
               </div>
 
-              <div className="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 flex justify-between items-center">
+              <div className="p-2.5 rounded-xl bg-[var(--color-surface-2)] border border-[var(--color-border)] flex justify-between items-center">
                 <div>
-                  <div className="font-medium text-white">qwen-2.5-coder-7b</div>
-                  <div className="text-[10px] text-slate-400">Node B (RTX 4090) · 6.5 GB VRAM</div>
+                  <div className="font-medium text-[var(--color-text-primary)]">qwen-2.5-coder-7b</div>
+                  <div className="text-[10px] text-[var(--color-text-muted)]">Node B (RTX 4090) · 6.5 GB VRAM</div>
                 </div>
                 <span className="px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-500/30 text-[10px] font-mono">
                   WARMED
                 </span>
               </div>
 
-              <div className="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 flex justify-between items-center">
+              <div className="p-2.5 rounded-xl bg-[var(--color-surface-2)] border border-[var(--color-border)] flex justify-between items-center">
                 <div>
-                  <div className="font-medium text-white">bge-large-embeddings</div>
-                  <div className="text-[10px] text-slate-400">Node C (Storage) · 1.2 GB VRAM</div>
+                  <div className="font-medium text-[var(--color-text-primary)]">bge-large-embeddings</div>
+                  <div className="text-[10px] text-[var(--color-text-muted)]">Node C (Storage) · 1.2 GB VRAM</div>
                 </div>
                 <span className="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-500/30 text-[10px] font-mono">
                   READY
@@ -388,20 +388,20 @@ export default function AutonomousOperationsPage() {
 
         {/* Middle/Right: Action Plans & Bounded Execution (2 Cols) */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="p-5 rounded-2xl bg-[#0F172A]/70 border border-slate-800 shadow-sm space-y-4">
+          <div className="p-5 rounded-2xl bg-[var(--color-surface-1)] border border-[var(--color-border)] shadow-sm space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-sm font-semibold text-white flex items-center gap-2">
+                <h2 className="text-sm font-semibold text-[var(--color-text-primary)] flex items-center gap-2">
                   <Shield className="w-4 h-4 text-emerald-400" />
                   Operational Action Plans &amp; Approval Pipeline
                 </h2>
-                <p className="text-xs text-slate-400 mt-0.5">
+                <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
                   Deterministic allowlisted operations with post-execution verification and reversible rollback.
                 </p>
               </div>
               <button
                 onClick={loadData}
-                className="p-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white transition-colors"
+                className="p-1.5 rounded-lg bg-[var(--color-surface-3)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
                 title="Refresh action plans"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
@@ -411,7 +411,7 @@ export default function AutonomousOperationsPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="border-b border-slate-800 text-slate-400 font-medium">
+                  <tr className="border-b border-[var(--color-border)] text-[var(--color-text-muted)] font-medium">
                     <th className="py-2.5 px-3">Action ID</th>
                     <th className="py-2.5 px-3">Operation</th>
                     <th className="py-2.5 px-3">Target</th>
@@ -428,15 +428,15 @@ export default function AutonomousOperationsPage() {
                     const isRolledBack = act.status === 'ROLLED_BACK';
 
                     return (
-                      <tr key={act.action_id} className="hover:bg-slate-900/40 transition-colors">
-                        <td className="py-3 px-3 font-mono font-medium text-slate-300">
+                      <tr key={act.action_id} className="hover:bg-[var(--color-surface-2)] transition-colors">
+                        <td className="py-3 px-3 font-mono font-medium text-[var(--color-text-secondary)]">
                           {act.action_id}
                         </td>
                         <td className="py-3 px-3">
-                          <span className="font-semibold text-white">{act.action_type}</span>
-                          <p className="text-[10px] text-slate-400 truncate max-w-xs">{act.reason}</p>
+                          <span className="font-semibold text-[var(--color-text-primary)]">{act.action_type}</span>
+                          <p className="text-[10px] text-[var(--color-text-muted)] truncate max-w-xs">{act.reason}</p>
                         </td>
-                        <td className="py-3 px-3 font-mono text-slate-300 text-[11px]">
+                        <td className="py-3 px-3 font-mono text-[var(--color-text-secondary)] text-[11px]">
                           {act.target_resource}
                         </td>
                         <td className="py-3 px-3">
@@ -460,7 +460,7 @@ export default function AutonomousOperationsPage() {
                                 : isPending
                                 ? 'bg-amber-950 text-amber-300 border border-amber-500/30'
                                 : isRolledBack
-                                ? 'bg-slate-800 text-slate-400'
+                                ? 'bg-[var(--color-surface-3)] text-[var(--color-text-muted)]'
                                 : 'bg-blue-950 text-blue-300 border border-blue-500/30'
                             }`}
                           >
@@ -490,7 +490,7 @@ export default function AutonomousOperationsPage() {
                             <button
                               disabled={loadingAction === act.action_id}
                               onClick={() => handleActionCommand(act.action_id, 'rollback')}
-                              className="px-2.5 py-1 rounded bg-slate-800 hover:bg-rose-900/60 text-slate-300 hover:text-rose-200 border border-slate-700 font-medium text-[11px] transition-colors"
+                              className="px-2.5 py-1 rounded bg-[var(--color-surface-3)] hover:bg-rose-900/60 text-[var(--color-text-secondary)] hover:text-rose-200 border border-[var(--color-border)] font-medium text-[11px] transition-colors"
                             >
                               Rollback
                             </button>
@@ -505,8 +505,8 @@ export default function AutonomousOperationsPage() {
           </div>
 
           {/* Controlled Optimization Experiments (Module M) */}
-          <div className="p-5 rounded-2xl bg-[#0F172A]/70 border border-slate-800 shadow-sm space-y-4">
-            <h2 className="text-sm font-semibold text-white flex items-center gap-2">
+          <div className="p-5 rounded-2xl bg-[var(--color-surface-1)] border border-[var(--color-border)] shadow-sm space-y-4">
+            <h2 className="text-sm font-semibold text-[var(--color-text-primary)] flex items-center gap-2">
               <Zap className="w-4 h-4 text-amber-400" />
               Controlled Optimization Experiments (A/B Baselines)
             </h2>
@@ -522,7 +522,7 @@ export default function AutonomousOperationsPage() {
                   } space-y-2 text-xs`}
                 >
                   <div className="flex justify-between items-center">
-                    <span className="font-bold text-white">{exp.title}</span>
+                    <span className="font-bold text-[var(--color-text-primary)]">{exp.title}</span>
                     <span
                       className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
                         exp.accepted ? 'bg-emerald-900 text-emerald-200' : 'bg-rose-900 text-rose-200'
@@ -531,9 +531,9 @@ export default function AutonomousOperationsPage() {
                       {exp.accepted ? 'ACCEPTED (+25%)' : 'ROLLED BACK'}
                     </span>
                   </div>
-                  <p className="text-slate-400 text-[11px] leading-relaxed">{exp.hypothesis}</p>
-                  <div className="flex justify-between text-[11px] pt-2 border-t border-slate-800/60 font-mono">
-                    <span className="text-slate-400">P50: {exp.baseline_metrics.p50_latency_ms}ms → {exp.proposed_metrics.p50_latency_ms}ms</span>
+                  <p className="text-[var(--color-text-muted)] text-[11px] leading-relaxed">{exp.hypothesis}</p>
+                  <div className="flex justify-between text-[11px] pt-2 border-t border-[var(--color-border)] font-mono">
+                    <span className="text-[var(--color-text-muted)]">P50: {exp.baseline_metrics.p50_latency_ms}ms → {exp.proposed_metrics.p50_latency_ms}ms</span>
                     <span className="text-cyan-400">P95: {exp.proposed_metrics.p95_latency_ms}ms</span>
                   </div>
                   {exp.rollback_reason && (
@@ -547,14 +547,14 @@ export default function AutonomousOperationsPage() {
       </div>
 
       {/* ── Live Automated Recovery Verification ── */}
-      <div className="p-6 rounded-2xl bg-gradient-to-r from-slate-900 via-slate-900/90 to-slate-950 border border-cyan-500/30 shadow-xl space-y-4">
+      <div className="p-6 rounded-2xl bg-gradient-to-r from-[var(--color-surface-2)] via-[var(--color-surface-1)] to-[var(--color-surface-2)] border border-cyan-500/30 shadow-xl space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
+            <h2 className="text-base font-bold text-[var(--color-text-primary)] flex items-center gap-2">
               <Play className="w-5 h-5 text-cyan-400" />
               Live Failover &amp; Recovery Simulation
             </h2>
-            <p className="text-xs text-slate-400 mt-1 max-w-3xl">
+            <p className="text-xs text-[var(--color-text-muted)] mt-1 max-w-3xl">
               Simulates real-world primary node degradation, checks sovereign policy eligibility, safely routes workloads to verified replacement compute, and verifies 0 data loss under load.
             </p>
           </div>
@@ -578,25 +578,25 @@ export default function AutonomousOperationsPage() {
         </div>
 
         {demoResults && (
-          <div className="p-4 rounded-xl bg-slate-950/80 border border-cyan-500/30 space-y-3 animate-fadeIn">
-            <div className="flex items-center justify-between text-xs pb-2 border-b border-slate-800">
+          <div className="p-4 rounded-xl bg-[var(--color-surface-2)] border border-cyan-500/30 space-y-3 animate-fadeIn">
+            <div className="flex items-center justify-between text-xs pb-2 border-b border-[var(--color-border)]">
               <span className="font-semibold text-cyan-300">{demoResults.verdict}</span>
               <span className="text-emerald-400 font-mono">7 / 7 STEPS COMPLETED</span>
             </div>
             <div className="space-y-2 text-xs">
               {demoResults.timeline?.map((st: any) => (
-                <div key={st.step} className="flex items-start gap-3 p-2 rounded-lg bg-slate-900/60 border border-slate-800/80">
+                <div key={st.step} className="flex items-start gap-3 p-2 rounded-lg bg-[var(--color-surface-2)] border border-[var(--color-border)]">
                   <div className="w-5 h-5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-500/40 flex items-center justify-center font-bold text-[10px] mt-0.5">
                     {st.step}
                   </div>
                   <div>
-                    <div className="font-semibold text-white flex items-center gap-2">
+                    <div className="font-semibold text-[var(--color-text-primary)] flex items-center gap-2">
                       {st.name}
                       <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-950 text-emerald-300 font-mono">
                         {st.status}
                       </span>
                     </div>
-                    <p className="text-[11px] text-slate-300 mt-0.5">{st.details}</p>
+                    <p className="text-[11px] text-[var(--color-text-secondary)] mt-0.5">{st.details}</p>
                   </div>
                 </div>
               ))}
@@ -606,17 +606,17 @@ export default function AutonomousOperationsPage() {
       </div>
 
       {/* ── Operational Incident Response Records (Module O) ── */}
-      <div className="p-5 rounded-2xl bg-[#0F172A]/70 border border-slate-800 shadow-sm space-y-4">
-        <h2 className="text-sm font-semibold text-white flex items-center gap-2">
+      <div className="p-5 rounded-2xl bg-[var(--color-surface-1)] border border-[var(--color-border)] shadow-sm space-y-4">
+        <h2 className="text-sm font-semibold text-[var(--color-text-primary)] flex items-center gap-2">
           <AlertTriangle className="w-4 h-4 text-rose-400" />
           Incident Response Lifecycle (Module O)
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {incidents.map((inc) => (
-            <div key={inc.incident_id} className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-3 text-xs">
+            <div key={inc.incident_id} className="p-4 rounded-xl bg-[var(--color-surface-2)] border border-[var(--color-border)] space-y-3 text-xs">
               <div className="flex justify-between items-center">
-                <span className="font-bold text-white flex items-center gap-2">
+                <span className="font-bold text-[var(--color-text-primary)] flex items-center gap-2">
                   <span className="font-mono text-cyan-400">{inc.incident_id}</span>
                   {inc.title}
                 </span>
@@ -630,8 +630,8 @@ export default function AutonomousOperationsPage() {
                   {inc.status}
                 </span>
               </div>
-              <p className="text-slate-400 text-[11px]">{inc.description}</p>
-              <div className="text-[10px] text-slate-400 font-mono">
+              <p className="text-[var(--color-text-muted)] text-[11px]">{inc.description}</p>
+              <div className="text-[10px] text-[var(--color-text-muted)] font-mono">
                 Target: {inc.target_resource} · Detected by: {inc.detection_source}
               </div>
             </div>

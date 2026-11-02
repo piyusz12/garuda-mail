@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: 'Cryptographic Forensics & Security Intelligence Platform',
     start_url: '/inbox',
     display: 'standalone',
-    background_color: '#0B0D10',
-    theme_color: '#0B0D10',
+    background_color: '#F8FAFC',
+    theme_color: '#F8FAFC',
     icons: [
       {
         src: '/favicon.ico',

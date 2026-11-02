@@ -340,7 +340,7 @@ export default function AnomaliesPage() {
                 JA4 Cryptographic Client Fingerprinting Standard:
               </div>
               <p className="text-[var(--color-text-muted)] leading-relaxed">
-                JA4 fingerprints client TLS hellos: <span className="text-mono text-[var(--color-accent)]">t13d1516h2_8daaf6152771_e5627efa2ab1</span> where <span className="text-mono text-white">t</span> = TCP, <span className="text-mono text-white">13</span> = TLS 1.3, <span className="text-mono text-white">d</span> = SNI specified, <span className="text-mono text-white">15</span> ciphers, <span className="text-mono text-white">16</span> extensions, <span className="text-mono text-white">h2</span> = ALPN HTTP/2, followed by 12-char SHA-256 hashes of ciphers and extensions.
+                JA4 fingerprints client TLS hellos: <span className="text-mono text-[var(--color-accent)]">t13d1516h2_8daaf6152771_e5627efa2ab1</span> where <span className="text-mono text-[var(--color-text-primary)]">t</span> = TCP, <span className="text-mono text-[var(--color-text-primary)]">13</span> = TLS 1.3, <span className="text-mono text-[var(--color-text-primary)]">d</span> = SNI specified, <span className="text-mono text-[var(--color-text-primary)]">15</span> ciphers, <span className="text-mono text-[var(--color-text-primary)]">16</span> extensions, <span className="text-mono text-[var(--color-text-primary)]">h2</span> = ALPN HTTP/2, followed by 12-char SHA-256 hashes of ciphers and extensions.
               </p>
             </div>
 
@@ -422,7 +422,7 @@ export default function AnomaliesPage() {
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="text-base font-bold text-white">Adaptive Cryptographic Baseline & Drift Monitor</h3>
+                      <h3 className="text-base font-bold text-[var(--color-text-primary)]">Adaptive Cryptographic Baseline & Drift Monitor</h3>
                       <span className="badge-critical text-[9px] px-2 py-0.5 rounded font-bold uppercase font-mono">
                         REGRESSION DETECTED (-26 PTS)
                       </span>
@@ -461,7 +461,7 @@ export default function AnomaliesPage() {
             <div className="card p-6 space-y-4">
               <div className="flex items-center justify-between border-b border-[var(--color-border)] pb-3">
                 <div>
-                  <h4 className="text-sm font-bold text-white">Cryptographic Posture Regression (Week 1 vs Week 4 vs Week 8)</h4>
+                  <h4 className="text-sm font-bold text-[var(--color-text-primary)]">Cryptographic Posture Regression (Week 1 vs Week 4 vs Week 8)</h4>
                   <p className="text-[11px] text-[var(--color-text-muted)]">
                     Tracking 14,200 enterprise email sessions across the corporate mail gateway
                   </p>
@@ -484,42 +484,42 @@ export default function AnomaliesPage() {
                   </thead>
                   <tbody className="divide-y divide-[var(--color-border-subtle)] font-mono">
                     <tr>
-                      <td className="py-3 px-4 font-sans font-semibold text-white">TLS 1.3 Modern Adoption</td>
+                      <td className="py-3 px-4 font-sans font-semibold text-[var(--color-text-primary)]">TLS 1.3 Modern Adoption</td>
                       <td className="py-3 px-4 text-emerald-300 font-bold">82.4%</td>
                       <td className="py-3 px-4 text-sky-300">74.1%</td>
                       <td className="py-3 px-4 text-rose-400 font-bold">61.0%</td>
                       <td className="py-3 px-4 text-rose-400 font-bold text-right">-21.4% (Severe Regression)</td>
                     </tr>
                     <tr>
-                      <td className="py-3 px-4 font-sans font-semibold text-white">TLS 1.2 Classical Usage</td>
+                      <td className="py-3 px-4 font-sans font-semibold text-[var(--color-text-primary)]">TLS 1.2 Classical Usage</td>
                       <td className="py-3 px-4 text-slate-300">17.6%</td>
                       <td className="py-3 px-4 text-slate-300">23.9%</td>
                       <td className="py-3 px-4 text-slate-300">29.0%</td>
                       <td className="py-3 px-4 text-amber-300 text-right">+11.4%</td>
                     </tr>
                     <tr>
-                      <td className="py-3 px-4 font-sans font-semibold text-white">Deprecated TLS 1.0 / 1.1</td>
+                      <td className="py-3 px-4 font-sans font-semibold text-[var(--color-text-primary)]">Deprecated TLS 1.0 / 1.1</td>
                       <td className="py-3 px-4 text-emerald-300">0.0% (Clean)</td>
                       <td className="py-3 px-4 text-amber-300">2.0%</td>
                       <td className="py-3 px-4 text-rose-400 font-bold">10.0% (Active)</td>
                       <td className="py-3 px-4 text-rose-400 font-bold text-right">+10.0% (Violates RFC 8996)</td>
                     </tr>
                     <tr>
-                      <td className="py-3 px-4 font-sans font-semibold text-white">SWEET32 / 3DES Vulnerable Ciphers</td>
+                      <td className="py-3 px-4 font-sans font-semibold text-[var(--color-text-primary)]">SWEET32 / 3DES Vulnerable Ciphers</td>
                       <td className="py-3 px-4 text-emerald-300">0 sessions</td>
                       <td className="py-3 px-4 text-amber-300">3 sessions</td>
                       <td className="py-3 px-4 text-rose-400 font-bold">19 sessions</td>
                       <td className="py-3 px-4 text-rose-400 font-bold text-right">+19 Outliers</td>
                     </tr>
                     <tr>
-                      <td className="py-3 px-4 font-sans font-semibold text-white">Forward Secrecy (PFS) Enforced</td>
+                      <td className="py-3 px-4 font-sans font-semibold text-[var(--color-text-primary)]">Forward Secrecy (PFS) Enforced</td>
                       <td className="py-3 px-4 text-emerald-300">100.0%</td>
                       <td className="py-3 px-4 text-slate-300">97.4%</td>
                       <td className="py-3 px-4 text-rose-400 font-bold">90.0%</td>
                       <td className="py-3 px-4 text-rose-400 font-bold text-right">-10.0% (Static RSA Resurgence)</td>
                     </tr>
                     <tr className="bg-[var(--color-surface-2)]">
-                      <td className="py-3 px-4 font-sans font-bold text-white">Overall Enterprise Posture Score</td>
+                      <td className="py-3 px-4 font-sans font-bold text-[var(--color-text-primary)]">Overall Enterprise Posture Score</td>
                       <td className="py-3 px-4 text-emerald-400 font-black text-sm">94 / 100</td>
                       <td className="py-3 px-4 text-sky-400 font-black text-sm">85 / 100</td>
                       <td className="py-3 px-4 text-rose-400 font-black text-sm">68 / 100</td>

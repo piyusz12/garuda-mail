@@ -15,6 +15,7 @@ export default function CertificateTrustGraph() {
 
   const { certificates, selectedCertId, setSelectedCertId } = usePcapStore();
   const [copied, setCopied] = useState(false);
+  const { theme } = useTheme();
 
   const selectedCert = certificates.find(c => c.id === selectedCertId) || certificates[0];
 
@@ -69,7 +70,7 @@ export default function CertificateTrustGraph() {
           style: {
             'background-color': 'data(bgColor)',
             'label': 'data(label)',
-            'color': '#f8fafc',
+            'color': theme === 'dark' ? '#f8fafc' : '#0f172a',
             'font-family': 'Inter, sans-serif',
             'font-size': '11px',
             'font-weight': 'bold',
@@ -96,8 +97,8 @@ export default function CertificateTrustGraph() {
           selector: 'edge',
           style: {
             'width': 2.5,
-            'line-color': 'rgba(255, 255, 255, 0.25)',
-            'target-arrow-color': 'rgba(255, 255, 255, 0.4)',
+            'line-color': theme === 'dark' ? 'rgba(255, 255, 255, 0.25)' : 'rgba(0, 0, 0, 0.25)',
+            'target-arrow-color': theme === 'dark' ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.35)',
             'target-arrow-shape': 'triangle',
             'curve-style': 'bezier',
             'arrow-scale': 1.2,
@@ -125,7 +126,7 @@ export default function CertificateTrustGraph() {
     return () => {
       cy.destroy();
     };
-  }, [certificates, setSelectedCertId]);
+  }, [certificates, setSelectedCertId, theme]);
 
   // Synchronize selection highlight
   useEffect(() => {
@@ -145,7 +146,7 @@ export default function CertificateTrustGraph() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
       {/* ── Cytoscape WebGL Graph (7 cols) ── */}
-      <div className="lg:col-span-7 card p-0 overflow-hidden relative border border-[var(--color-border)] bg-[#070b14] h-[540px]">
+      <div className="lg:col-span-7 card p-0 overflow-hidden relative border border-[var(--color-border)] bg-[var(--color-surface-2)] h-[540px]">
         {/* Graph Legend Overlay */}
         <div className="absolute top-3 left-4 z-10 flex items-center gap-3 bg-[var(--color-surface-1)]/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-[var(--color-border)] text-[11px] font-mono">
           <div className="flex items-center gap-1.5 text-emerald-400">
@@ -259,7 +260,7 @@ export default function CertificateTrustGraph() {
               <span>{copied ? 'Copied' : 'Copy'}</span>
             </button>
           </div>
-          <div className="p-2 rounded bg-[#050811] text-[10px] font-mono text-slate-300 break-all border border-[var(--color-border-subtle)]">
+          <div className="p-2 rounded bg-[var(--color-surface-3)] text-[10px] font-mono text-[var(--color-text-secondary)] break-all border border-[var(--color-border-subtle)]">
             {selectedCert.fingerprintSha256}
           </div>
         </div>

@@ -219,7 +219,7 @@ export default function QuickMailDrawer() {
           className={clsx(
             'flex items-center gap-2.5 px-4 py-2.5 rounded-full shadow-2xl transition-all duration-300 font-sans border backdrop-blur-md cursor-pointer',
             isOpen
-              ? 'bg-[#0f172a] text-white border-sky-400 shadow-[0_0_25px_rgba(56,189,248,0.35)]'
+              ? 'bg-[var(--color-surface-2)] text-[var(--color-text-primary)] border-sky-400 shadow-[0_0_25px_rgba(56,189,248,0.35)]'
               : 'bg-gradient-to-r from-emerald-600 to-teal-700 text-white border-emerald-400/40 shadow-[0_4px_20px_rgba(16,185,129,0.4)] hover:shadow-[0_6px_25px_rgba(16,185,129,0.55)]'
           )}
           title="WhatsApp-style Online Users & Quick Email Dispatch"

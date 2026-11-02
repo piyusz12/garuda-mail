@@ -410,7 +410,7 @@ export default function GarudaLabPage() {
                       ? 'bg-amber-500/15 text-amber-300 font-bold border-l-2 border-amber-500'
                       : line.includes('ML-KEM') || line.includes('PQC: Active') || line.includes('Zero Leaks')
                       ? 'bg-emerald-500/15 text-emerald-300 font-bold border-l-2 border-emerald-500'
-                      : 'text-slate-300 hover:bg-slate-800/50'
+                      : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-3)]'
                   )}
                 >
                   {line}

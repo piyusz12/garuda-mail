@@ -41,7 +41,7 @@ export default function UserSecurityPage() {
                 <KeyRound size={20} />
               </div>
               <div>
-                <h2 className="text-sm font-bold text-white">Browser Cryptographic Key Vault</h2>
+                <h2 className="text-sm font-bold text-[var(--color-text-primary)]">Browser Cryptographic Key Vault</h2>
                 <p className="text-xs text-slate-400">Locally encrypted with PBKDF2 (100,000 rounds) + AES-256-GCM</p>
               </div>
             </div>
@@ -65,11 +65,11 @@ export default function UserSecurityPage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 text-xs">
             <div className="p-3 rounded-lg bg-[var(--color-surface-2)] border border-[var(--color-border-subtle)]">
               <span className="text-[10px] text-slate-400 block uppercase">Asymmetric Ciphers</span>
-              <span className="font-semibold text-white mt-0.5 block">{algorithm}</span>
+              <span className="font-semibold text-[var(--color-text-primary)] mt-0.5 block">{algorithm}</span>
             </div>
             <div className="p-3 rounded-lg bg-[var(--color-surface-2)] border border-[var(--color-border-subtle)]">
               <span className="text-[10px] text-slate-400 block uppercase">Digital Signatures</span>
-              <span className="font-semibold text-white mt-0.5 block">RSA-PSS / SHA-256</span>
+              <span className="font-semibold text-[var(--color-text-primary)] mt-0.5 block">RSA-PSS / SHA-256</span>
             </div>
             <div className="p-3 rounded-lg bg-[var(--color-surface-2)] border border-[var(--color-border-subtle)]">
               <span className="text-[10px] text-slate-400 block uppercase">PQC Hybrid Status</span>
@@ -80,7 +80,7 @@ export default function UserSecurityPage() {
 
         {/* ── Security Checklist ── */}
         <div className="card p-6 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-1)] space-y-4">
-          <h3 className="text-sm font-bold text-white flex items-center gap-2">
+          <h3 className="text-sm font-bold text-[var(--color-text-primary)] flex items-center gap-2">
             <ShieldCheck size={16} className="text-emerald-400" />
             Security & Zero-Knowledge Verification
           </h3>
@@ -88,21 +88,21 @@ export default function UserSecurityPage() {
             <div className="flex items-start gap-3 p-3 rounded-xl bg-emerald-500/[0.05] border border-emerald-500/20">
               <CheckCircle2 size={16} className="text-emerald-400 flex-shrink-0 mt-0.5" />
               <div className="text-xs">
-                <span className="font-semibold text-white block">Server Isolation Verified</span>
+                <span className="font-semibold text-[var(--color-text-primary)] block">Server Isolation Verified</span>
                 <span className="text-slate-400">The central database never possesses plaintext copies of your private keys or confidential communications.</span>
               </div>
             </div>
             <div className="flex items-start gap-3 p-3 rounded-xl bg-emerald-500/[0.05] border border-emerald-500/20">
               <CheckCircle2 size={16} className="text-emerald-400 flex-shrink-0 mt-0.5" />
               <div className="text-xs">
-                <span className="font-semibold text-white block">Passphrase Protection Enabled</span>
+                <span className="font-semibold text-[var(--color-text-primary)] block">Passphrase Protection Enabled</span>
                 <span className="text-slate-400">Your private key is protected by your master passphrase in local storage. Entering the wrong passphrase prevents decryption.</span>
               </div>
             </div>
             <div className="flex items-start gap-3 p-3 rounded-xl bg-emerald-500/[0.05] border border-emerald-500/20">
               <CheckCircle2 size={16} className="text-emerald-400 flex-shrink-0 mt-0.5" />
               <div className="text-xs">
-                <span className="font-semibold text-white block">Tamper Rejection Guaranteed</span>
+                <span className="font-semibold text-[var(--color-text-primary)] block">Tamper Rejection Guaranteed</span>
                 <span className="text-slate-400">Every message body is verified against its sender signature before being displayed. Tampered payloads are safely blocked.</span>
               </div>
             </div>

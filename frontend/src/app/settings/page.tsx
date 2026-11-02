@@ -6,8 +6,9 @@ import {
   Settings, Sliders, Shield, Brain, Database, Bell,
   Save, RefreshCw, CheckCircle2, AlertTriangle, Key,
   Lock, Terminal, Cpu, Network, Globe, Server, Radio,
-  Send, AlertCircle
+  Send, AlertCircle, Sun, Moon, Palette
 } from 'lucide-react';
+import { useTheme } from '@/components/providers/ThemeProvider';
 import AppShell from '@/components/layout/AppShell';
 import clsx from 'clsx';
 import { SUPPORTED_PROTOCOLS } from '@/lib/protocols';
@@ -15,7 +16,8 @@ import { SUPPORTED_PROTOCOLS } from '@/lib/protocols';
 const fadeUp = { initial: { opacity: 0, y: 12 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.3 } };
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState<'protocols' | 'engine' | 'rules' | 'ai' | 'integrations'>('protocols');
+  const [activeTab, setActiveTab] = useState<'protocols' | 'engine' | 'rules' | 'ai' | 'integrations' | 'appearance'>('protocols');
+  const { theme, setTheme } = useTheme();
   const [saveToast, setSaveToast] = useState(false);
 
   // ── Protocol Settings ──
@@ -177,6 +179,7 @@ export default function SettingsPage() {
             { id: 'rules' as const, label: 'Deterministic Rules', icon: Shield },
             { id: 'ai' as const, label: 'AI Anomaly Tuning', icon: Brain },
             { id: 'integrations' as const, label: 'SIEM & Alert Webhooks', icon: Bell },
+            { id: 'appearance' as const, label: 'Appearance & Theme', icon: Palette },
           ].map(tab => (
             <button
               key={tab.id}
@@ -340,7 +343,7 @@ export default function SettingsPage() {
                     type="button"
                     onClick={handleTestSmtp}
                     disabled={testingSmtp}
-                    className="px-4 py-2 rounded-lg bg-[var(--color-surface-3)] text-[12px] font-semibold text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-[#0B0D10] border border-[var(--color-border)] transition-colors flex items-center gap-2"
+                    className="px-4 py-2 rounded-lg bg-[var(--color-surface-3)] text-[12px] font-semibold text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-slate-950 border border-[var(--color-border)] transition-colors flex items-center gap-2"
                   >
                     {testingSmtp ? (
                       <>
@@ -444,7 +447,7 @@ export default function SettingsPage() {
                     type="button"
                     onClick={handleTestImap}
                     disabled={testingImap}
-                    className="px-4 py-2 rounded-lg bg-[var(--color-surface-3)] text-[12px] font-semibold text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-[#0B0D10] border border-[var(--color-border)] transition-colors flex items-center gap-2"
+                    className="px-4 py-2 rounded-lg bg-[var(--color-surface-3)] text-[12px] font-semibold text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-slate-950 border border-[var(--color-border)] transition-colors flex items-center gap-2"
                   >
                     {testingImap ? (
                       <>
@@ -627,6 +630,123 @@ export default function SettingsPage() {
             </div>
           )}
 
+          {/* ── TAB 5: Appearance & Theme ── */}
+          {activeTab === 'appearance' && (
+            <div className="card p-6 space-y-6">
+              <div className="pb-3 border-b border-[var(--color-border)] flex items-center justify-between">
+                <div>
+                  <h3 className="text-base font-bold text-[var(--color-text-primary)]">
+                    Theme &amp; Display Appearance
+                  </h3>
+                  <p className="text-[12px] text-[var(--color-text-muted)]">
+                    Customize the interface style of Garuda Mail. Light mode is configured as the default.
+                  </p>
+                </div>
+                <span className="text-[11px] font-mono text-[var(--color-accent)]">SYSTEM UI</span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Light Mode Card */}
+                <button
+                  type="button"
+                  aria-pressed={theme === 'light'}
+                  onClick={() => setTheme('light')}
+                  className={clsx(
+                    'w-full text-left p-5 rounded-xl border-2 transition-all cursor-pointer flex flex-col justify-between space-y-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]',
+                    theme === 'light'
+                      ? 'border-[var(--color-accent)] bg-[var(--color-surface-2)] shadow-md ring-2 ring-[var(--color-accent)]/20'
+                      : 'border-[var(--color-border)] hover:border-[var(--color-border-active)] bg-[var(--color-surface-1)]'
+                  )}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-500">
+                        <Sun size={20} />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[14px] font-bold text-[var(--color-text-primary)]">Light Mode</span>
+                          <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-sky-500/15 text-sky-500 border border-sky-500/30">
+                            DEFAULT
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-[var(--color-text-muted)] mt-0.5">
+                          Clean slate background with high-contrast forensic typography.
+                        </p>
+                      </div>
+                    </div>
+                    {theme === 'light' && (
+                      <span className="w-5 h-5 rounded-full bg-[var(--color-accent)] text-white flex items-center justify-center text-xs">
+                        ✓
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Light Theme Preview Swatches */}
+                  <div className="p-3 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] space-y-2">
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="text-[#0F172A] font-semibold">Active Preview</span>
+                      <span className="text-[#0ea5e9] font-mono text-[10px]">#F8FAFC</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <div className="h-4 flex-1 rounded bg-[#FFFFFF] border border-[#E2E8F0]" title="Surface 1" />
+                      <div className="h-4 flex-1 rounded bg-[#F1F5F9]" title="Surface 2" />
+                      <div className="h-4 flex-1 rounded bg-[#0ea5e9]" title="Accent Sky" />
+                      <div className="h-4 flex-1 rounded bg-[#10B981]" title="Healthy Emerald" />
+                    </div>
+                  </div>
+                </button>
+
+                {/* Dark Mode Card */}
+                <button
+                  type="button"
+                  aria-pressed={theme === 'dark'}
+                  onClick={() => setTheme('dark')}
+                  className={clsx(
+                    'w-full text-left p-5 rounded-xl border-2 transition-all cursor-pointer flex flex-col justify-between space-y-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]',
+                    theme === 'dark'
+                      ? 'border-[var(--color-accent)] bg-[var(--color-surface-2)] shadow-md ring-2 ring-[var(--color-accent)]/20'
+                      : 'border-[var(--color-border)] hover:border-[var(--color-border-active)] bg-[var(--color-surface-1)]'
+                  )}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
+                        <Moon size={20} />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[14px] font-bold text-[var(--color-text-primary)]">Dark Mode</span>
+                        </div>
+                        <p className="text-[11px] text-[var(--color-text-muted)] mt-0.5">
+                          Deep obsidian palette engineered for low-light SOC analysis.
+                        </p>
+                      </div>
+                    </div>
+                    {theme === 'dark' && (
+                      <span className="w-5 h-5 rounded-full bg-[var(--color-accent)] text-white flex items-center justify-center text-xs">
+                        ✓
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Dark Theme Preview Swatches */}
+                  <div className="p-3 rounded-lg bg-[#080B11] border border-[#1E273A] space-y-2">
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="text-[#F8FAFC] font-semibold">Active Preview</span>
+                      <span className="text-[#38BDF8] font-mono text-[10px]">#080B11</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <div className="h-4 flex-1 rounded bg-[#0F131D] border border-[#1E273A]" title="Surface 1" />
+                      <div className="h-4 flex-1 rounded bg-[#151A27]" title="Surface 2" />
+                      <div className="h-4 flex-1 rounded bg-[#38BDF8]" title="Accent Sky" />
+                      <div className="h-4 flex-1 rounded bg-[#10B981]" title="Healthy Emerald" />
+                    </div>
+                  </div>
+                </button>
+              </div>
+            </div>
+          )}
           {/* ── Form Save Button ── */}
           <div className="flex justify-end">
             <button

@@ -1,44 +1,82 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 /* ─── Garuda Mail Design System ─────────────────────────────────── */
-/* Dark-first forensic command center aesthetic                      */
+/* Dual-theme forensic command center aesthetic                      */
 
 @theme inline {
-  --color-background: #080B11;
-  --color-foreground: #F1F5F9;
   --font-sans: 'Inter', var(--font-geist-sans), system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', var(--font-geist-mono), ui-monospace, monospace;
 
-  /* Rich Obsidian Surface Layers */
-  --color-surface-0: #080B11;
-  --color-surface-1: #0F131D;
-  --color-surface-2: #151A27;
-  --color-surface-3: #1D2335;
-  --color-surface-4: #262E44;
-
-  /* Borders with Subtle Luminance */
-  --color-border: #1E273A;
-  --color-border-subtle: #151C2C;
-  --color-border-active: #354260;
-
-  /* Text Typography Contrast */
-  --color-text-primary: #F8FAFC;
-  --color-text-secondary: #A6B1C4;
-  --color-text-muted: #717D96;
-  --color-text-dim: #8A96AC;
-
-  /* Jewel Tone Accents */
-  --color-accent: #38BDF8;
+  /* ─ Accent & Semantic (shared across themes) ─ */
+  --color-accent: #0369A1;
   --color-accent-muted: #1E6C99;
-  --color-accent-dim: rgba(56, 189, 248, 0.12);
-  --color-accent-glow: rgba(56, 189, 248, 0.18);
+  --color-accent-dim: rgba(14, 165, 233, 0.10);
+  --color-accent-glow: rgba(14, 165, 233, 0.15);
   --color-accent-indigo: #6366F1;
   --color-accent-purple: #A855F7;
   --color-accent-emerald: #10B981;
   --color-accent-amber: #F59E0B;
   --color-accent-rose: #F43F5E;
 
-  /* Semantic severity with vivid chrominance */
+  --color-severity-critical: #DC2626;
+  --color-severity-critical-bg: rgba(220, 38, 38, 0.10);
+  --color-severity-high: #B45309;
+  --color-severity-high-bg: rgba(180, 83, 9, 0.10);
+  --color-severity-medium: #A16207;
+  --color-severity-medium-bg: rgba(161, 98, 7, 0.10);
+  --color-severity-low: #1D4ED8;
+  --color-severity-low-bg: rgba(29, 78, 216, 0.10);
+  --color-severity-info: #475569;
+  --color-severity-info-bg: rgba(71, 85, 105, 0.10);
+  --color-severity-healthy: #047857;
+  --color-severity-healthy-bg: rgba(4, 120, 87, 0.10);
+
+  /* ─ Light Theme (Default) ─ */
+  --color-background: #F8FAFC;
+  --color-foreground: #0F172A;
+
+  --color-surface-0: #F8FAFC;
+  --color-surface-1: #FFFFFF;
+  --color-surface-2: #F1F5F9;
+  --color-surface-3: #E2E8F0;
+  --color-surface-4: #CBD5E1;
+
+  --color-border: #E2E8F0;
+  --color-border-subtle: #F1F5F9;
+  --color-border-active: #CBD5E1;
+
+  --color-text-primary: #0F172A;
+  --color-text-secondary: #475569;
+  --color-text-muted: #64748B;
+  --color-text-dim: #475569;
+}
+
+/* ─── Dark Theme Override ───────────────────────────────────────── */
+
+html.dark {
+  --color-background: #080B11;
+  --color-foreground: #F1F5F9;
+
+  --color-surface-0: #080B11;
+  --color-surface-1: #0F131D;
+  --color-surface-2: #151A27;
+  --color-surface-3: #1D2335;
+  --color-surface-4: #262E44;
+
+  --color-border: #1E273A;
+  --color-border-subtle: #151C2C;
+  --color-border-active: #354260;
+
+  --color-text-primary: #F8FAFC;
+  --color-text-secondary: #A6B1C4;
+  --color-text-muted: #717D96;
+  --color-text-dim: #8A96AC;
+
+  --color-accent: #38BDF8;
+  --color-accent-dim: rgba(56, 189, 248, 0.12);
+  --color-accent-glow: rgba(56, 189, 248, 0.18);
+
   --color-severity-critical: #F43F5E;
   --color-severity-critical-bg: rgba(244, 63, 94, 0.12);
   --color-severity-high: #F59E0B;
@@ -100,6 +138,12 @@ body {
   border-radius: 4px;
 }
 
+/* ─── Theme Transition ──────────────────────────────────────────── */
+
+:where(html.light, html.dark) body {
+  transition: background-color 0.15s cubic-bezier(0.4, 0, 0.2, 1), color 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 /* ─── Utility Classes ───────────────────────────────────────────── */
 
 @layer utilities {
@@ -156,34 +200,33 @@ body {
     color: #ffffff;
   }
   .btn-secondary {
-    background: linear-gradient(180deg, #161C2A 0%, #101420 100%);
-    color: #E2E8F0;
-    border: 1px solid #263248;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    background: var(--color-surface-2);
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   }
   .btn-secondary:hover {
-    background: linear-gradient(180deg, #1E273A 0%, #151C2C 100%);
-    color: #FFFFFF;
-    border-color: #3B4D70;
+    background: var(--color-surface-3);
+    color: var(--color-text-primary);
+    border-color: var(--color-border-active);
   }
   .btn-accent {
     background: linear-gradient(135deg, rgba(56, 189, 248, 0.15) 0%, rgba(99, 102, 241, 0.15) 100%);
-    color: #38BDF8;
+    color: var(--color-accent);
     border: 1px solid rgba(56, 189, 248, 0.35);
     box-shadow: 0 0 15px -3px rgba(56, 189, 248, 0.2);
   }
   .btn-accent:hover {
     background: linear-gradient(135deg, rgba(56, 189, 248, 0.25) 0%, rgba(99, 102, 241, 0.25) 100%);
     border-color: rgba(56, 189, 248, 0.55);
-    color: #7DD3FC;
   }
   .btn-ghost {
     background: transparent;
-    color: #94A3B8;
+    color: var(--color-text-muted);
   }
   .btn-ghost:hover {
-    background: rgba(255, 255, 255, 0.05);
-    color: #F8FAFC;
+    background: var(--color-surface-2);
+    color: var(--color-text-primary);
   }
 
   /* Vibrant Jewel Badges */
@@ -199,58 +242,73 @@ body {
     letter-spacing: 0.025em;
   }
   .badge-critical {
-    color: #FB7185;
-    background: rgba(244, 63, 94, 0.14);
-    border: 1px solid rgba(244, 63, 94, 0.3);
-    box-shadow: 0 0 10px -2px rgba(244, 63, 94, 0.25);
+    color: #B91C1C;
+    background: rgba(239, 68, 68, 0.10);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    box-shadow: 0 0 10px -2px rgba(239, 68, 68, 0.15);
   }
   .badge-high {
-    color: #FBBF24;
-    background: rgba(245, 158, 11, 0.14);
-    border: 1px solid rgba(245, 158, 11, 0.3);
-    box-shadow: 0 0 10px -2px rgba(245, 158, 11, 0.25);
+    color: #9A3412;
+    background: rgba(245, 158, 11, 0.10);
+    border: 1px solid rgba(245, 158, 11, 0.25);
+    box-shadow: 0 0 10px -2px rgba(245, 158, 11, 0.15);
   }
   .badge-medium {
-    color: #FDE047;
-    background: rgba(234, 179, 8, 0.14);
-    border: 1px solid rgba(234, 179, 8, 0.3);
+    color: #854D0E;
+    background: rgba(234, 179, 8, 0.10);
+    border: 1px solid rgba(234, 179, 8, 0.25);
   }
   .badge-low {
-    color: #60A5FA;
-    background: rgba(59, 130, 246, 0.14);
-    border: 1px solid rgba(59, 130, 246, 0.3);
-    box-shadow: 0 0 10px -2px rgba(59, 130, 246, 0.2);
+    color: #1D4ED8;
+    background: rgba(59, 130, 246, 0.10);
+    border: 1px solid rgba(59, 130, 246, 0.25);
+    box-shadow: 0 0 10px -2px rgba(59, 130, 246, 0.12);
   }
   .badge-info {
-    color: #94A3B8;
-    background: rgba(148, 163, 184, 0.12);
-    border: 1px solid rgba(148, 163, 184, 0.25);
+    color: #334155;
+    background: rgba(100, 116, 139, 0.10);
+    border: 1px solid rgba(100, 116, 139, 0.20);
   }
   .badge-healthy {
-    color: #34D399;
-    background: rgba(16, 185, 129, 0.14);
-    border: 1px solid rgba(16, 185, 129, 0.3);
-    box-shadow: 0 0 10px -2px rgba(16, 185, 129, 0.25);
+    color: #047857;
+    background: rgba(16, 185, 129, 0.10);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    box-shadow: 0 0 10px -2px rgba(16, 185, 129, 0.15);
   }
   .badge-accent {
-    color: #38BDF8;
-    background: rgba(56, 189, 248, 0.14);
-    border: 1px solid rgba(56, 189, 248, 0.3);
-    box-shadow: 0 0 10px -2px rgba(56, 189, 248, 0.25);
+    color: #0369A1;
+    background: var(--color-accent-dim);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    box-shadow: 0 0 10px -2px rgba(56, 189, 248, 0.15);
   }
   .badge-purple {
-    color: #C084FC;
-    background: rgba(168, 85, 247, 0.14);
-    border: 1px solid rgba(168, 85, 247, 0.3);
-    box-shadow: 0 0 10px -2px rgba(168, 85, 247, 0.25);
+    color: #7E22CE;
+    background: rgba(168, 85, 247, 0.10);
+    border: 1px solid rgba(168, 85, 247, 0.25);
+    box-shadow: 0 0 10px -2px rgba(168, 85, 247, 0.15);
   }
 
-  /* Luminous Glass Card Surfaces */
+  /* Dark theme badge overrides for stronger contrast */
+  html.dark .badge-critical { color: #FB7185; background: rgba(244, 63, 94, 0.14); border-color: rgba(244, 63, 94, 0.3); }
+  html.dark .badge-high { color: #FBBF24; background: rgba(245, 158, 11, 0.14); border-color: rgba(245, 158, 11, 0.3); }
+  html.dark .badge-medium { color: #FDE047; background: rgba(234, 179, 8, 0.14); border-color: rgba(234, 179, 8, 0.3); }
+  html.dark .badge-low { color: #60A5FA; background: rgba(59, 130, 246, 0.14); border-color: rgba(59, 130, 246, 0.3); }
+  html.dark .badge-info { color: #94A3B8; background: rgba(148, 163, 184, 0.12); border-color: rgba(148, 163, 184, 0.25); }
+  html.dark .badge-healthy { color: #34D399; background: rgba(16, 185, 129, 0.14); border-color: rgba(16, 185, 129, 0.3); }
+  html.dark .badge-purple { color: #C084FC; background: rgba(168, 85, 247, 0.14); border-color: rgba(168, 85, 247, 0.3); }
+  html.dark .badge-accent { color: #38BDF8; background: rgba(56, 189, 248, 0.14); border-color: rgba(56, 189, 248, 0.3); }
+
+  /* Glass Card Surfaces */
   .card {
+    background: var(--color-surface-1);
+    border: 1px solid var(--color-border);
+    border-radius: 0.875rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+  html.dark .card {
     background: linear-gradient(180deg, rgba(17, 23, 36, 0.85) 0%, rgba(11, 15, 24, 0.90) 100%);
     backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 0.875rem;
     box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
   }
   .card-hover {
@@ -258,8 +316,11 @@ body {
   }
   .card-hover:hover {
     border-color: rgba(56, 189, 248, 0.3);
-    box-shadow: 0 8px 28px -4px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 16px -4px rgba(0, 0, 0, 0.1);
     transform: translateY(-1px);
+  }
+  html.dark .card-hover:hover {
+    box-shadow: 0 8px 28px -4px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
   }
 
   /* Vibrant Gradient Text */

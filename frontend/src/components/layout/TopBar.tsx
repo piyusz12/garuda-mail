@@ -7,10 +7,11 @@ import {
   Search, Bell, Check, Clock,
   ExternalLink, Settings as SettingsIcon, LogOut, Laptop,
   Menu, Smartphone, Copy, CheckCheck, QrCode, Sparkles, Shield, ShieldAlert,
-  Zap, Loader2
+  Zap, Loader2, Sun, Moon
 } from 'lucide-react';
 import clsx from 'clsx';
 import Link from 'next/link';
+import { useTheme } from '@/components/providers/ThemeProvider';
 
 interface TopBarProps {
   title: string;
@@ -27,6 +28,7 @@ export default function TopBar({ title, description, onOpenMobileMenu }: TopBarP
   const [copied, setCopied] = useState(false);
   const [syncUrl, setSyncUrl] = useState('https://garuda-mail.vercel.app');
   const [adminSwitchLoading, setAdminSwitchLoading] = useState(false);
+  const { theme, toggleTheme } = useTheme();
 
   const handleInstantAdminEscalate = async () => {
     setAdminSwitchLoading(true);
@@ -191,6 +193,16 @@ export default function TopBar({ title, description, onOpenMobileMenu }: TopBarP
           </button>
         </div>
 
+        {/* Theme Toggle */}
+        <button
+          type="button"
+          onClick={toggleTheme}
+          className="flex items-center justify-center w-8 h-8 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-accent)] hover:bg-[var(--color-surface-2)] transition-all"
+          title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+          aria-label="Toggle theme"
+        >
+          {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
+        </button>
         {/* Notifications */}
         <div className="relative">
           <button
@@ -238,8 +250,8 @@ export default function TopBar({ title, description, onOpenMobileMenu }: TopBarP
             className="flex items-center justify-center w-8 h-8 rounded-full hover:ring-2 hover:ring-sky-400/50 transition-all cursor-pointer"
           >
             <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-sky-400 via-indigo-500 to-purple-500 p-[1.5px] shadow-sm">
-              <div className="w-full h-full rounded-full bg-[#0D121F] flex items-center justify-center">
-                <span className="text-[10px] font-bold text-sky-300">{userInitials}</span>
+              <div className="w-full h-full rounded-full bg-[var(--color-surface-1)] flex items-center justify-center">
+                <span className="text-[10px] font-bold text-sky-700 dark:text-sky-300">{userInitials}</span>
               </div>
             </div>
           </button>
@@ -296,7 +308,7 @@ export default function TopBar({ title, description, onOpenMobileMenu }: TopBarP
                 <Smartphone size={14} className="text-cyan-400" />
                 <span>Laptop &amp; Mobile Sync</span>
               </div>
-              <span className="inline-flex items-center gap-1 text-[10px] text-[var(--color-severity-healthy)] font-bold bg-emerald-950/60 border border-emerald-500/20 px-1.5 py-0.5 rounded">
+              <span className="inline-flex items-center gap-1 text-[10px] text-[var(--color-severity-healthy)] font-bold bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded">
                 <Check size={11} /> Cloud Synced
               </span>
             </div>
@@ -316,7 +328,7 @@ export default function TopBar({ title, description, onOpenMobileMenu }: TopBarP
                 <button
                   type="button"
                   onClick={handleCopyLink}
-                  className="flex items-center gap-1 px-2 py-1 text-[10px] font-semibold rounded bg-[var(--color-accent-dim)] text-[var(--color-accent)] hover:bg-[#154c6e] transition-colors flex-shrink-0"
+                  className="flex items-center gap-1 px-2 py-1 text-[10px] font-semibold rounded bg-[var(--color-accent-dim)] text-[var(--color-accent)] hover:bg-[var(--color-accent-muted)] transition-colors flex-shrink-0"
                 >
                   {copied ? <CheckCheck size={11} /> : <Copy size={11} />}
                   <span>{copied ? 'Copied!' : 'Copy'}</span>
@@ -325,7 +337,7 @@ export default function TopBar({ title, description, onOpenMobileMenu }: TopBarP
             </div>
 
             {/* Mobile Camera Scan QR Graphic */}
-            <div className="p-3 rounded-lg bg-gradient-to-br from-slate-900 to-[#111827] border border-cyan-500/20 text-center space-y-2">
+            <div className="p-3 rounded-lg bg-gradient-to-br from-[var(--color-surface-2)] to-[var(--color-surface-1)] border border-cyan-500/20 text-center space-y-2">
               <div className="flex items-center justify-center gap-1.5 text-[11px] font-semibold text-cyan-300">
                 <QrCode size={13} />
                 <span>Open on Mobile Camera</span>
@@ -341,7 +353,7 @@ export default function TopBar({ title, description, onOpenMobileMenu }: TopBarP
                   className="w-24 h-24 mx-auto block"
                 />
               </div>
-              <p className="text-[10px] text-slate-400">
+              <p className="text-[10px] text-[var(--color-text-muted)]">
                 Point your phone camera at the QR code to open Garuda Mail immediately.
               </p>
             </div>
@@ -354,17 +366,17 @@ export default function TopBar({ title, description, onOpenMobileMenu }: TopBarP
               </span>
               <div className="grid grid-cols-2 gap-2 text-[10px]">
                 <div className="p-2 rounded bg-[var(--color-surface-2)] border border-[var(--color-border-subtle)]">
-                  <div className="font-semibold text-slate-200">🍏 Apple iPhone</div>
-                  <div className="text-slate-400 mt-0.5">Safari Share ➔ &quot;Add to Home Screen&quot;</div>
+                  <div className="font-semibold text-[var(--color-text-secondary)]">🍏 Apple iPhone</div>
+                  <div className="text-[var(--color-text-muted)] mt-0.5">Safari Share ➔ &quot;Add to Home Screen&quot;</div>
                 </div>
                 <div className="p-2 rounded bg-[var(--color-surface-2)] border border-[var(--color-border-subtle)]">
-                  <div className="font-semibold text-slate-200">🤖 Android</div>
-                  <div className="text-slate-400 mt-0.5">Chrome Menu ➔ &quot;Install App&quot;</div>
+                  <div className="font-semibold text-[var(--color-text-secondary)]">🤖 Android</div>
+                  <div className="text-[var(--color-text-muted)] mt-0.5">Chrome Menu ➔ &quot;Install App&quot;</div>
                 </div>
               </div>
             </div>
 
-            <div className="pt-2 border-t border-[var(--color-border)] flex items-center justify-between text-[10px] text-slate-400">
+            <div className="pt-2 border-t border-[var(--color-border)] flex items-center justify-between text-[10px] text-[var(--color-text-muted)]">
               <span>Local Wi-Fi LAN:</span>
               <span className="font-mono text-cyan-400">http://192.168.1.3:3000</span>
             </div>

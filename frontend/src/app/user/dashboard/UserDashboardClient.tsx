@@ -127,7 +127,7 @@ export default function UserDashboardClient({ currentUser }: UserDashboardClient
               <ShieldAlert className="text-rose-400 flex-shrink-0" size={20} />
               <div>
                 <div className="text-xs font-bold text-rose-300">Administrator Privileges Required</div>
-                <div className="text-[11px] text-slate-400 mt-0.5">
+                <div className="text-[11px] text-[var(--color-text-muted)] mt-0.5">
                   You attempted to access an administrative route. Use Instant Admin Login to elevate immediately.
                 </div>
               </div>
@@ -162,7 +162,7 @@ export default function UserDashboardClient({ currentUser }: UserDashboardClient
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h2 className="text-xl font-bold text-white tracking-tight">
+                  <h2 className="text-xl font-bold text-[var(--color-text-primary)] tracking-tight">
                     Welcome, {currentUser.name || 'Operative'}
                   </h2>
                   <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
@@ -173,7 +173,7 @@ export default function UserDashboardClient({ currentUser }: UserDashboardClient
                     {currentUser.role}
                   </span>
                 </div>
-                <p className="text-xs text-slate-400 mt-1 flex items-center gap-2">
+                <p className="text-xs text-[var(--color-text-muted)] mt-1 flex items-center gap-2">
                   <span>{currentUser.email}</span>
                   <span className="text-slate-600">•</span>
                   <span>Tactical Communications Workspace</span>
@@ -212,7 +212,7 @@ export default function UserDashboardClient({ currentUser }: UserDashboardClient
               </Link>
               <Link
                 href="/inbox"
-                className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-[var(--color-surface-2)] hover:bg-[var(--color-surface-3)] text-slate-200 text-xs font-semibold border border-[var(--color-border)] transition-all"
+                className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-[var(--color-surface-2)] hover:bg-[var(--color-surface-3)] text-[var(--color-text-secondary)] text-xs font-semibold border border-[var(--color-border)] transition-all"
               >
                 <Mail size={13} /> Open Inbox
               </Link>
@@ -223,43 +223,43 @@ export default function UserDashboardClient({ currentUser }: UserDashboardClient
         {/* ── Key Metrics Grid ── */}
         <motion.div variants={stagger} className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <motion.div variants={fadeUp} className="card p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-1)]">
-            <div className="flex items-center justify-between text-slate-400 mb-2">
+            <div className="flex items-center justify-between text-[var(--color-text-muted)] mb-2">
               <span className="text-xs font-medium uppercase tracking-wider">E2EE Protocol</span>
               <Lock size={15} className="text-sky-400" />
             </div>
-            <div className="text-lg font-bold text-white tracking-tight">RSA-OAEP + AES</div>
+            <div className="text-lg font-bold text-[var(--color-text-primary)] tracking-tight">RSA-OAEP + AES</div>
             <p className="text-[11px] text-emerald-400 mt-1 flex items-center gap-1">
               <CheckCircle2 size={11} /> 2048-bit Zero-Knowledge
             </p>
           </motion.div>
 
           <motion.div variants={fadeUp} className="card p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-1)]">
-            <div className="flex items-center justify-between text-slate-400 mb-2">
+            <div className="flex items-center justify-between text-[var(--color-text-muted)] mb-2">
               <span className="text-xs font-medium uppercase tracking-wider">Digital Signatures</span>
               <ShieldCheck size={15} className="text-indigo-400" />
             </div>
-            <div className="text-lg font-bold text-white tracking-tight">RSA-PSS SHA-256</div>
+            <div className="text-lg font-bold text-[var(--color-text-primary)] tracking-tight">RSA-PSS SHA-256</div>
             <p className="text-[11px] text-indigo-300 mt-1">Tamper-evident verification</p>
           </motion.div>
 
           <motion.div variants={fadeUp} className="card p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-1)]">
-            <div className="flex items-center justify-between text-slate-400 mb-2">
+            <div className="flex items-center justify-between text-[var(--color-text-muted)] mb-2">
               <span className="text-xs font-medium uppercase tracking-wider">Online Participants</span>
               <Users size={15} className="text-emerald-400" />
             </div>
-            <div className="text-lg font-bold text-white tracking-tight">{onlinePeers} Active</div>
-            <p className="text-[11px] text-slate-400 mt-1">Local network directory</p>
+            <div className="text-lg font-bold text-[var(--color-text-primary)] tracking-tight">{onlinePeers} Active</div>
+            <p className="text-[11px] text-[var(--color-text-muted)] mt-1">Local network directory</p>
           </motion.div>
 
           <motion.div variants={fadeUp} className="card p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-1)]">
-            <div className="flex items-center justify-between text-slate-400 mb-2">
+            <div className="flex items-center justify-between text-[var(--color-text-muted)] mb-2">
               <span className="text-xs font-medium uppercase tracking-wider">Client Key Vault</span>
               <KeyRound size={15} className="text-amber-400" />
             </div>
-            <div className="text-lg font-bold text-white tracking-tight">
+            <div className="text-lg font-bold text-[var(--color-text-primary)] tracking-tight">
               {hasLocalKey ? 'Secured' : 'Pending'}
             </div>
-            <p className="text-[11px] text-slate-400 mt-1">
+            <p className="text-[11px] text-[var(--color-text-muted)] mt-1">
               {hasLocalKey ? 'PBKDF2 encrypted in browser' : 'No local key registered'}
             </p>
           </motion.div>
@@ -274,7 +274,7 @@ export default function UserDashboardClient({ currentUser }: UserDashboardClient
               <div className="flex items-center justify-between border-b border-[var(--color-border-subtle)] pb-3">
                 <div className="flex items-center gap-2">
                   <KeyRound size={16} className="text-sky-400" />
-                  <h3 className="text-sm font-semibold text-white">Cryptographic Identity</h3>
+                  <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">Cryptographic Identity</h3>
                 </div>
                 <Link
                   href="/crypto"
@@ -285,13 +285,13 @@ export default function UserDashboardClient({ currentUser }: UserDashboardClient
               </div>
 
               <div>
-                <label className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold block mb-1">
+                <label className="text-[11px] uppercase tracking-wider text-[var(--color-text-muted)] font-semibold block mb-1">
                   Public Key SHA-256 Fingerprint
                 </label>
-                <div className="p-2.5 rounded-lg bg-[var(--color-surface-2)] border border-[var(--color-border-subtle)] font-mono text-[11px] text-slate-300 break-all select-all">
+                <div className="p-2.5 rounded-lg bg-[var(--color-surface-2)] border border-[var(--color-border-subtle)] font-mono text-[11px] text-[var(--color-text-secondary)] break-all select-all">
                   {fingerprint}
                 </div>
-                <p className="text-[10px] text-slate-400 mt-1.5">
+                <p className="text-[10px] text-[var(--color-text-muted)] mt-1.5">
                   Share this fingerprint with peer communicators out-of-band to verify end-to-end authenticity.
                 </p>
               </div>
@@ -300,7 +300,7 @@ export default function UserDashboardClient({ currentUser }: UserDashboardClient
                 <div className="flex items-center gap-2 text-xs font-semibold text-emerald-400">
                   <ShieldCheck size={14} /> Zero-Knowledge Security Guarantees
                 </div>
-                <ul className="text-[11px] text-slate-300 space-y-1 list-disc list-inside">
+                <ul className="text-[11px] text-[var(--color-text-secondary)] space-y-1 list-disc list-inside">
                   <li>Your private key never leaves this browser device.</li>
                   <li>The server holds only encrypted ciphertext envelopes.</li>
                   <li>Every outgoing message carries your verifiable digital signature.</li>
@@ -310,13 +310,13 @@ export default function UserDashboardClient({ currentUser }: UserDashboardClient
               <div className="grid grid-cols-2 gap-2 text-xs pt-1">
                 <Link
                   href="/user/security"
-                  className="p-2.5 rounded-lg bg-[var(--color-surface-2)] hover:bg-[var(--color-surface-3)] border border-[var(--color-border-subtle)] text-slate-200 text-center font-medium transition-colors"
+                  className="p-2.5 rounded-lg bg-[var(--color-surface-2)] hover:bg-[var(--color-surface-3)] border border-[var(--color-border-subtle)] text-[var(--color-text-secondary)] text-center font-medium transition-colors"
                 >
                   Security Audit
                 </Link>
                 <Link
                   href="/user/contacts"
-                  className="p-2.5 rounded-lg bg-[var(--color-surface-2)] hover:bg-[var(--color-surface-3)] border border-[var(--color-border-subtle)] text-slate-200 text-center font-medium transition-colors"
+                  className="p-2.5 rounded-lg bg-[var(--color-surface-2)] hover:bg-[var(--color-surface-3)] border border-[var(--color-border-subtle)] text-[var(--color-text-secondary)] text-center font-medium transition-colors"
                 >
                   Verified Contacts
                 </Link>
@@ -330,7 +330,7 @@ export default function UserDashboardClient({ currentUser }: UserDashboardClient
               <div className="flex items-center justify-between border-b border-[var(--color-border-subtle)] pb-3">
                 <div className="flex items-center gap-2">
                   <Mail size={16} className="text-indigo-400" />
-                  <h3 className="text-sm font-semibold text-white">Recent Encrypted Messages</h3>
+                  <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">Recent Encrypted Messages</h3>
                 </div>
                 <Link
                   href="/inbox"
@@ -346,7 +346,7 @@ export default function UserDashboardClient({ currentUser }: UserDashboardClient
                   Retrieving secure message ledger...
                 </div>
               ) : recentMessages.length === 0 ? (
-                <div className="py-10 text-center text-slate-400 space-y-2">
+                <div className="py-10 text-center text-[var(--color-text-muted)] space-y-2">
                   <Mail size={24} className="mx-auto text-slate-600" />
                   <p className="text-xs">No recent messages in your inbox.</p>
                   <Link
@@ -366,7 +366,7 @@ export default function UserDashboardClient({ currentUser }: UserDashboardClient
                     >
                       <div className="min-w-0 pr-4">
                         <div className="flex items-center gap-2">
-                          <span className={clsx('text-xs font-semibold truncate', msg.read ? 'text-slate-300' : 'text-white')}>
+                          <span className={clsx('text-xs font-semibold truncate', msg.read ? 'text-[var(--color-text-muted)]' : 'text-[var(--color-text-primary)]')}>
                             {msg.subject || '(Encrypted Subject)'}
                           </span>
                           {msg.isEncrypted && (
@@ -375,12 +375,12 @@ export default function UserDashboardClient({ currentUser }: UserDashboardClient
                             </span>
                           )}
                         </div>
-                        <p className="text-[11px] text-slate-400 truncate mt-0.5">
+                        <p className="text-[11px] text-[var(--color-text-muted)] truncate mt-0.5">
                           From: {msg.from}
                         </p>
                       </div>
                       <div className="text-right flex-shrink-0">
-                        <span className="text-[10px] text-slate-400 block">{msg.date}</span>
+                        <span className="text-[10px] text-[var(--color-text-muted)] block">{msg.date}</span>
                         <span className="text-[10px] text-sky-400 opacity-0 group-hover:opacity-100 transition-opacity">
                           Read ➔
                         </span>

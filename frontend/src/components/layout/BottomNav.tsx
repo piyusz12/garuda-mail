@@ -22,7 +22,7 @@ export default function BottomNav({ onOpenMenu, isMenuOpen }: BottomNavProps) {
 
   return (
     <nav
-      className="md:hidden fixed bottom-0 left-0 right-0 z-40 h-16 bg-[#0A0E18]/90 border-t border-white/[0.08] backdrop-blur-2xl px-2 flex items-center justify-around shadow-2xl safe-area-pb"
+      className="md:hidden fixed bottom-0 left-0 right-0 z-40 h-16 bg-[var(--color-surface-1)]/90 border-t border-[var(--color-border)] backdrop-blur-2xl px-2 flex items-center justify-around shadow-2xl safe-area-pb"
       aria-label="Mobile Navigation Bar"
     >
       {navItems.map((item) => {

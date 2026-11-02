@@ -636,7 +636,7 @@ function ComposeForm() {
                 <div className="flex items-center gap-2 flex-wrap">
                   <ShieldCheck size={14} className="text-cyan-400 flex-shrink-0" />
                   <span className="font-semibold text-cyan-300">Target Security:</span>
-                  <span className="font-mono font-bold text-white px-1.5 py-0.2 rounded bg-cyan-500/20 border border-cyan-500/40">
+                  <span className="font-mono font-bold text-cyan-700 dark:text-cyan-200 px-1.5 py-0.2 rounded bg-cyan-500/20 border border-cyan-500/40">
                     Grade {targetCommSecurity.grade} ({targetCommSecurity.score}/100)
                   </span>
                   <span className="text-[10px] text-slate-300 hidden sm:inline">
@@ -809,13 +809,13 @@ function ComposeForm() {
                   'flex items-center gap-2 px-6 py-2 text-[13px] font-bold rounded-md transition-all duration-200 shadow-md cursor-pointer',
                   sent
                     ? 'bg-[var(--color-severity-healthy)] text-white'
-                    : 'bg-[var(--color-accent)] text-[#0B0D10] hover:bg-[#5ccbfc] hover:shadow-[0_0_18px_rgba(56,189,248,0.4)] disabled:opacity-50'
+                    : 'bg-sky-600 hover:bg-sky-500 text-white dark:bg-sky-400 dark:hover:bg-sky-300 dark:text-slate-950 hover:shadow-[0_0_18px_rgba(56,189,248,0.4)] disabled:opacity-50'
                 )}
                 title="Send Email now (Ctrl+Enter)"
               >
                 {sending ? (
                   <>
-                    <div className="w-3.5 h-3.5 border-2 border-[#0B0D10]/30 border-t-[#0B0D10] rounded-full animate-spin" />
+                    <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                     <span>Sending ({selectedSpec.shortName})...</span>
                   </>
                 ) : sent ? (

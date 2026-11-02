@@ -168,14 +168,14 @@ function LoginForm() {
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[14px] font-bold text-white group-hover:text-rose-200 transition-colors">
+                  <span className="text-[14px] font-bold text-[var(--color-text-primary)] group-hover:text-rose-500 dark:group-hover:text-rose-200 transition-colors">
                     Instant Admin Login
                   </span>
                   <span className="px-1.5 py-0.2 rounded text-[10px] font-extrabold uppercase bg-rose-500/20 text-rose-300 border border-rose-500/30">
                     1-Click
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-400 mt-0.5 truncate">
+                <p className="text-[11px] text-[var(--color-text-muted)] mt-0.5 truncate">
                   Direct access to Cryptographic SOC & Forensics Console
                 </p>
               </div>

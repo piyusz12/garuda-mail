@@ -82,7 +82,7 @@ export default function DraftsPage() {
               <p className="text-[13px] text-[var(--color-text-muted)]">Start composing to save drafts.</p>
               <Link
                 href="/compose"
-                className="mt-4 px-3 py-1.5 rounded-md text-[12px] font-semibold bg-[var(--color-accent)] text-[#0B0D10]"
+                className="mt-4 px-3 py-1.5 rounded-md text-[12px] font-semibold bg-sky-600 hover:bg-sky-500 text-white dark:bg-sky-400 dark:hover:bg-sky-300 dark:text-slate-950 transition-colors"
               >
                 Compose Message
               </Link>

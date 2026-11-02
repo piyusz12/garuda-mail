@@ -49,7 +49,7 @@ export default function UserReportsPage() {
                 <FileText size={20} />
               </div>
               <div>
-                <h2 className="text-sm font-bold text-white">Personal Security Audit Certificate</h2>
+                <h2 className="text-sm font-bold text-[var(--color-text-primary)]">Personal Security Audit Certificate</h2>
                 <p className="text-xs text-slate-400">Cryptographically verifiable evidence of zero-knowledge communications</p>
               </div>
             </div>

@@ -115,7 +115,7 @@ export default function AnalysisPage() {
 
             <button
               onClick={() => setShowReportModal(true)}
-              className="px-4 py-1.5 rounded-lg text-[12px] font-bold bg-[var(--color-accent)] text-[#0B0D10] hover:bg-[#5ccbfc] shadow-md transition-all flex items-center gap-1.5"
+              className="px-4 py-1.5 rounded-lg text-[12px] font-bold bg-sky-600 hover:bg-sky-500 text-white dark:bg-sky-400 dark:hover:bg-sky-300 dark:text-slate-950 shadow-md transition-all flex items-center gap-1.5"
             >
               <FileText size={14} />
               <span>Generate Forensic Dossier</span>
@@ -235,7 +235,7 @@ export default function AnalysisPage() {
               </div>
 
               {/* Wire Reassembly Logs */}
-              <div className="card p-4 bg-[#070b14] border border-[var(--color-border)] font-mono text-[11px] space-y-1 text-slate-300">
+              <div className="card p-4 bg-[var(--color-surface-2)] border border-[var(--color-border)] font-mono text-[11px] space-y-1 text-[var(--color-text-secondary)]">
                 <div className="text-[10px] text-slate-500 uppercase tracking-widest pb-2 border-b border-slate-800">
                   WASM Stream Reassembly Wire Logs
                 </div>

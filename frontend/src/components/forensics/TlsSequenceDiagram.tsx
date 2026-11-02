@@ -159,7 +159,7 @@ export default function TlsSequenceDiagram() {
                 'flex items-center gap-1.5 px-3 py-1.5 rounded text-[12px] font-semibold transition-colors',
                 isPlaying
                   ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                  : 'bg-[var(--color-accent)] text-[#0B0D10] hover:bg-[#5ccbfc]'
+                  : 'bg-sky-600 hover:bg-sky-500 text-white dark:bg-sky-400 dark:hover:bg-sky-300 dark:text-slate-950'
               )}
             >
               {isPlaying ? <Pause size={14} /> : <Play size={14} />}
@@ -233,7 +233,7 @@ export default function TlsSequenceDiagram() {
       {/* ── Main Sequence & Inspector Split ── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[680px]">
         {/* React Flow Sequence Diagram (7 cols) */}
-        <div className="lg:col-span-7 card p-0 overflow-hidden relative border border-[var(--color-border)] bg-[#070b14]">
+        <div className="lg:col-span-7 card p-0 overflow-hidden relative border border-[var(--color-border)] bg-[var(--color-surface-2)]">
           <div className="absolute top-3 left-4 z-10 font-mono text-[11px] text-[var(--color-text-muted)] bg-[var(--color-surface-1)]/80 backdrop-blur-sm px-2.5 py-1 rounded border border-[var(--color-border)]">
             Interactive Handshake Flow (Drag / Zoom / Click Steps)
           </div>
@@ -250,7 +250,7 @@ export default function TlsSequenceDiagram() {
             minZoom={0.5}
             maxZoom={1.5}
           >
-            <Background color="rgba(255,255,255,0.06)" gap={20} size={1} />
+            <Background color="var(--color-border)" gap={20} size={1} />
             <Controls className="!bg-[var(--color-surface-2)] !border-[var(--color-border)] !fill-[var(--color-text-secondary)]" />
           </ReactFlow>
         </div>
@@ -306,7 +306,7 @@ export default function TlsSequenceDiagram() {
               <span className="text-[10px] font-mono text-[var(--color-text-dim)]">Offset 0x0000</span>
             </div>
 
-            <div className="p-3 rounded-lg bg-[#050811] border border-[var(--color-border-subtle)] font-mono text-[11px] leading-relaxed overflow-x-auto text-emerald-400/90 shadow-inner">
+            <div className="p-3 rounded-lg bg-[var(--color-surface-3)] border border-[var(--color-border-subtle)] font-mono text-[11px] leading-relaxed overflow-x-auto text-emerald-400/90 shadow-inner">
               <div className="flex gap-4">
                 <div className="text-slate-500 select-none">
                   0000<br />0010<br />0020<br />0030

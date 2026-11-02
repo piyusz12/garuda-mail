@@ -253,7 +253,7 @@ export default function CertificatesPage() {
                   </div>
                   <button
                     onClick={() => setSelectedCert(null)}
-                    className="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-white hover:bg-[var(--color-surface-3)] transition-colors"
+                    className="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-3)] transition-colors"
                   >
                     <X size={18} />
                   </button>

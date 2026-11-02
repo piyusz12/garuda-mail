@@ -161,7 +161,7 @@ export default function ForensicReportModal({ isOpen, onClose }: ForensicReportM
 
               <button
                 onClick={handlePrintPdf}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded text-[11px] font-bold bg-[var(--color-accent)] text-[#0B0D10] hover:bg-[#5ccbfc] shadow-sm transition-colors"
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded text-[11px] font-bold bg-sky-600 hover:bg-sky-500 text-white dark:bg-sky-400 dark:hover:bg-sky-300 dark:text-slate-950 shadow-sm transition-colors"
               >
                 <Printer size={12} />
                 <span>Print to Vector PDF (Puppeteer Ready)</span>
@@ -177,53 +177,53 @@ export default function ForensicReportModal({ isOpen, onClose }: ForensicReportM
           </div>
 
           {/* ── Printable Report Body (Styled for Print & Screen) ── */}
-          <div className="p-8 space-y-6 max-h-[75vh] overflow-y-auto text-[13px] bg-[#0c101d] font-sans print:bg-white print:text-black print:p-0">
+          <div className="p-8 space-y-6 max-h-[75vh] overflow-y-auto text-[13px] bg-[var(--color-surface-1)] font-sans print:bg-white print:text-black print:p-0">
             {/* Title & Metadata Banner */}
             <div className="border-b border-[var(--color-border)] pb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <span className="text-[10px] font-mono tracking-widest text-[var(--color-accent)] uppercase block mb-1">
                   OFFICIAL FORENSIC EXAMINATION
                 </span>
-                <h1 className="text-2xl font-black text-white tracking-tight">
+                <h1 className="text-2xl font-black text-[var(--color-text-primary)] tracking-tight">
                   GARUDA-MAIL CRYPTOGRAPHIC AUDIT REPORT
                 </h1>
-                <p className="text-[12px] text-slate-400 mt-1 font-mono">
+                <p className="text-[12px] text-[var(--color-text-muted)] mt-1 font-mono">
                   Engine: Garuda-Mail WASM Packet Inspector v2.4 • Target: {fileName}
                 </p>
               </div>
 
-              <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800 text-right font-mono text-[11px]">
-                <div className="text-slate-400">Post-Quantum Security Score</div>
+              <div className="p-3 rounded-xl bg-slate-900/80 border border-[var(--color-border)] text-right font-mono text-[11px]">
+                <div className="text-[var(--color-text-muted)]">Post-Quantum Security Score</div>
                 <div className="text-3xl font-extrabold text-emerald-400 tabular-nums">
                   {securityScore} / 100
                 </div>
-                <div className="text-slate-400">{new Date().toLocaleDateString()}</div>
+                <div className="text-[var(--color-text-muted)]">{new Date().toLocaleDateString()}</div>
               </div>
             </div>
 
             {/* Executive Summary */}
             <div className="space-y-2">
-              <h3 className="text-[13px] font-bold text-slate-200 uppercase tracking-wider font-mono">
+              <h3 className="text-[13px] font-bold text-[var(--color-text-primary)] uppercase tracking-wider font-mono">
                 1. Executive Summary & Anomaly Overview
               </h3>
-              <p className="text-slate-300 text-[12px] leading-relaxed">
+              <p className="text-[var(--color-text-secondary)] text-[12px] leading-relaxed">
                 The target packet capture file ({fileName}, {Math.round(fileSizeBytes / 1024)} KB) was analyzed using zero-latency in-browser WebAssembly deep packet inspection. The session established a TLS 1.3 encrypted ESMTP tunnel with AES-256-GCM authenticated encryption and Kyber-768 hybrid key exchange. {threats.length} actionable security findings were discovered during deep rule evaluation.
               </p>
             </div>
 
             {/* Handshake Flow Sequence */}
             <div className="space-y-2">
-              <h3 className="text-[13px] font-bold text-slate-200 uppercase tracking-wider font-mono">
+              <h3 className="text-[13px] font-bold text-[var(--color-text-primary)] uppercase tracking-wider font-mono">
                 2. Chronological Handshake Sequence
               </h3>
-              <div className="divide-y divide-slate-800/80 border border-slate-800 rounded-lg overflow-hidden font-mono text-[11px]">
+              <div className="divide-y divide-slate-800/80 border border-[var(--color-border)] rounded-lg overflow-hidden font-mono text-[11px]">
                 {tlsSteps.map((step, idx) => (
                   <div key={idx} className="p-2.5 flex items-center justify-between bg-slate-950/40">
                     <div className="flex items-center gap-2">
                       <span className="text-sky-400 font-bold">{step.name}</span>
                       <span className="text-slate-500">({step.direction})</span>
                     </div>
-                    <div className="text-slate-400">+{step.timestampMs} ms</div>
+                    <div className="text-[var(--color-text-muted)]">+{step.timestampMs} ms</div>
                   </div>
                 ))}
               </div>
@@ -231,17 +231,17 @@ export default function ForensicReportModal({ isOpen, onClose }: ForensicReportM
 
             {/* Active Threats Table */}
             <div className="space-y-2">
-              <h3 className="text-[13px] font-bold text-slate-200 uppercase tracking-wider font-mono">
+              <h3 className="text-[13px] font-bold text-[var(--color-text-primary)] uppercase tracking-wider font-mono">
                 3. Detected Security Vulnerabilities & Mitigations
               </h3>
               <div className="space-y-2">
                 {threats.map(t => (
-                  <div key={t.id} className="p-3 rounded-lg border border-slate-800 bg-slate-950/60 space-y-1 text-[11px]">
+                  <div key={t.id} className="p-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-2)] space-y-1 text-[11px]">
                     <div className="flex items-center justify-between">
                       <span className="font-bold text-amber-300">[{t.severity}] {t.title}</span>
-                      {t.cve && <span className="font-mono text-slate-400">{t.cve}</span>}
+                      {t.cve && <span className="font-mono text-[var(--color-text-muted)]">{t.cve}</span>}
                     </div>
-                    <p className="text-slate-300">{t.description}</p>
+                    <p className="text-[var(--color-text-secondary)]">{t.description}</p>
                     <div className="text-emerald-400 font-medium pt-1">Fix: {t.recommendation}</div>
                   </div>
                 ))}
@@ -249,7 +249,7 @@ export default function ForensicReportModal({ isOpen, onClose }: ForensicReportM
             </div>
 
             {/* Sign-off */}
-            <div className="pt-4 border-t border-slate-800 text-[11px] text-slate-500 flex items-center justify-between font-mono">
+            <div className="pt-4 border-t border-[var(--color-border)] text-[11px] text-slate-500 flex items-center justify-between font-mono">
               <span>Verified Cryptographic Evidence • Garuda Enterprise Network Defense</span>
               <span>SHA-256 Digest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855</span>
             </div>

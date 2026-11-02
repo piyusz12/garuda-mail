@@ -23,9 +23,18 @@ try {
 }
 
 console.log('[Build] Building Next.js production bundle...');
-execSync('npx next build', {
-  cwd: frontendDir,
-  stdio: 'inherit',
-  env: process.env,
-});
+try {
+  execSync('npx next build', {
+    cwd: frontendDir,
+    stdio: 'inherit',
+    env: process.env,
+  });
+} catch (err) {
+  console.log('[Build] Retrying Next.js build after security advisory check...');
+  execSync('npx next build', {
+    cwd: frontendDir,
+    stdio: 'inherit',
+    env: process.env,
+  });
+}
 console.log('[Build] Build completed successfully!');

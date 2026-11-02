@@ -22,8 +22,8 @@ const userNav = [
   { name: 'Contacts', href: '/user/contacts', icon: Users, color: 'text-emerald-400', activeBg: 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400' },
   { name: 'Security Posture', href: '/user/security', icon: Shield, color: 'text-cyan-400', activeBg: 'bg-cyan-500/15 border-cyan-500/30 text-cyan-400' },
   { name: 'Key Vault', href: '/crypto', icon: ShieldAlert, color: 'text-emerald-400', activeBg: 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400' },
-  { name: 'My Reports', href: '/user/reports', icon: FileText, color: 'text-slate-300', activeBg: 'bg-slate-500/15 border-slate-500/30 text-slate-200' },
-  { name: 'Settings', href: '/settings', icon: Settings, color: 'text-slate-400', activeBg: 'bg-slate-500/15 border-slate-500/30 text-slate-300' },
+  { name: 'My Reports', href: '/user/reports', icon: FileText, color: 'text-[var(--color-text-secondary)]', activeBg: 'bg-sky-500/15 border-sky-500/30 text-sky-500 dark:text-sky-400' },
+  { name: 'Settings', href: '/settings', icon: Settings, color: 'text-[var(--color-text-muted)]', activeBg: 'bg-sky-500/15 border-sky-500/30 text-sky-500 dark:text-sky-400' },
 ];
 
 const adminNav = [
@@ -55,8 +55,8 @@ const systemNav = [
   { name: 'AI Anomalies', href: '/anomalies', icon: Brain, color: 'text-fuchsia-400', activeBg: 'bg-fuchsia-500/15 border-fuchsia-500/30 text-fuchsia-400' },
   { name: 'Investigations', href: '/investigations', icon: SearchIcon, color: 'text-violet-400', activeBg: 'bg-violet-500/15 border-violet-500/30 text-violet-400' },
   { name: 'CBOM', href: '/cbom', icon: Layers, color: 'text-teal-400', activeBg: 'bg-teal-500/15 border-teal-500/30 text-teal-400' },
-  { name: 'Reports', href: '/reports', icon: FileText, color: 'text-slate-300', activeBg: 'bg-slate-500/15 border-slate-500/30 text-slate-200' },
-  { name: 'Settings', href: '/settings', icon: Settings, color: 'text-slate-400', activeBg: 'bg-slate-500/15 border-slate-500/30 text-slate-300' },
+  { name: 'Reports', href: '/reports', icon: FileText, color: 'text-[var(--color-text-secondary)]', activeBg: 'bg-sky-500/15 border-sky-500/30 text-sky-500 dark:text-sky-400' },
+  { name: 'Settings', href: '/settings', icon: Settings, color: 'text-[var(--color-text-muted)]', activeBg: 'bg-sky-500/15 border-sky-500/30 text-sky-500 dark:text-sky-400' },
 ];
 
 interface SidebarProps {
@@ -146,7 +146,7 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onCloseMobile
           <button
             type="button"
             onClick={onCloseMobile}
-            className="md:hidden p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-white hover:bg-[var(--color-surface-2)] transition-colors"
+            className="md:hidden p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)] transition-colors"
             aria-label="Close navigation"
           >
             <X size={18} />

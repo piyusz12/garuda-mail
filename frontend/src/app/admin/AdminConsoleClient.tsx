@@ -304,7 +304,7 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
               </div>
               <button
                 onClick={() => setNotification(null)}
-                className="text-slate-400 hover:text-white transition-colors"
+                className="text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors"
               >
                 <X size={14} />
               </button>
@@ -327,7 +327,7 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
                   ROLE: ADMIN
                 </span>
               </div>
-              <h2 className="text-lg font-bold text-white">
+              <h2 className="text-lg font-bold text-[var(--color-text-primary)]">
                 {currentUser?.name || 'Administrator'} ({currentUser?.email})
               </h2>
             </div>
@@ -346,7 +346,7 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
               onClick={handleRestoreDefaults}
               disabled={loading}
               title="Restore initial system demo accounts if desired"
-              className="px-3 py-2 rounded-xl text-[12px] font-medium bg-[var(--color-surface-2)] hover:bg-[var(--color-surface-3)] text-slate-300 border border-[var(--color-border)] flex items-center gap-1.5 transition-colors"
+              className="px-3 py-2 rounded-xl text-[12px] font-medium bg-[var(--color-surface-2)] hover:bg-[var(--color-surface-3)] text-[var(--color-text-secondary)] border border-[var(--color-border)] flex items-center gap-1.5 transition-colors"
             >
               <RotateCcw size={13} />
               <span className="hidden sm:inline">Restore Defaults</span>
@@ -374,7 +374,7 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
                   'flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all whitespace-nowrap',
                   active
                     ? 'bg-rose-500/15 text-rose-300 border border-rose-500/30 font-semibold'
-                    : 'text-slate-400 hover:text-white hover:bg-[var(--color-surface-2)]'
+                    : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)]'
                 )}
               >
                 <Icon size={14} />
@@ -389,31 +389,31 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
           <div className="space-y-6">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="card p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-1)]">
-                <span className="text-[11px] text-slate-400 uppercase tracking-wider font-semibold block mb-1">
+                <span className="text-[11px] text-[var(--color-text-muted)] uppercase tracking-wider font-semibold block mb-1">
                   Total Users
                 </span>
-                <span className="text-2xl font-bold text-white">{users.length}</span>
-                <p className="text-[11px] text-slate-400 mt-1">{activeCount} active • {suspendedCount} suspended</p>
+                <span className="text-2xl font-bold text-[var(--color-text-primary)]">{users.length}</span>
+                <p className="text-[11px] text-[var(--color-text-muted)] mt-1">{activeCount} active • {suspendedCount} suspended</p>
               </div>
 
               <div className="card p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-1)]">
-                <span className="text-[11px] text-slate-400 uppercase tracking-wider font-semibold block mb-1">
+                <span className="text-[11px] text-[var(--color-text-muted)] uppercase tracking-wider font-semibold block mb-1">
                   Administrators
                 </span>
                 <span className="text-2xl font-bold text-rose-400">{adminCount}</span>
-                <p className="text-[11px] text-slate-400 mt-1">Tier-1 Root privileged</p>
+                <p className="text-[11px] text-[var(--color-text-muted)] mt-1">Tier-1 Root privileged</p>
               </div>
 
               <div className="card p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-1)]">
-                <span className="text-[11px] text-slate-400 uppercase tracking-wider font-semibold block mb-1">
+                <span className="text-[11px] text-[var(--color-text-muted)] uppercase tracking-wider font-semibold block mb-1">
                   Audit Events
                 </span>
                 <span className="text-2xl font-bold text-indigo-400">{auditLogs.length}</span>
-                <p className="text-[11px] text-slate-400 mt-1">Recorded audit ledger</p>
+                <p className="text-[11px] text-[var(--color-text-muted)] mt-1">Recorded audit ledger</p>
               </div>
 
               <div className="card p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-1)]">
-                <span className="text-[11px] text-slate-400 uppercase tracking-wider font-semibold block mb-1">
+                <span className="text-[11px] text-[var(--color-text-muted)] uppercase tracking-wider font-semibold block mb-1">
                   FastAPI Backend
                 </span>
                 <span className="text-2xl font-bold text-emerald-400">
@@ -425,29 +425,29 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
 
             {/* System Health Breakdown */}
             <div className="card p-5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-1)] space-y-4">
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+              <h3 className="text-sm font-bold text-[var(--color-text-primary)] flex items-center gap-2">
                 <Activity size={16} className="text-sky-400" />
                 Service Health & Architecture Status
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
                 <div className="p-3 rounded-xl bg-[var(--color-surface-2)] border border-[var(--color-border-subtle)] space-y-1">
-                  <span className="text-slate-400 block text-[10px] uppercase font-semibold">Authentication Guard</span>
+                  <span className="text-[var(--color-text-muted)] block text-[10px] uppercase font-semibold">Authentication Guard</span>
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold text-white">NextAuth JWT Session</span>
+                    <span className="font-semibold text-[var(--color-text-primary)]">NextAuth JWT Session</span>
                     <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-300 font-bold">HEALTHY</span>
                   </div>
                 </div>
                 <div className="p-3 rounded-xl bg-[var(--color-surface-2)] border border-[var(--color-border-subtle)] space-y-1">
-                  <span className="text-slate-400 block text-[10px] uppercase font-semibold">Database Persistence</span>
+                  <span className="text-[var(--color-text-muted)] block text-[10px] uppercase font-semibold">Database Persistence</span>
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold text-white">Prisma Multi-Tier Store</span>
+                    <span className="font-semibold text-[var(--color-text-primary)]">Prisma Multi-Tier Store</span>
                     <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-300 font-bold">OPERATIONAL</span>
                   </div>
                 </div>
                 <div className="p-3 rounded-xl bg-[var(--color-surface-2)] border border-[var(--color-border-subtle)] space-y-1">
-                  <span className="text-slate-400 block text-[10px] uppercase font-semibold">Zero-Knowledge Invariant</span>
+                  <span className="text-[var(--color-text-muted)] block text-[10px] uppercase font-semibold">Zero-Knowledge Invariant</span>
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold text-white">Web Crypto E2EE V2</span>
+                    <span className="font-semibold text-[var(--color-text-primary)]">Web Crypto E2EE V2</span>
                     <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-300 font-bold">ENFORCED</span>
                   </div>
                 </div>
@@ -462,12 +462,12 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
             <div className="p-4 sm:p-5 border-b border-[var(--color-border)] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center gap-2">
                 <Users size={16} className="text-rose-400" />
-                <h3 className="text-sm font-bold text-white">User Accounts &amp; Access Controls</h3>
-                <span className="text-xs text-slate-400">({filteredUsers.length} total)</span>
+                <h3 className="text-sm font-bold text-[var(--color-text-primary)]">User Accounts &amp; Access Controls</h3>
+                <span className="text-xs text-[var(--color-text-muted)]">({filteredUsers.length} total)</span>
               </div>
 
               <div className="relative w-full sm:w-72">
-                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]" />
                 <input
                   type="text"
                   value={search}
@@ -481,7 +481,7 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="border-b border-[var(--color-border)] bg-[var(--color-surface-2)] text-slate-400 text-[10px] uppercase tracking-wider font-semibold">
+                  <tr className="border-b border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--color-text-muted)] text-[10px] uppercase tracking-wider font-semibold">
                     <th className="py-3 px-4">User</th>
                     <th className="py-3 px-4">Email</th>
                     <th className="py-3 px-4">Role</th>
@@ -490,7 +490,7 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
                     <th className="py-3 px-4 text-right">Administrative Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[var(--color-border-subtle)] text-slate-300">
+                <tbody className="divide-y divide-[var(--color-border-subtle)] text-[var(--color-text-secondary)]">
                   {filteredUsers.map((u) => {
                     const isCurrentUser = currentUser.email?.toLowerCase().trim() === u.email.toLowerCase().trim();
                     const isMasterAdmin = u.email.toLowerCase().trim() === 'admin@garudamail.local';
@@ -512,7 +512,7 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
                             </span>
                           )}
                         </td>
-                        <td className="py-3 px-4 font-mono text-[11px] text-slate-400">{u.email}</td>
+                        <td className="py-3 px-4 font-mono text-[11px] text-[var(--color-text-muted)]">{u.email}</td>
                         <td className="py-3 px-4">
                           <span
                             className={clsx(
@@ -538,7 +538,7 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
                             {isSuspended ? 'SUSPENDED' : 'ACTIVE'}
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-slate-400 text-[11px]">{u.department || 'Cryptographic SOC'}</td>
+                        <td className="py-3 px-4 text-[var(--color-text-muted)] text-[11px]">{u.department || 'Cryptographic SOC'}</td>
                         <td className="py-3 px-4 text-right space-x-1.5">
                           {/* Suspend / Activate Button */}
                           {!isMasterAdmin && !isCurrentUser && (
@@ -609,11 +609,11 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
         {activeTab === 'roles' && (
           <div className="card p-6 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-1)] space-y-6">
             <div className="border-b border-[var(--color-border-subtle)] pb-4">
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
+              <h3 className="text-base font-bold text-[var(--color-text-primary)] flex items-center gap-2">
                 <ShieldCheck size={18} className="text-purple-400" />
                 Role-Based Access Control (RBAC) Architecture
               </h3>
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs text-[var(--color-text-muted)] mt-1">
                 Deterministic server-side authorization boundaries enforced at middleware and API handlers.
               </p>
             </div>
@@ -623,8 +623,8 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
                 <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30 uppercase">
                   ROLE: ADMIN
                 </span>
-                <p className="font-semibold text-white">Privileged System Administrator</p>
-                <ul className="text-slate-300 space-y-1 list-disc list-inside text-[11px]">
+                <p className="font-semibold text-[var(--color-text-primary)]">Privileged System Administrator</p>
+                <ul className="text-[var(--color-text-secondary)] space-y-1 list-disc list-inside text-[11px]">
                   <li>Full user directory oversight & account status control.</li>
                   <li>Can suspend, reactivate, or delete user credentials.</li>
                   <li>Can promote users to admin or demote roles.</li>
@@ -637,8 +637,8 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
                 <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-sky-500/20 text-sky-300 border border-sky-500/30 uppercase">
                   ROLE: USER
                 </span>
-                <p className="font-semibold text-white">Standard Communicator</p>
-                <ul className="text-slate-300 space-y-1 list-disc list-inside text-[11px]">
+                <p className="font-semibold text-[var(--color-text-primary)]">Standard Communicator</p>
+                <ul className="text-[var(--color-text-secondary)] space-y-1 list-disc list-inside text-[11px]">
                   <li>Send and receive end-to-end encrypted emails (RSA-OAEP + AES-GCM).</li>
                   <li>Digital signature creation and verification (RSA-PSS).</li>
                   <li>Own key vault management & passphrase protection.</li>
@@ -655,11 +655,11 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
           <div className="card p-6 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-1)] space-y-6">
             <div className="border-b border-[var(--color-border-subtle)] pb-4 flex items-center justify-between">
               <div>
-                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                <h3 className="text-base font-bold text-[var(--color-text-primary)] flex items-center gap-2">
                   <Activity size={18} className="text-indigo-400" />
                   GARUDA Sentinel Security Oversight
                 </h3>
-                <p className="text-xs text-slate-400 mt-1">
+                <p className="text-xs text-[var(--color-text-muted)] mt-1">
                   Deterministic cryptographic risk scoring and post-quantum readiness inspection
                 </p>
               </div>
@@ -673,19 +673,19 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
               <div className="p-4 rounded-xl bg-[var(--color-surface-2)] border border-[var(--color-border-subtle)] space-y-1">
-                <span className="text-[10px] text-slate-400 uppercase font-semibold">Authoritative CRS Engine</span>
+                <span className="text-[10px] text-[var(--color-text-muted)] uppercase font-semibold">Authoritative CRS Engine</span>
                 <span className="text-lg font-bold text-rose-400 block">Deterministic Policy Engine</span>
-                <p className="text-[11px] text-slate-400">Rules calculate scores strictly from observed network evidence.</p>
+                <p className="text-[11px] text-[var(--color-text-muted)]">Rules calculate scores strictly from observed network evidence.</p>
               </div>
               <div className="p-4 rounded-xl bg-[var(--color-surface-2)] border border-[var(--color-border-subtle)] space-y-1">
-                <span className="text-[10px] text-slate-400 uppercase font-semibold">AI Anomaly Isolation</span>
+                <span className="text-[10px] text-[var(--color-text-muted)] uppercase font-semibold">AI Anomaly Isolation</span>
                 <span className="text-lg font-bold text-purple-400 block">Anomaly Telemetry Active</span>
-                <p className="text-[11px] text-slate-400">AI scores remain separate and cannot downgrade security findings.</p>
+                <p className="text-[11px] text-[var(--color-text-muted)]">AI scores remain separate and cannot downgrade security findings.</p>
               </div>
               <div className="p-4 rounded-xl bg-[var(--color-surface-2)] border border-[var(--color-border-subtle)] space-y-1">
-                <span className="text-[10px] text-slate-400 uppercase font-semibold">Post-Quantum Migration</span>
+                <span className="text-[10px] text-[var(--color-text-muted)] uppercase font-semibold">Post-Quantum Migration</span>
                 <span className="text-lg font-bold text-teal-400 block">CBOM &amp; PQC Audit Ready</span>
-                <p className="text-[11px] text-slate-400">Cryptographic inventory tracks classical vs quantum-vulnerable ciphers.</p>
+                <p className="text-[11px] text-[var(--color-text-muted)]">Cryptographic inventory tracks classical vs quantum-vulnerable ciphers.</p>
               </div>
             </div>
           </div>
@@ -696,11 +696,11 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
           <div className="card rounded-2xl overflow-hidden border border-[var(--color-border)] bg-[var(--color-surface-1)]">
             <div className="p-4 sm:p-5 border-b border-[var(--color-border)] flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <h3 className="text-sm font-bold text-[var(--color-text-primary)] flex items-center gap-2">
                   <FileText size={16} className="text-indigo-400" />
                   System Audit Ledger
                 </h3>
-                <p className="text-xs text-slate-400 mt-0.5">Immutable record of security and administrative operations</p>
+                <p className="text-xs text-[var(--color-text-muted)] mt-0.5">Immutable record of security and administrative operations</p>
               </div>
               <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">
                 {auditLogs.length} Events
@@ -709,7 +709,7 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
 
             <div className="overflow-x-auto max-h-[500px]">
               <table className="w-full text-left text-xs border-collapse">
-                <thead className="sticky top-0 bg-[var(--color-surface-2)] border-b border-[var(--color-border)] text-slate-400 text-[10px] uppercase font-semibold">
+                <thead className="sticky top-0 bg-[var(--color-surface-2)] border-b border-[var(--color-border)] text-[var(--color-text-muted)] text-[10px] uppercase font-semibold">
                   <tr>
                     <th className="py-2.5 px-4">Timestamp</th>
                     <th className="py-2.5 px-4">Action</th>
@@ -719,7 +719,7 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
                     <th className="py-2.5 px-4">Outcome</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[var(--color-border-subtle)] text-slate-300">
+                <tbody className="divide-y divide-[var(--color-border-subtle)] text-[var(--color-text-secondary)]">
                   {auditLogs.length === 0 ? (
                     <tr>
                       <td colSpan={6} className="py-8 text-center text-slate-500">
@@ -729,19 +729,19 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
                   ) : (
                     auditLogs.map((log) => (
                       <tr key={log.id} className="hover:bg-[var(--color-surface-2)] transition-colors">
-                        <td className="py-2.5 px-4 font-mono text-[10px] text-slate-400 whitespace-nowrap">
+                        <td className="py-2.5 px-4 font-mono text-[10px] text-[var(--color-text-muted)] whitespace-nowrap">
                           {new Date(log.createdAt).toLocaleString()}
                         </td>
                         <td className="py-2.5 px-4 font-mono text-[11px] font-bold text-sky-300">
                           {log.action}
                         </td>
-                        <td className="py-2.5 px-4 text-slate-300 text-[11px]">
+                        <td className="py-2.5 px-4 text-[var(--color-text-secondary)] text-[11px]">
                           {log.actorEmail || 'system'}
                         </td>
-                        <td className="py-2.5 px-4 text-slate-400 text-[11px]">
+                        <td className="py-2.5 px-4 text-[var(--color-text-muted)] text-[11px]">
                           {log.targetEmail || '—'}
                         </td>
-                        <td className="py-2.5 px-4 text-slate-300 text-[11px] max-w-xs truncate">
+                        <td className="py-2.5 px-4 text-[var(--color-text-secondary)] text-[11px] max-w-xs truncate">
                           {log.details || '—'}
                         </td>
                         <td className="py-2.5 px-4">
@@ -775,11 +775,11 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
                     <span className="p-1 rounded bg-rose-500/20 text-rose-400">
                       <KeyRound size={16} />
                     </span>
-                    <h3 className="text-base font-bold text-white">
+                    <h3 className="text-base font-bold text-[var(--color-text-primary)]">
                       Credentials &amp; Active Sessions Reset
                     </h3>
                   </div>
-                  <p className="text-xs text-slate-400 max-w-2xl">
+                  <p className="text-xs text-[var(--color-text-muted)] max-w-2xl">
                     Purge all registered user login credentials, password hashes, and active authentication sessions.
                     Restores the credential registry to a clean baseline.
                   </p>
@@ -811,11 +811,11 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
               exit={{ scale: 0.95, opacity: 0 }}
               className="card p-6 rounded-2xl max-w-md w-full border border-[var(--color-border)] bg-[var(--color-surface-1)] space-y-4 shadow-2xl"
             >
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
+              <h3 className="text-base font-bold text-[var(--color-text-primary)] flex items-center gap-2">
                 <AlertTriangle size={18} className="text-amber-400" />
                 {confirmModal.title}
               </h3>
-              <p className="text-xs text-slate-300">
+              <p className="text-xs text-[var(--color-text-secondary)]">
                 {confirmModal.message}
               </p>
               <div className="flex items-center justify-end gap-2 pt-2">
@@ -823,7 +823,7 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
                   type="button"
                   onClick={() => setConfirmModal(null)}
                   disabled={actionInProgress}
-                  className="px-4 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white transition-colors"
+                  className="px-4 py-2 rounded-xl text-xs font-medium text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors"
                 >
                   Cancel
                 </button>
@@ -854,12 +854,12 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
             >
               <div className="flex items-center gap-2.5 text-rose-400">
                 <AlertTriangle size={20} />
-                <h3 className="text-base font-bold text-white">Reset All Credentials</h3>
+                <h3 className="text-base font-bold text-[var(--color-text-primary)]">Reset All Credentials</h3>
               </div>
-              <p className="text-xs text-slate-300">
+              <p className="text-xs text-[var(--color-text-secondary)]">
                 This will purge all user accounts, password hashes, and active sessions across the database and in-memory stores.
               </p>
-              <label className="flex items-center gap-2 text-xs text-slate-300 cursor-pointer pt-1">
+              <label className="flex items-center gap-2 text-xs text-[var(--color-text-secondary)] cursor-pointer pt-1">
                 <input
                   type="checkbox"
                   checked={preserveAdmins}
@@ -873,7 +873,7 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
                   type="button"
                   onClick={() => setShowResetModal(false)}
                   disabled={resetting}
-                  className="px-4 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white transition-colors"
+                  className="px-4 py-2 rounded-xl text-xs font-medium text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors"
                 >
                   Cancel
                 </button>

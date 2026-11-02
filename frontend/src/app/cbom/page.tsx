@@ -229,7 +229,7 @@ export default function CbomPage() {
             <div className="flex items-center justify-between border-b border-[var(--color-border)] pb-3">
               <div className="flex items-center gap-2.5">
                 <Server size={18} className="text-cyan-400" />
-                <h4 className="text-base font-bold text-white">
+                <h4 className="text-base font-bold text-[var(--color-text-primary)]">
                   MAIL SERVER CLUSTER: <span className="font-mono text-cyan-300">mail.sovereign.local</span>
                 </h4>
               </div>

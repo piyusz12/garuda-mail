@@ -485,7 +485,7 @@ export default function EmailDetailPage({ params }: { params: Promise<{ id: stri
                 <span>ENCRYPTED CIPHERTEXT (STORED IN DATABASE):</span>
                 <span className="text-emerald-400">ENCRYPTION KEY: SHA256-HKDF-256BIT</span>
               </div>
-              <pre className="p-4 rounded-lg bg-[#080d1a] border border-emerald-500/20 text-emerald-400 font-mono text-[11px] leading-relaxed break-all whitespace-pre-wrap select-all max-h-[300px] overflow-y-auto">
+              <pre className="p-4 rounded-lg bg-[var(--color-surface-2)] dark:bg-[#080d1a] border border-emerald-500/20 text-emerald-400 font-mono text-[11px] leading-relaxed break-all whitespace-pre-wrap select-all max-h-[300px] overflow-y-auto">
                 {email.rawCiphertext || email.cryptoMetadata?.ciphertext || '0bf9b2e9a4b88c38ca922b46130565e15ce5a3d4f8b92c10a3e87d6b4c2e1f0a9b8c7d6e5f4a3b2c1d0e'}
               </pre>
             </div>

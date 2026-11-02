@@ -227,7 +227,7 @@ export default function CryptoPosturePage() {
                         'px-2 py-0.5 rounded text-[10px] font-mono font-medium transition-colors border',
                         domainInput === d
                           ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40 font-bold'
-                          : 'bg-[var(--color-surface-3)] text-[var(--color-text-muted)] hover:text-white border-[var(--color-border-subtle)]'
+                          : 'bg-[var(--color-surface-3)] text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] border-[var(--color-border-subtle)]'
                       )}
                     >
                       {d}
@@ -378,7 +378,7 @@ export default function CryptoPosturePage() {
                           {auditResult.mtaSts.description}
                         </p>
                         <div className="pt-1 text-[10px] font-mono text-[var(--color-text-dim)] flex items-center gap-4">
-                          <span>Policy Mode: <b className="text-white">{auditResult.mtaSts.mode}</b></span>
+                          <span>Policy Mode: <b className="text-[var(--color-text-primary)]">{auditResult.mtaSts.mode}</b></span>
                           <span>MX Hostname Match: <b className="text-emerald-400">PASSED</b></span>
                         </div>
                       </div>
@@ -392,9 +392,9 @@ export default function CryptoPosturePage() {
                           {auditResult.dane.description}
                         </p>
                         <div className="pt-1 text-[10px] font-mono text-[var(--color-text-dim)] flex items-center gap-4">
-                          <span>Usage: <b className="text-white">{auditResult.dane.usage}</b></span>
-                          <span>Selector: <b className="text-white">{auditResult.dane.selector}</b></span>
-                          <span>Matching: <b className="text-white">{auditResult.dane.matchingType}</b></span>
+                          <span>Usage: <b className="text-[var(--color-text-primary)]">{auditResult.dane.usage}</b></span>
+                          <span>Selector: <b className="text-[var(--color-text-primary)]">{auditResult.dane.selector}</b></span>
+                          <span>Matching: <b className="text-[var(--color-text-primary)]">{auditResult.dane.matchingType}</b></span>
                         </div>
                       </div>
                     </div>
@@ -423,11 +423,11 @@ export default function CryptoPosturePage() {
 
                       <div className="p-3 rounded-lg bg-[var(--color-surface-2)] border border-[var(--color-border-subtle)] space-y-1">
                         <span className="text-[10px] uppercase font-semibold text-[var(--color-text-dim)] block">Certificate Transparency & CA</span>
-                        <span className="text-white font-medium block">{auditResult.certificateTransparency.caIssuer}</span>
+                        <span className="text-[var(--color-text-primary)] font-medium block">{auditResult.certificateTransparency.caIssuer}</span>
                         <div className="pt-1 text-[10px] font-mono text-[var(--color-text-dim)] flex items-center gap-4">
-                          <span>Key: <b className="text-white">{auditResult.certificateTransparency.keyType}</b></span>
+                          <span>Key: <b className="text-[var(--color-text-primary)]">{auditResult.certificateTransparency.keyType}</b></span>
                           <span>OCSP Stapled: <b className="text-emerald-400">ACTIVE</b></span>
-                          <span>SCT Proofs: <b className="text-white">{auditResult.certificateTransparency.sctProofCount} embedded</b></span>
+                          <span>SCT Proofs: <b className="text-[var(--color-text-primary)]">{auditResult.certificateTransparency.sctProofCount} embedded</b></span>
                         </div>
                       </div>
                     </div>
@@ -454,7 +454,7 @@ export default function CryptoPosturePage() {
                             )}>
                               {f.category} — {f.severity}
                             </span>
-                            <span className="font-semibold text-white">{f.title}</span>
+                            <span className="font-semibold text-[var(--color-text-primary)]">{f.title}</span>
                           </div>
                           <p className="text-[11px] text-[var(--color-text-secondary)]">{f.explanation}</p>
                           {f.remediation && (
