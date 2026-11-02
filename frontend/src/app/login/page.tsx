@@ -199,7 +199,7 @@ function LoginForm() {
                     1-Click
                   </span>
                 </div>
-                <p className="text-[11px] text-[var(--color-text-muted)] mt-0.5 truncate">
+                <p className="text-[11px] text-slate-700 dark:text-slate-400 font-medium mt-0.5 truncate">
                   Direct access to Cryptographic SOC & Forensics Console
                 </p>
               </div>
@@ -232,7 +232,7 @@ function LoginForm() {
           <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off" suppressHydrationWarning>
             {/* Email */}
             <div className="space-y-1.5">
-              <label className="text-[12px] font-medium text-[var(--color-text-muted)] uppercase tracking-wider">
+              <label className="text-[12px] font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                 Email Address
               </label>
               <div className="relative">
@@ -255,7 +255,7 @@ function LoginForm() {
 
             {/* Password */}
             <div className="space-y-1.5">
-              <label className="text-[12px] font-medium text-[var(--color-text-muted)] uppercase tracking-wider">
+              <label className="text-[12px] font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                 Password
               </label>
               <div className="relative">
@@ -302,7 +302,7 @@ function LoginForm() {
               type="submit"
               suppressHydrationWarning
               disabled={loading || !email || !password}
-              className="btn btn-primary w-full h-10 text-[13px] font-semibold rounded-lg shadow-sm cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
+              className="btn btn-primary w-full h-10 text-[13px] font-semibold rounded-lg shadow-sm cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <>
@@ -317,7 +317,7 @@ function LoginForm() {
 
           {/* Quick Demo Accounts Selection */}
           <div className="mt-5 pt-4 border-t border-[var(--color-border)]">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-dim)] flex items-center gap-1 mb-2">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-400 flex items-center gap-1 mb-2">
               <Zap size={11} className="text-amber-400" />
               1-Click Demo Profiles
             </span>
@@ -331,7 +331,7 @@ function LoginForm() {
                 <div className="text-[11px] font-semibold text-rose-700 dark:text-rose-400 flex items-center gap-1">
                   <span>👑 Admin</span>
                 </div>
-                <div className="text-[9px] text-[var(--color-text-dim)] truncate mt-0.5">
+                <div className="text-[9.5px] text-slate-700 dark:text-slate-400 font-medium truncate mt-0.5">
                   Full SOC Access
                 </div>
               </button>
@@ -345,7 +345,7 @@ function LoginForm() {
                 <div className="text-[11px] font-semibold text-sky-700 dark:text-sky-400 flex items-center gap-1">
                   <span>🛡️ Officer</span>
                 </div>
-                <div className="text-[9px] text-[var(--color-text-dim)] truncate mt-0.5">
+                <div className="text-[9.5px] text-slate-700 dark:text-slate-400 font-medium truncate mt-0.5">
                   Forensic Analyst
                 </div>
               </button>
@@ -359,7 +359,7 @@ function LoginForm() {
                 <div className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
                   <span>👤 Operative</span>
                 </div>
-                <div className="text-[9px] text-[var(--color-text-dim)] truncate mt-0.5">
+                <div className="text-[9.5px] text-slate-700 dark:text-slate-400 font-medium truncate mt-0.5">
                   Standard E2EE
                 </div>
               </button>

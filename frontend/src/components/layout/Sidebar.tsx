@@ -179,7 +179,7 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onCloseMobile
             <div className="space-y-0.5">
               {!collapsed && (
                 <div className="px-2 pt-2 pb-1.5">
-                  <span className="text-[10px] uppercase tracking-widest text-[var(--color-text-dim)] font-semibold flex items-center gap-1.5">
+                  <span className="text-[10.5px] uppercase tracking-wider text-slate-700 dark:text-slate-400 font-bold flex items-center gap-1.5">
                     <Shield size={10} />
                     USER WORKSPACE
                   </span>
@@ -223,7 +223,7 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onCloseMobile
               {/* Admin Privileged Section */}
               {!collapsed && (
                 <div className="px-2 pt-2 pb-1.5">
-                  <span className="text-[10px] uppercase tracking-widest text-rose-400 font-semibold flex items-center gap-1.5">
+                  <span className="text-[10.5px] uppercase tracking-wider text-rose-700 dark:text-rose-400 font-bold flex items-center gap-1.5">
                     <ShieldAlert size={10} />
                     ADMINISTRATION (ROOT)
                   </span>
@@ -258,7 +258,7 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onCloseMobile
               {/* Email Section */}
               {!collapsed && (
                 <div className="px-2 pb-1.5">
-                  <span className="text-[10px] uppercase tracking-widest text-[var(--color-text-dim)] font-semibold flex items-center gap-1.5">
+                  <span className="text-[10.5px] uppercase tracking-wider text-slate-700 dark:text-slate-400 font-bold flex items-center gap-1.5">
                     <Mail size={10} />
                     EMAIL COMMUNICATIONS
                   </span>
@@ -293,7 +293,7 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onCloseMobile
               {/* Forensic Telemetry Section */}
               {!collapsed && (
                 <div className="px-2 pb-1.5">
-                  <span className="text-[10px] uppercase tracking-widest text-[var(--color-text-dim)] font-semibold flex items-center gap-1.5">
+                  <span className="text-[10.5px] uppercase tracking-wider text-slate-700 dark:text-slate-400 font-bold flex items-center gap-1.5">
                     <Shield size={10} />
                     FORENSIC TELEMETRY
                   </span>
@@ -327,7 +327,7 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onCloseMobile
       {/* ── System Status ── */}
       {(!collapsed || mobileOpen) && (
         <div className="px-3 py-3 border-t border-default">
-          <div className="text-[10px] uppercase tracking-wider text-[var(--color-text-dim)] font-semibold mb-2">System Status</div>
+          <div className="text-[10.5px] uppercase tracking-wider text-slate-700 dark:text-slate-400 font-bold mb-2">System Status</div>
           <div className="space-y-1.5">
             <StatusDot label="FastAPI Backend (8000)" status="connected" />
             <StatusDot label="Analysis Engine" status="connected" />
@@ -361,7 +361,7 @@ function StatusDot({ label, status }: { label: string; status: 'connected' | 'pr
   return (
     <div className="flex items-center gap-2">
       <div className={clsx('w-1.5 h-1.5 rounded-full', color)} />
-      <span className="text-[11px] text-[var(--color-text-muted)]">{label}</span>
+      <span className="text-[11px] text-slate-700 dark:text-slate-300 font-medium">{label}</span>
     </div>
   );
 }

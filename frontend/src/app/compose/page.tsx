@@ -460,7 +460,7 @@ function ComposeForm() {
                       style={{ backgroundColor: spec.badgeColor }}
                     />
                   </div>
-                  <div className="text-[10px] text-[var(--color-text-muted)] line-clamp-1">
+                  <div className="text-[10px] text-slate-600 dark:text-slate-400 font-medium line-clamp-1">
                     Port {spec.defaultPort} • {spec.encryption}
                   </div>
                 </button>
@@ -635,15 +635,15 @@ function ComposeForm() {
               <div className="mx-4 my-1 px-3 py-1.5 rounded-lg bg-cyan-500/5 dark:bg-cyan-950/30 border border-cyan-500/30 flex items-center justify-between gap-2 text-[11px] animate-in fade-in">
                 <div className="flex items-center gap-2 flex-wrap">
                   <ShieldCheck size={14} className="text-cyan-400 flex-shrink-0" />
-                  <span className="font-semibold text-cyan-300">Target Security:</span>
+                  <span className="font-bold text-cyan-900 dark:text-cyan-300">Target Security:</span>
                   <span className="font-mono font-bold text-cyan-700 dark:text-cyan-200 px-1.5 py-0.2 rounded bg-cyan-500/20 border border-cyan-500/40">
                     Grade {targetCommSecurity.grade} ({targetCommSecurity.score}/100)
                   </span>
-                  <span className="text-[10px] text-slate-300 hidden sm:inline">
+                  <span className="text-[10px] text-slate-700 dark:text-slate-300 font-medium hidden sm:inline">
                     {targetCommSecurity.striptlsImmunity.immune ? '🛡️ STRIPTLS Immune' : '⚠️ Fallback Vulnerable'} • MTA-STS {targetCommSecurity.mtaSts.mode.toUpperCase()} • DANE {targetCommSecurity.dane.present ? 'VERIFIED' : 'NONE'}
                   </span>
                 </div>
-                <span className="text-[10px] font-mono text-emerald-400 font-semibold flex items-center gap-1 flex-shrink-0">
+                <span className="text-[10px] font-mono text-emerald-800 dark:text-emerald-400 font-bold flex items-center gap-1 flex-shrink-0">
                   <Lock size={11} />
                   <span>Transport Hardened</span>
                 </span>
@@ -669,8 +669,8 @@ function ComposeForm() {
                     className={clsx(
                       'px-2.5 py-1 rounded-full text-[10px] transition-colors flex items-center gap-1.5 flex-shrink-0 border',
                       u.isOnline
-                        ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/35 hover:bg-emerald-500/25'
-                        : 'bg-[var(--color-surface-2)] text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] hover:bg-[var(--color-accent-dim)] border-[var(--color-border-subtle)]'
+                        ? 'bg-emerald-100 hover:bg-emerald-200 text-emerald-950 border border-emerald-400 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/35 font-semibold'
+                        : 'bg-slate-100 dark:bg-[var(--color-surface-2)] text-slate-800 dark:text-[var(--color-text-secondary)] hover:text-sky-700 hover:bg-sky-50 border border-slate-300 dark:border-[var(--color-border-subtle)] font-medium'
                     )}
                     title={`Add ${u.email || u.name} (${u.statusText || 'Contact'})`}
                   >
@@ -682,16 +682,16 @@ function ComposeForm() {
                     />
                     <span className="font-semibold">{u.name || u.email?.split('@')[0]}</span>
                     {u.isOnline && (
-                      <span className="text-[9px] font-mono text-emerald-400 font-bold uppercase">Online</span>
+                      <span className="text-[9px] font-mono text-emerald-800 dark:text-emerald-400 font-bold uppercase">Online</span>
                     )}
-                    <span className="text-[var(--color-text-dim)]">({u.email})</span>
+                    <span className="text-slate-600 dark:text-slate-400 font-medium">({u.email})</span>
                   </button>
                 ))}
 
               <button
                 type="button"
                 onClick={() => window.dispatchEvent(new CustomEvent('open-quick-mail'))}
-                className="ml-auto px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 border border-emerald-500/40 flex items-center gap-1 flex-shrink-0 transition-colors"
+                className="ml-auto px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 hover:bg-emerald-200 text-emerald-950 border border-emerald-400 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/40 flex items-center gap-1 flex-shrink-0 transition-colors cursor-pointer"
                 title="Open WhatsApp-style Quick Mail Drawer"
               >
                 <Zap size={10} className="text-emerald-400" />

@@ -337,7 +337,7 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
             <button
               onClick={() => loadAllData()}
               disabled={loading}
-              className="px-3 py-2 rounded-xl text-[12px] font-medium bg-[var(--color-surface-2)] hover:bg-[var(--color-surface-3)] text-[var(--color-text-secondary)] border border-[var(--color-border)] flex items-center gap-1.5 transition-colors"
+              className="px-3 py-2 rounded-xl text-[12px] font-semibold bg-white hover:bg-slate-100 dark:bg-[var(--color-surface-2)] dark:hover:bg-[var(--color-surface-3)] text-slate-800 dark:text-[var(--color-text-secondary)] border border-slate-300 dark:border-[var(--color-border)] flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
             >
               <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
               <span>Refresh Telemetry</span>
@@ -346,7 +346,7 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
               onClick={handleRestoreDefaults}
               disabled={loading}
               title="Restore initial system demo accounts if desired"
-              className="px-3 py-2 rounded-xl text-[12px] font-medium bg-[var(--color-surface-2)] hover:bg-[var(--color-surface-3)] text-[var(--color-text-secondary)] border border-[var(--color-border)] flex items-center gap-1.5 transition-colors"
+              className="px-3 py-2 rounded-xl text-[12px] font-semibold bg-white hover:bg-slate-100 dark:bg-[var(--color-surface-2)] dark:hover:bg-[var(--color-surface-3)] text-slate-800 dark:text-[var(--color-text-secondary)] border border-slate-300 dark:border-[var(--color-border)] flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
             >
               <RotateCcw size={13} />
               <span className="hidden sm:inline">Restore Defaults</span>
@@ -400,7 +400,7 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
                 <span className="text-[11px] text-[var(--color-text-muted)] uppercase tracking-wider font-semibold block mb-1">
                   Administrators
                 </span>
-                <span className="text-2xl font-bold text-rose-400">{adminCount}</span>
+                <span className="text-2xl font-bold text-rose-600 dark:text-rose-400">{adminCount}</span>
                 <p className="text-[11px] text-[var(--color-text-muted)] mt-1">Tier-1 Root privileged</p>
               </div>
 
@@ -408,7 +408,7 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
                 <span className="text-[11px] text-[var(--color-text-muted)] uppercase tracking-wider font-semibold block mb-1">
                   Audit Events
                 </span>
-                <span className="text-2xl font-bold text-indigo-400">{auditLogs.length}</span>
+                <span className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{auditLogs.length}</span>
                 <p className="text-[11px] text-[var(--color-text-muted)] mt-1">Recorded audit ledger</p>
               </div>
 
@@ -416,10 +416,10 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
                 <span className="text-[11px] text-[var(--color-text-muted)] uppercase tracking-wider font-semibold block mb-1">
                   FastAPI Backend
                 </span>
-                <span className="text-2xl font-bold text-emerald-400">
+                <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
                   {stats?.systemHealth?.fastApiBackend === 'connected' ? 'ONLINE' : 'ACTIVE'}
                 </span>
-                <p className="text-[11px] text-emerald-400/80 mt-1">Port 8000 Sentinel</p>
+                <p className="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium mt-1">Port 8000 Sentinel</p>
               </div>
             </div>
 
@@ -473,7 +473,7 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Filter by name, email, role, status..."
-                  className="w-full h-8 pl-9 pr-3 text-xs rounded-lg bg-[var(--color-surface-2)] border border-[var(--color-border)] text-white placeholder:text-slate-500 focus:outline-none focus:border-rose-400"
+                  className="w-full h-8 pl-9 pr-3 text-xs rounded-lg bg-white dark:bg-[var(--color-surface-2)] border border-slate-300 dark:border-[var(--color-border)] text-slate-900 dark:text-white placeholder:text-slate-500 focus:outline-none focus:border-rose-500 font-medium"
                 />
               </div>
             </div>
@@ -481,7 +481,7 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="border-b border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--color-text-muted)] text-[10px] uppercase tracking-wider font-semibold">
+                  <tr className="border-b border-slate-300 dark:border-[var(--color-border)] bg-slate-100 dark:bg-[var(--color-surface-2)] text-slate-800 dark:text-slate-300 text-[10.5px] uppercase tracking-wider font-bold">
                     <th className="py-3 px-4">User</th>
                     <th className="py-3 px-4">Email</th>
                     <th className="py-3 px-4">Role</th>
@@ -498,7 +498,7 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
 
                     return (
                       <tr key={u.id} className="hover:bg-[var(--color-surface-2)] transition-colors">
-                        <td className="py-3 px-4 flex items-center gap-2.5 font-medium text-white">
+                        <td className="py-3 px-4 flex items-center gap-2.5 font-semibold text-slate-900 dark:text-white">
                           <div
                             className="w-7 h-7 rounded-full flex items-center justify-center font-bold text-[11px] text-white flex-shrink-0"
                             style={{ backgroundColor: u.avatarColor || '#38BDF8' }}
@@ -512,7 +512,7 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
                             </span>
                           )}
                         </td>
-                        <td className="py-3 px-4 font-mono text-[11px] text-[var(--color-text-muted)]">{u.email}</td>
+                        <td className="py-3 px-4 font-mono text-[11px] text-slate-700 dark:text-slate-300 font-medium">{u.email}</td>
                         <td className="py-3 px-4">
                           <span
                             className={clsx(
@@ -530,15 +530,15 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
                             className={clsx(
                               'px-2 py-0.5 rounded-full text-[10px] font-semibold border uppercase flex items-center gap-1 w-fit',
                               isSuspended
-                                ? 'bg-rose-500/20 text-rose-400 border-rose-500/40'
-                                : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                                ? 'bg-rose-100 dark:bg-rose-500/20 text-rose-800 dark:text-rose-300 border-rose-300 dark:border-rose-500/40 font-bold'
+                                : 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-500/30 font-bold'
                             )}
                           >
                             <span className={clsx('w-1.5 h-1.5 rounded-full', isSuspended ? 'bg-rose-400' : 'bg-emerald-400')} />
                             {isSuspended ? 'SUSPENDED' : 'ACTIVE'}
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-[var(--color-text-muted)] text-[11px]">{u.department || 'Cryptographic SOC'}</td>
+                        <td className="py-3 px-4 text-slate-700 dark:text-slate-300 font-medium text-[11px]">{u.department || 'Cryptographic SOC'}</td>
                         <td className="py-3 px-4 text-right space-x-1.5">
                           {/* Suspend / Activate Button */}
                           {!isMasterAdmin && !isCurrentUser && (
@@ -557,8 +557,8 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
                               className={clsx(
                                 'px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-colors border',
                                 isSuspended
-                                  ? 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/25'
-                                  : 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-500/30 hover:bg-amber-500/25'
+                                  ? 'bg-emerald-100 hover:bg-emerald-200 text-emerald-950 border border-emerald-400 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/30 font-bold shadow-xs cursor-pointer'
+                                  : 'bg-amber-100 hover:bg-amber-200 text-amber-950 border border-amber-400 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/30 font-bold shadow-xs cursor-pointer'
                               )}
                             >
                               {isSuspended ? 'Reactivate' : 'Suspend'}
@@ -581,7 +581,7 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
                               className={clsx(
                                 'px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all shadow-sm border cursor-pointer',
                                 u.role === 'admin'
-                                  ? 'bg-[var(--color-surface-2)] hover:bg-[var(--color-surface-3)] text-[var(--color-text-secondary)] border-[var(--color-border)]'
+                                  ? 'bg-slate-100 hover:bg-slate-200 text-slate-900 border border-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 dark:border-slate-600 font-bold shadow-xs cursor-pointer'
                                   : 'bg-indigo-600 hover:bg-indigo-700 text-white border-indigo-700 shadow-indigo-600/20 active:scale-95'
                               )}
                             >
@@ -594,7 +594,7 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
                             <button
                               onClick={() => handleDeleteUser(u.email)}
                               disabled={deletingEmail === u.email}
-                              className="px-2 py-1 rounded-lg text-[11px] text-rose-400 hover:bg-rose-500/15 border border-transparent hover:border-rose-500/30 transition-colors"
+                              className="p-1.5 rounded-lg text-[11px] text-rose-700 hover:text-rose-900 bg-rose-50 hover:bg-rose-100 border border-rose-300 dark:text-rose-400 dark:bg-transparent dark:hover:bg-rose-500/15 dark:border-transparent dark:hover:border-rose-500/30 transition-colors cursor-pointer"
                               title="Delete user credentials"
                             >
                               <Trash2 size={13} />

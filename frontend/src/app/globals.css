@@ -42,13 +42,13 @@
   --color-surface-3: #E2E8F0;
   --color-surface-4: #CBD5E1;
 
-  --color-border: #E2E8F0;
-  --color-border-subtle: #F1F5F9;
-  --color-border-active: #94A3B8;
+  --color-border: #CBD5E1;
+  --color-border-subtle: #E2E8F0;
+  --color-border-active: #64748B;
 
   --color-text-primary: #0F172A;
-  --color-text-secondary: #334155;
-  --color-text-muted: #64748B;
+  --color-text-secondary: #1E293B;
+  --color-text-muted: #334155;
   --color-text-dim: #475569;
 }
 
@@ -105,6 +105,18 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.6;
+}
+
+/* High-contrast placeholders for accessibility across light & dark themes */
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-text-dim);
+  opacity: 0.85;
+}
+html.light input::placeholder,
+html.light textarea::placeholder {
+  color: #475569;
+  opacity: 0.9;
 }
 
 /* ─── Scrollbar ─────────────────────────────────────────────────── */
@@ -188,6 +200,11 @@ body {
   .btn:active {
     transform: scale(0.98);
   }
+  .btn:disabled, .btn[disabled] {
+    opacity: 0.65;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
   .btn-primary {
     background: #0284C7;
     color: #ffffff;
@@ -215,6 +232,7 @@ body {
     color: var(--color-text-secondary);
     border: 1px solid var(--color-border);
     box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    font-weight: 600;
   }
   .btn-secondary:hover {
     background: var(--color-surface-2);
@@ -227,6 +245,7 @@ body {
     color: var(--color-text-secondary);
     border: 1px solid var(--color-border);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    font-weight: 500;
   }
   html.dark .btn-secondary:hover {
     background: var(--color-surface-3);

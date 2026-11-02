@@ -330,7 +330,7 @@ export default function NewCampaignPage() {
                     ? 'bg-sky-500/15 text-sky-700 dark:text-sky-300 font-bold border border-sky-500/30'
                     : currentStep > s.num
                     ? 'text-emerald-700 dark:text-emerald-400 hover:bg-[var(--color-surface-2)]'
-                    : 'text-[var(--color-text-dim)] hover:bg-[var(--color-surface-2)]'
+                    : 'text-slate-700 dark:text-slate-300 font-semibold hover:bg-[var(--color-surface-2)]'
                 }`}
                 aria-current={currentStep === s.num ? 'step' : undefined}
               >
@@ -350,7 +350,7 @@ export default function NewCampaignPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label htmlFor={`${formId}-title`} className="text-xs font-semibold text-[var(--color-text-dim)]">
+                <label htmlFor={`${formId}-title`} className="text-xs font-semibold text-slate-800 dark:text-slate-200">
                   Internal Campaign Title *
                 </label>
                 <input
@@ -371,7 +371,7 @@ export default function NewCampaignPage() {
               </div>
 
               <div className="space-y-1">
-                <label htmlFor={`${formId}-audience`} className="text-xs font-semibold text-[var(--color-text-dim)]">
+                <label htmlFor={`${formId}-audience`} className="text-xs font-semibold text-slate-800 dark:text-slate-200">
                   Audience Segment / List *
                 </label>
                 <select
@@ -399,7 +399,7 @@ export default function NewCampaignPage() {
               </div>
 
               <div className="space-y-1">
-                <label htmlFor={`${formId}-fromName`} className="text-xs font-semibold text-[var(--color-text-dim)]">
+                <label htmlFor={`${formId}-fromName`} className="text-xs font-semibold text-slate-800 dark:text-slate-200">
                   From Name *
                 </label>
                 <input
@@ -420,7 +420,7 @@ export default function NewCampaignPage() {
               </div>
 
               <div className="space-y-1">
-                <label htmlFor={`${formId}-fromEmail`} className="text-xs font-semibold text-[var(--color-text-dim)]">
+                <label htmlFor={`${formId}-fromEmail`} className="text-xs font-semibold text-slate-800 dark:text-slate-200">
                   Authenticated From Email Address *
                 </label>
                 <input
@@ -443,7 +443,7 @@ export default function NewCampaignPage() {
 
             {/* Tracking Switches */}
             <div className="p-4 rounded-xl bg-[var(--color-surface-2)] border border-[var(--color-border)] space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-dim)]">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
                 Deliverability Telemetry & Tracking
               </h4>
               <div className="flex flex-col sm:flex-row gap-4">
@@ -492,7 +492,7 @@ export default function NewCampaignPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <label htmlFor={`${formId}-subject`} className="text-xs font-semibold text-[var(--color-text-dim)]">
+                  <label htmlFor={`${formId}-subject`} className="text-xs font-semibold text-slate-800 dark:text-slate-200">
                     Primary Subject Line *
                   </label>
                   <input
@@ -510,7 +510,7 @@ export default function NewCampaignPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <label htmlFor={`${formId}-previewText`} className="text-xs font-semibold text-[var(--color-text-dim)]">
+                  <label htmlFor={`${formId}-previewText`} className="text-xs font-semibold text-slate-800 dark:text-slate-200">
                     Preheader Preview Text
                   </label>
                   <input
@@ -575,7 +575,7 @@ export default function NewCampaignPage() {
 
                 {/* HTML & Plain Text Body */}
                 <div className="space-y-1">
-                  <label htmlFor={`${formId}-html`} className="text-xs font-semibold text-[var(--color-text-dim)]">
+                  <label htmlFor={`${formId}-html`} className="text-xs font-semibold text-slate-800 dark:text-slate-200">
                     HTML Email Body *
                   </label>
                   <textarea
@@ -595,7 +595,7 @@ export default function NewCampaignPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <label htmlFor={`${formId}-plain`} className="text-xs font-semibold text-[var(--color-text-dim)]">
+                  <label htmlFor={`${formId}-plain`} className="text-xs font-semibold text-slate-800 dark:text-slate-200">
                     Plain-Text Alternative * (Required for Spam Filter Scoring)
                   </label>
                   <textarea
@@ -796,7 +796,7 @@ export default function NewCampaignPage() {
             {sendScheduleType === 'SCHEDULED' && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-xl bg-[var(--color-surface-2)] border border-[var(--color-border)]">
                 <div className="space-y-1">
-                  <label htmlFor={`${formId}-sched-date`} className="text-xs font-semibold text-[var(--color-text-dim)]">
+                  <label htmlFor={`${formId}-sched-date`} className="text-xs font-semibold text-slate-800 dark:text-slate-200">
                     Target Send Date *
                   </label>
                   <input
@@ -815,7 +815,7 @@ export default function NewCampaignPage() {
                   )}
                 </div>
                 <div className="space-y-1">
-                  <label htmlFor={`${formId}-sched-time`} className="text-xs font-semibold text-[var(--color-text-dim)]">
+                  <label htmlFor={`${formId}-sched-time`} className="text-xs font-semibold text-slate-800 dark:text-slate-200">
                     Target Send Time *
                   </label>
                   <input
@@ -887,7 +887,7 @@ export default function NewCampaignPage() {
             {/* Preflight Checklist */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="p-4 rounded-xl bg-[var(--color-surface-2)] border border-[var(--color-border)] space-y-2">
-                <div className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-dim)]">
+                <div className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
                   Cryptographic Authentication
                 </div>
                 <div className="space-y-1.5 text-xs">
@@ -907,7 +907,7 @@ export default function NewCampaignPage() {
               </div>
 
               <div className="p-4 rounded-xl bg-[var(--color-surface-2)] border border-[var(--color-border)] space-y-2">
-                <div className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-dim)]">
+                <div className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
                   Campaign Parameters
                 </div>
                 <div className="space-y-1 text-xs text-[var(--color-text-secondary)]">

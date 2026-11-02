@@ -144,7 +144,7 @@ export default function TopBar({ title, description, onOpenMobileMenu }: TopBarP
           ) : (
             <button
               onClick={() => setSearchOpen(true)}
-              className="flex items-center gap-1.5 h-8 px-2 sm:px-3 text-[12px] text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] bg-[var(--color-surface-2)] border border-default rounded-md hover:border-[var(--color-border-active)] transition-colors"
+              className="flex items-center gap-1.5 h-8 px-2 sm:px-3 text-[12px] text-slate-800 dark:text-[var(--color-text-muted)] hover:text-slate-950 dark:hover:text-[var(--color-text-primary)] bg-white dark:bg-[var(--color-surface-2)] border border-slate-300 dark:border-default rounded-md hover:border-slate-400 font-medium transition-colors shadow-xs"
               title="Search emails"
             >
               <Search size={14} />
@@ -162,7 +162,7 @@ export default function TopBar({ title, description, onOpenMobileMenu }: TopBarP
         <button
           type="button"
           onClick={() => window.dispatchEvent(new CustomEvent('open-quick-mail'))}
-          className="flex items-center gap-1.5 h-8 px-2 sm:px-2.5 rounded-lg text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 hover:border-emerald-500/50 transition-all cursor-pointer shadow-sm"
+          className="flex items-center gap-1.5 h-8 px-2 sm:px-2.5 rounded-lg text-[11px] font-bold text-emerald-950 dark:text-emerald-300 bg-emerald-100 hover:bg-emerald-200 border border-emerald-400 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 dark:border-emerald-500/30 transition-all cursor-pointer shadow-xs"
           title="View Online Users & Send Quick Email"
         >
           <span className="relative flex h-2 w-2">
@@ -197,7 +197,7 @@ export default function TopBar({ title, description, onOpenMobileMenu }: TopBarP
         <button
           type="button"
           onClick={toggleTheme}
-          className="flex items-center gap-1.5 h-8 px-2.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-2)] hover:bg-[var(--color-surface-3)] text-[var(--color-text-primary)] transition-all text-xs font-medium cursor-pointer shadow-sm"
+          className="flex items-center gap-1.5 h-8 px-2.5 rounded-lg border border-slate-300 dark:border-[var(--color-border)] bg-white hover:bg-slate-100 dark:bg-[var(--color-surface-2)] dark:hover:bg-[var(--color-surface-3)] text-slate-800 dark:text-[var(--color-text-primary)] transition-all text-xs font-semibold cursor-pointer shadow-xs"
           title={theme === 'light' ? 'Current: Light Mode (Default) — Click to switch to Dark Mode' : 'Current: Dark Mode — Click to switch to Light Mode'}
           aria-label={`Current theme: ${theme}. Click to switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
         >

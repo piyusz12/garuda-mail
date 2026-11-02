@@ -253,10 +253,10 @@ export default function InboxPage() {
               <span className="text-[11px] uppercase tracking-wider text-[var(--color-text-muted)] font-medium">Security</span>
             </div>
             {[
-              { id: 'all' as const, label: 'All', count: emails.length, activeStyle: 'bg-sky-500/15 text-sky-400 border-sky-500/35 shadow-[0_0_12px_rgba(56,189,248,0.2)]' },
-              { id: 'critical' as const, label: 'Critical', count: emails.filter(e => e.security.level === 'critical').length, activeStyle: 'bg-rose-500/15 text-rose-400 border-rose-500/35 shadow-[0_0_12px_rgba(244,63,94,0.2)]' },
-              { id: 'warning' as const, label: 'Warning', count: emails.filter(e => e.security.level === 'warning').length, activeStyle: 'bg-amber-500/15 text-amber-400 border-amber-500/35 shadow-[0_0_12px_rgba(245,158,11,0.2)]' },
-              { id: 'secure' as const, label: 'Secure', count: emails.filter(e => e.security.level === 'secure').length, activeStyle: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/35 shadow-[0_0_12px_rgba(16,185,129,0.2)]' },
+              { id: 'all' as const, label: 'All', count: emails.length, activeStyle: 'bg-sky-100 dark:bg-sky-500/15 text-sky-900 dark:text-sky-300 border-sky-400 dark:border-sky-500/35 font-bold shadow-xs' },
+              { id: 'critical' as const, label: 'Critical', count: emails.filter(e => e.security.level === 'critical').length, activeStyle: 'bg-rose-100 dark:bg-rose-500/15 text-rose-900 dark:text-rose-300 border-rose-400 dark:border-rose-500/35 font-bold shadow-xs' },
+              { id: 'warning' as const, label: 'Warning', count: emails.filter(e => e.security.level === 'warning').length, activeStyle: 'bg-amber-100 dark:bg-amber-500/15 text-amber-950 dark:text-amber-300 border-amber-400 dark:border-amber-500/35 font-bold shadow-xs' },
+              { id: 'secure' as const, label: 'Secure', count: emails.filter(e => e.security.level === 'secure').length, activeStyle: 'bg-emerald-100 dark:bg-emerald-500/15 text-emerald-950 dark:text-emerald-300 border-emerald-400 dark:border-emerald-500/35 font-bold shadow-xs' },
             ].map(f => (
               <button
                 key={f.id}
@@ -277,7 +277,7 @@ export default function InboxPage() {
           <button
             onClick={() => fetchEmails(false)}
             disabled={refreshing}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium rounded-md text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)] border border-[var(--color-border)] transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold rounded-md text-slate-800 dark:text-[var(--color-text-secondary)] hover:text-slate-950 dark:hover:text-[var(--color-text-primary)] bg-white hover:bg-slate-100 dark:bg-[var(--color-surface-2)] border border-slate-300 dark:border-[var(--color-border)] transition-colors shadow-xs cursor-pointer"
             title="Refresh emails"
           >
             <RefreshCw size={12} className={clsx(refreshing && 'animate-spin text-[var(--color-accent)]')} />
@@ -422,14 +422,14 @@ function EmailRow({
             {email.subject}
           </span>
         </div>
-        <div className="text-[11px] sm:text-[12px] text-[var(--color-text-muted)] truncate">
+        <div className="text-[11px] sm:text-[12px] text-slate-600 dark:text-slate-300 truncate">
           {email.preview}
         </div>
       </div>
 
       {/* Security Badge */}
       <div className="flex-shrink-0 flex flex-col items-end gap-1 sm:gap-1.5">
-        <span className="text-[10px] sm:text-[11px] text-[var(--color-text-dim)] tabular-nums whitespace-nowrap">
+        <span className="text-[10px] sm:text-[11px] text-slate-600 dark:text-slate-400 font-medium tabular-nums whitespace-nowrap">
           {formatEmailTime(email.timestamp)}
         </span>
         <div className="flex items-center gap-1 sm:gap-1.5">
