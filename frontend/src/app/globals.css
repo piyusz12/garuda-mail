@@ -2,37 +2,37 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ─── Garuda Mail Design System ─────────────────────────────────── */
-/* Dual-theme forensic command center aesthetic                      */
+/* Dual-theme forensic & marketing intelligence command center       */
 
 @theme inline {
   --font-sans: 'Inter', var(--font-geist-sans), system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', var(--font-geist-mono), ui-monospace, monospace;
 
-  /* ─ Accent & Semantic (shared across themes) ─ */
-  --color-accent: #0369A1;
-  --color-accent-muted: #1E6C99;
-  --color-accent-dim: rgba(14, 165, 233, 0.10);
-  --color-accent-glow: rgba(14, 165, 233, 0.15);
-  --color-accent-indigo: #6366F1;
-  --color-accent-purple: #A855F7;
-  --color-accent-emerald: #10B981;
-  --color-accent-amber: #F59E0B;
-  --color-accent-rose: #F43F5E;
+  /* ─ Accent & Semantic (shared base) ─ */
+  --color-accent: #0284C7;
+  --color-accent-muted: #0369A1;
+  --color-accent-dim: rgba(2, 132, 199, 0.08);
+  --color-accent-glow: rgba(2, 132, 199, 0.16);
+  --color-accent-indigo: #4F46E5;
+  --color-accent-purple: #7E22CE;
+  --color-accent-emerald: #059669;
+  --color-accent-amber: #D97706;
+  --color-accent-rose: #E11D48;
 
   --color-severity-critical: #DC2626;
-  --color-severity-critical-bg: rgba(220, 38, 38, 0.10);
+  --color-severity-critical-bg: rgba(220, 38, 38, 0.08);
   --color-severity-high: #B45309;
-  --color-severity-high-bg: rgba(180, 83, 9, 0.10);
+  --color-severity-high-bg: rgba(180, 83, 9, 0.08);
   --color-severity-medium: #A16207;
-  --color-severity-medium-bg: rgba(161, 98, 7, 0.10);
+  --color-severity-medium-bg: rgba(161, 98, 7, 0.08);
   --color-severity-low: #1D4ED8;
-  --color-severity-low-bg: rgba(29, 78, 216, 0.10);
+  --color-severity-low-bg: rgba(29, 78, 216, 0.08);
   --color-severity-info: #475569;
-  --color-severity-info-bg: rgba(71, 85, 105, 0.10);
+  --color-severity-info-bg: rgba(71, 85, 105, 0.08);
   --color-severity-healthy: #047857;
-  --color-severity-healthy-bg: rgba(4, 120, 87, 0.10);
+  --color-severity-healthy-bg: rgba(4, 120, 87, 0.08);
 
-  /* ─ Light Theme (Default) ─ */
+  /* ─ Light Theme (Default, Premium SaaS Aesthetic) ─ */
   --color-background: #F8FAFC;
   --color-foreground: #0F172A;
 
@@ -44,10 +44,10 @@
 
   --color-border: #E2E8F0;
   --color-border-subtle: #F1F5F9;
-  --color-border-active: #CBD5E1;
+  --color-border-active: #94A3B8;
 
   --color-text-primary: #0F172A;
-  --color-text-secondary: #475569;
+  --color-text-secondary: #334155;
   --color-text-muted: #64748B;
   --color-text-dim: #475569;
 }
@@ -74,6 +74,7 @@ html.dark {
   --color-text-dim: #8A96AC;
 
   --color-accent: #38BDF8;
+  --color-accent-muted: #0284C7;
   --color-accent-dim: rgba(56, 189, 248, 0.12);
   --color-accent-glow: rgba(56, 189, 248, 0.18);
 
@@ -130,7 +131,7 @@ body {
   color: var(--color-accent);
 }
 
-/* ─── Focus Ring ────────────────────────────────────────────────── */
+/* ─── Focus Ring (WCAG 2.4.7 & 2.4.11) ──────────────────────────── */
 
 :focus-visible {
   outline: 2px solid var(--color-accent);
@@ -188,35 +189,63 @@ body {
     transform: scale(0.98);
   }
   .btn-primary {
-    background: linear-gradient(135deg, #0284c7 0%, #38bdf8 55%, #6366f1 100%);
+    background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%);
     color: #ffffff;
     font-weight: 600;
-    box-shadow: 0 2px 14px rgba(14, 165, 233, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.4);
-    border: 1px solid rgba(56, 189, 248, 0.6);
+    box-shadow: 0 1px 3px rgba(2, 132, 199, 0.25), 0 1px 2px rgba(2, 132, 199, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    border: 1px solid rgba(2, 132, 199, 0.6);
   }
   .btn-primary:hover {
-    background: linear-gradient(135deg, #0369a1 0%, #60a5fa 50%, #818cf8 100%);
-    box-shadow: 0 4px 20px rgba(56, 189, 248, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    background: linear-gradient(135deg, #0369A1 0%, #075985 100%);
+    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.35);
     color: #ffffff;
   }
+  html.dark .btn-primary {
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+    box-shadow: 0 0 15px -3px rgba(56, 189, 248, 0.35);
+    border-color: rgba(56, 189, 248, 0.5);
+  }
   .btn-secondary {
+    background: #FFFFFF;
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  }
+  .btn-secondary:hover {
+    background: var(--color-surface-2);
+    color: var(--color-text-primary);
+    border-color: var(--color-border-active);
+    box-shadow: 0 2px 4px rgba(15, 23, 42, 0.06);
+  }
+  html.dark .btn-secondary {
     background: var(--color-surface-2);
     color: var(--color-text-secondary);
     border: 1px solid var(--color-border);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   }
-  .btn-secondary:hover {
+  html.dark .btn-secondary:hover {
     background: var(--color-surface-3);
     color: var(--color-text-primary);
     border-color: var(--color-border-active);
   }
   .btn-accent {
+    background: linear-gradient(135deg, rgba(2, 132, 199, 0.08) 0%, rgba(99, 102, 241, 0.08) 100%);
+    color: #0369A1;
+    border: 1px solid rgba(2, 132, 199, 0.28);
+    box-shadow: 0 1px 3px rgba(2, 132, 199, 0.08);
+  }
+  .btn-accent:hover {
+    background: linear-gradient(135deg, rgba(2, 132, 199, 0.16) 0%, rgba(99, 102, 241, 0.16) 100%);
+    border-color: rgba(2, 132, 199, 0.45);
+    color: #075985;
+  }
+  html.dark .btn-accent {
     background: linear-gradient(135deg, rgba(56, 189, 248, 0.15) 0%, rgba(99, 102, 241, 0.15) 100%);
-    color: var(--color-accent);
+    color: #38BDF8;
     border: 1px solid rgba(56, 189, 248, 0.35);
     box-shadow: 0 0 15px -3px rgba(56, 189, 248, 0.2);
   }
-  .btn-accent:hover {
+  html.dark .btn-accent:hover {
     background: linear-gradient(135deg, rgba(56, 189, 248, 0.25) 0%, rgba(99, 102, 241, 0.25) 100%);
     border-color: rgba(56, 189, 248, 0.55);
   }
@@ -229,7 +258,7 @@ body {
     color: var(--color-text-primary);
   }
 
-  /* Vibrant Jewel Badges */
+  /* Vibrant Jewel Badges (WCAG 2.1 AA Compliant) */
   .badge {
     display: inline-flex;
     align-items: center;
@@ -243,49 +272,43 @@ body {
   }
   .badge-critical {
     color: #B91C1C;
-    background: rgba(239, 68, 68, 0.10);
-    border: 1px solid rgba(239, 68, 68, 0.25);
-    box-shadow: 0 0 10px -2px rgba(239, 68, 68, 0.15);
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.22);
   }
   .badge-high {
-    color: #9A3412;
-    background: rgba(245, 158, 11, 0.10);
-    border: 1px solid rgba(245, 158, 11, 0.25);
-    box-shadow: 0 0 10px -2px rgba(245, 158, 11, 0.15);
+    color: #C2410C;
+    background: rgba(249, 115, 22, 0.08);
+    border: 1px solid rgba(249, 115, 22, 0.24);
   }
   .badge-medium {
     color: #854D0E;
-    background: rgba(234, 179, 8, 0.10);
-    border: 1px solid rgba(234, 179, 8, 0.25);
+    background: rgba(234, 179, 8, 0.08);
+    border: 1px solid rgba(234, 179, 8, 0.24);
   }
   .badge-low {
     color: #1D4ED8;
-    background: rgba(59, 130, 246, 0.10);
-    border: 1px solid rgba(59, 130, 246, 0.25);
-    box-shadow: 0 0 10px -2px rgba(59, 130, 246, 0.12);
+    background: rgba(59, 130, 246, 0.08);
+    border: 1px solid rgba(59, 130, 246, 0.20);
   }
   .badge-info {
     color: #334155;
-    background: rgba(100, 116, 139, 0.10);
+    background: rgba(100, 116, 139, 0.08);
     border: 1px solid rgba(100, 116, 139, 0.20);
   }
   .badge-healthy {
     color: #047857;
-    background: rgba(16, 185, 129, 0.10);
-    border: 1px solid rgba(16, 185, 129, 0.25);
-    box-shadow: 0 0 10px -2px rgba(16, 185, 129, 0.15);
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.24);
   }
   .badge-accent {
     color: #0369A1;
-    background: var(--color-accent-dim);
-    border: 1px solid rgba(56, 189, 248, 0.25);
-    box-shadow: 0 0 10px -2px rgba(56, 189, 248, 0.15);
+    background: rgba(2, 132, 199, 0.08);
+    border: 1px solid rgba(2, 132, 199, 0.24);
   }
   .badge-purple {
-    color: #7E22CE;
-    background: rgba(168, 85, 247, 0.10);
-    border: 1px solid rgba(168, 85, 247, 0.25);
-    box-shadow: 0 0 10px -2px rgba(168, 85, 247, 0.15);
+    color: #6D28D9;
+    background: rgba(168, 85, 247, 0.08);
+    border: 1px solid rgba(168, 85, 247, 0.22);
   }
 
   /* Dark theme badge overrides for stronger contrast */
@@ -298,12 +321,18 @@ body {
   html.dark .badge-purple { color: #C084FC; background: rgba(168, 85, 247, 0.14); border-color: rgba(168, 85, 247, 0.3); }
   html.dark .badge-accent { color: #38BDF8; background: rgba(56, 189, 248, 0.14); border-color: rgba(56, 189, 248, 0.3); }
 
-  /* Glass Card Surfaces */
+  /* Surface Cards (Light & Dark Polish) */
   .card {
     background: var(--color-surface-1);
     border: 1px solid var(--color-border);
     border-radius: 0.875rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04), 0 1px 2px -1px rgba(15, 23, 42, 0.02);
+  }
+  .card-elevated {
+    background: var(--color-surface-1);
+    border: 1px solid var(--color-border);
+    border-radius: 1rem;
+    box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.03);
   }
   html.dark .card {
     background: linear-gradient(180deg, rgba(17, 23, 36, 0.85) 0%, rgba(11, 15, 24, 0.90) 100%);
@@ -311,45 +340,83 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
   }
+  html.dark .card-elevated {
+    background: linear-gradient(180deg, rgba(21, 26, 39, 0.92) 0%, rgba(15, 19, 29, 0.95) 100%);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
   .card-hover {
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
   .card-hover:hover {
-    border-color: rgba(56, 189, 248, 0.3);
-    box-shadow: 0 4px 16px -4px rgba(0, 0, 0, 0.1);
-    transform: translateY(-1px);
+    border-color: rgba(2, 132, 199, 0.35);
+    box-shadow: 0 10px 25px -3px rgba(15, 23, 42, 0.08), 0 4px 10px -2px rgba(15, 23, 42, 0.04);
+    transform: translateY(-2px);
   }
   html.dark .card-hover:hover {
+    border-color: rgba(56, 189, 248, 0.3);
     box-shadow: 0 8px 28px -4px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transform: translateY(-1px);
   }
 
-  /* Vibrant Gradient Text */
+  /* Dual-Theme Gradient Text */
   .text-gradient-brand {
+    background: linear-gradient(135deg, #0284C7 0%, #4F46E5 50%, #7E22CE 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  html.dark .text-gradient-brand {
     background: linear-gradient(135deg, #38BDF8 0%, #818CF8 50%, #C084FC 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
   .text-gradient-cyan {
+    background: linear-gradient(135deg, #0284C7 0%, #0D9488 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  html.dark .text-gradient-cyan {
     background: linear-gradient(135deg, #38BDF8 0%, #06B6D4 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
   .text-gradient-emerald {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  html.dark .text-gradient-emerald {
     background: linear-gradient(135deg, #34D399 0%, #059669 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
   .text-gradient-amber {
+    background: linear-gradient(135deg, #D97706 0%, #B45309 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  html.dark .text-gradient-amber {
     background: linear-gradient(135deg, #FBBF24 0%, #D97706 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
   .text-gradient-rose {
+    background: linear-gradient(135deg, #E11D48 0%, #BE123C 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  html.dark .text-gradient-rose {
     background: linear-gradient(135deg, #FB7185 0%, #E11D48 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
   .text-gradient-purple {
+    background: linear-gradient(135deg, #7E22CE 0%, #4F46E5 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  html.dark .text-gradient-purple {
     background: linear-gradient(135deg, #C084FC 0%, #818CF8 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;

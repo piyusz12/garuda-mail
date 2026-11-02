@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import AuthProvider from "@/components/providers/AuthProvider";
 import ThemeProvider from "@/components/providers/ThemeProvider";
+import { AriaLiveProvider } from "@/components/common/AriaLiveAnnouncer";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -16,9 +17,9 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Garuda Mail — Cryptographic Forensics & Security Intelligence",
-  description: "Enterprise-grade passive email cryptographic forensics and security analysis platform. Analyze PCAP captures, evaluate TLS handshakes, X.509 certificates, and identify security weaknesses.",
-  keywords: ["email security", "cryptographic forensics", "TLS analysis", "PCAP", "certificate analysis", "SMTP security"],
+  title: "Garuda Mail — Cryptographic Forensics & Deliverability Intelligence",
+  description: "Enterprise-grade passive email cryptographic forensics, campaign orchestration, deliverability warming, and security analysis platform.",
+  keywords: ["email security", "cryptographic forensics", "campaign orchestration", "deliverability warming", "SPF DKIM DMARC", "RFC 8058", "TLS analysis"],
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
@@ -61,7 +62,16 @@ export default function RootLayout({
       </head>
       <body className="antialiased" suppressHydrationWarning>
         <ThemeProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <AriaLiveProvider>
+            {/* Skip navigation link for keyboard accessibility (WCAG 2.4.1) */}
+            <a
+              href="#main-content"
+              className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-sky-600 focus:text-white focus:rounded-md focus:shadow-xl focus:ring-2 focus:ring-sky-400 focus:outline-none text-sm font-medium transition"
+            >
+              Skip to main content
+            </a>
+            <AuthProvider>{children}</AuthProvider>
+          </AriaLiveProvider>
         </ThemeProvider>
       </body>
     </html>

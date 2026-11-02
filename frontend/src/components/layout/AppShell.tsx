@@ -45,7 +45,11 @@ export default function AppShell({ children, title, description }: AppShellProps
           description={description}
           onOpenMobileMenu={() => setMobileDrawerOpen(true)}
         />
-        <main className="flex-1 p-3 sm:p-5 md:p-6 pb-24 md:pb-6 overflow-x-hidden min-w-0">
+        <main
+          id="main-content"
+          tabIndex={-1}
+          className="flex-1 p-3 sm:p-5 md:p-6 pb-24 md:pb-6 overflow-x-hidden min-w-0 focus:outline-none"
+        >
           {children}
         </main>
       </div>
@@ -56,7 +60,7 @@ export default function AppShell({ children, title, description }: AppShellProps
         isMenuOpen={mobileDrawerOpen}
       />
 
-      {/* WhatsApp-Style Online Users & Quick Mail Drawer */}
+      {/* Online Users & Quick Mail Drawer */}
       <QuickMailDrawer />
     </div>
   );

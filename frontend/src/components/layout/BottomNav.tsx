@@ -14,10 +14,10 @@ export default function BottomNav({ onOpenMenu, isMenuOpen }: BottomNavProps) {
   const pathname = usePathname();
 
   const navItems = [
-    { name: 'Inbox', href: '/inbox', icon: Inbox, color: 'text-sky-400', dot: 'bg-sky-400 shadow-[0_0_10px_#38bdf8]' },
-    { name: 'Findings', href: '/findings', icon: AlertTriangle, color: 'text-amber-400', dot: 'bg-amber-400 shadow-[0_0_10px_#f59e0b]' },
-    { name: 'CBOM', href: '/cbom', icon: Layers, color: 'text-purple-400', dot: 'bg-purple-400 shadow-[0_0_10px_#a855f7]' },
-    { name: 'Ops', href: '/operations', icon: Activity, color: 'text-emerald-400', dot: 'bg-emerald-400 shadow-[0_0_10px_#10b981]' },
+    { name: 'Inbox', href: '/inbox', icon: Inbox, color: 'text-sky-600 dark:text-sky-400', dot: 'bg-sky-400 shadow-[0_0_10px_#38bdf8]' },
+    { name: 'Findings', href: '/findings', icon: AlertTriangle, color: 'text-amber-600 dark:text-amber-400', dot: 'bg-amber-400 shadow-[0_0_10px_#f59e0b]' },
+    { name: 'CBOM', href: '/cbom', icon: Layers, color: 'text-purple-600 dark:text-purple-400', dot: 'bg-purple-400 shadow-[0_0_10px_#a855f7]' },
+    { name: 'Ops', href: '/operations', icon: Activity, color: 'text-emerald-600 dark:text-emerald-400', dot: 'bg-emerald-400 shadow-[0_0_10px_#10b981]' },
   ];
 
   return (

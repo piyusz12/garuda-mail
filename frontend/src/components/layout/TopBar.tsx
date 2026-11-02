@@ -193,15 +193,25 @@ export default function TopBar({ title, description, onOpenMobileMenu }: TopBarP
           </button>
         </div>
 
-        {/* Theme Toggle */}
+        {/* Dual Theme Switcher Pill (Light Default + Dark Available) */}
         <button
           type="button"
           onClick={toggleTheme}
-          className="flex items-center justify-center w-8 h-8 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-accent)] hover:bg-[var(--color-surface-2)] transition-all"
-          title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
-          aria-label="Toggle theme"
+          className="flex items-center gap-1.5 h-8 px-2.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-2)] hover:bg-[var(--color-surface-3)] text-[var(--color-text-primary)] transition-all text-xs font-medium cursor-pointer shadow-sm"
+          title={theme === 'light' ? 'Current: Light Mode (Default) — Click to switch to Dark Mode' : 'Current: Dark Mode — Click to switch to Light Mode'}
+          aria-label={`Current theme: ${theme}. Click to switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
         >
-          {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
+          {theme === 'light' ? (
+            <>
+              <Sun size={14} className="text-amber-500 fill-amber-500/20" />
+              <span className="hidden sm:inline text-[11px] font-semibold">Light</span>
+            </>
+          ) : (
+            <>
+              <Moon size={14} className="text-sky-400 fill-sky-400/20" />
+              <span className="hidden sm:inline text-[11px] font-semibold">Dark</span>
+            </>
+          )}
         </button>
         {/* Notifications */}
         <div className="relative">

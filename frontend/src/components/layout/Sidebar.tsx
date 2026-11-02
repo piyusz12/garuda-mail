@@ -9,21 +9,24 @@ import {
   LayoutDashboard, Upload, Network, AlertTriangle, Shield,
   Award, Brain, Search as SearchIcon, FileText, Settings, Layers,
   ChevronLeft, ChevronRight, Plus, Mail, Cpu, Activity, X, FlaskConical,
-  ShieldAlert, Users,
+  ShieldAlert, Users, Globe, BarChart3, Sparkles,
 } from 'lucide-react';
 import clsx from 'clsx';
 
 const userNav = [
-  { name: 'My Dashboard', href: '/user/dashboard', icon: LayoutDashboard, color: 'text-sky-400', activeBg: 'bg-sky-500/15 border-sky-500/30 text-sky-400' },
-  { name: 'Inbox', href: '/inbox', icon: Inbox, countKey: 'inbox' as const, color: 'text-sky-400', activeBg: 'bg-sky-500/15 border-sky-500/30 text-sky-400' },
-  { name: 'Sent', href: '/sent', icon: Send, color: 'text-indigo-400', activeBg: 'bg-indigo-500/15 border-indigo-500/30 text-indigo-400' },
-  { name: 'Drafts', href: '/drafts', icon: FileEdit, countKey: 'drafts' as const, color: 'text-amber-400', activeBg: 'bg-amber-500/15 border-amber-500/30 text-amber-400' },
-  { name: 'Starred', href: '/starred', icon: Star, color: 'text-yellow-400', activeBg: 'bg-yellow-500/15 border-yellow-500/30 text-yellow-400' },
-  { name: 'Contacts', href: '/user/contacts', icon: Users, color: 'text-emerald-400', activeBg: 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400' },
-  { name: 'Security Posture', href: '/user/security', icon: Shield, color: 'text-cyan-400', activeBg: 'bg-cyan-500/15 border-cyan-500/30 text-cyan-400' },
-  { name: 'Key Vault', href: '/crypto', icon: ShieldAlert, color: 'text-emerald-400', activeBg: 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400' },
-  { name: 'My Reports', href: '/user/reports', icon: FileText, color: 'text-[var(--color-text-secondary)]', activeBg: 'bg-sky-500/15 border-sky-500/30 text-sky-500 dark:text-sky-400' },
-  { name: 'Settings', href: '/settings', icon: Settings, color: 'text-[var(--color-text-muted)]', activeBg: 'bg-sky-500/15 border-sky-500/30 text-sky-500 dark:text-sky-400' },
+  { name: 'My Dashboard', href: '/user/dashboard', icon: LayoutDashboard, color: 'text-sky-600 dark:text-sky-400', activeBg: 'bg-sky-500/10 border-sky-500/30 text-sky-700 dark:text-sky-300 font-semibold' },
+  { name: 'Inbox', href: '/inbox', icon: Inbox, countKey: 'inbox' as const, color: 'text-sky-600 dark:text-sky-400', activeBg: 'bg-sky-500/10 border-sky-500/30 text-sky-700 dark:text-sky-300 font-semibold' },
+  { name: 'Sent', href: '/sent', icon: Send, color: 'text-indigo-600 dark:text-indigo-400', activeBg: 'bg-indigo-500/10 border-indigo-500/30 text-indigo-700 dark:text-indigo-300 font-semibold' },
+  { name: 'Drafts', href: '/drafts', icon: FileEdit, countKey: 'drafts' as const, color: 'text-amber-600 dark:text-amber-400', activeBg: 'bg-amber-500/10 border-amber-500/30 text-amber-800 dark:text-amber-300 font-semibold' },
+  { name: 'Starred', href: '/starred', icon: Star, color: 'text-yellow-600 dark:text-yellow-400', activeBg: 'bg-yellow-500/10 border-yellow-500/30 text-yellow-800 dark:text-yellow-300 font-semibold' },
+  { name: 'Campaign Wizard', href: '/campaigns/new', icon: Sparkles, color: 'text-amber-600 dark:text-amber-400', activeBg: 'bg-amber-500/10 border-amber-500/30 text-amber-800 dark:text-amber-300 font-semibold' },
+  { name: 'Domain Onboarding', href: '/domains/onboarding', icon: Globe, color: 'text-cyan-600 dark:text-cyan-400', activeBg: 'bg-cyan-500/10 border-cyan-500/30 text-cyan-800 dark:text-cyan-300 font-semibold' },
+  { name: 'Campaign Analytics', href: '/campaigns/analytics', icon: BarChart3, color: 'text-emerald-600 dark:text-emerald-400', activeBg: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-800 dark:text-emerald-300 font-semibold' },
+  { name: 'Contacts', href: '/user/contacts', icon: Users, color: 'text-emerald-600 dark:text-emerald-400', activeBg: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-800 dark:text-emerald-300 font-semibold' },
+  { name: 'Security Posture', href: '/user/security', icon: Shield, color: 'text-cyan-600 dark:text-cyan-400', activeBg: 'bg-cyan-500/10 border-cyan-500/30 text-cyan-800 dark:text-cyan-300 font-semibold' },
+  { name: 'Key Vault', href: '/crypto', icon: ShieldAlert, color: 'text-emerald-600 dark:text-emerald-400', activeBg: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-800 dark:text-emerald-300 font-semibold' },
+  { name: 'My Reports', href: '/user/reports', icon: FileText, color: 'text-[var(--color-text-secondary)]', activeBg: 'bg-sky-500/10 border-sky-500/30 text-sky-700 dark:text-sky-300 font-semibold' },
+  { name: 'Settings', href: '/settings', icon: Settings, color: 'text-[var(--color-text-muted)]', activeBg: 'bg-sky-500/10 border-sky-500/30 text-sky-700 dark:text-sky-300 font-semibold' },
 ];
 
 const adminNav = [
@@ -34,8 +37,8 @@ const adminNav = [
 ];
 
 const emailNav = [
-  { name: 'Inbox', href: '/inbox', icon: Inbox, countKey: 'inbox' as const, color: 'text-sky-400', activeBg: 'bg-sky-500/15 border-sky-500/30 text-sky-400' },
-  { name: 'Sent', href: '/sent', icon: Send, color: 'text-indigo-400', activeBg: 'bg-indigo-500/15 border-indigo-500/30 text-indigo-400' },
+  { name: 'Inbox', href: '/inbox', icon: Inbox, countKey: 'inbox' as const, color: 'text-sky-600 dark:text-sky-400', activeBg: 'bg-sky-500/10 border-sky-500/30 text-sky-700 dark:text-sky-300 font-semibold' },
+  { name: 'Sent', href: '/sent', icon: Send, color: 'text-indigo-600 dark:text-indigo-400', activeBg: 'bg-indigo-500/10 border-indigo-500/30 text-indigo-700 dark:text-indigo-300 font-semibold' },
   { name: 'Drafts', href: '/drafts', icon: FileEdit, countKey: 'drafts' as const, color: 'text-amber-400', activeBg: 'bg-amber-500/15 border-amber-500/30 text-amber-400' },
   { name: 'Starred', href: '/starred', icon: Star, color: 'text-yellow-400', activeBg: 'bg-yellow-500/15 border-yellow-500/30 text-yellow-400' },
   { name: 'Archive', href: '/archive', icon: Archive, color: 'text-emerald-400', activeBg: 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400' },

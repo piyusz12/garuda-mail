@@ -4,7 +4,8 @@ import { useState, useEffect, Suspense, useCallback } from 'react';
 import { getSession, signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Mail, Lock, Eye, EyeOff, AlertCircle, Loader2, Zap, ShieldAlert, Shield, User, ArrowRight } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, AlertCircle, Loader2, Zap, ShieldAlert, Shield, User, ArrowRight, Sun, Moon } from 'lucide-react';
+import { useTheme } from '@/components/providers/ThemeProvider';
 import Link from 'next/link';
 import { getProtectedRouteForRole } from '@/lib/roles';
 
@@ -18,6 +19,7 @@ export default function LoginPage() {
 
 function LoginForm() {
   const router = useRouter();
+  const { theme, toggleTheme } = useTheme();
   const searchParams = useSearchParams();
   const rawCallback = searchParams.get('callbackUrl') || '/inbox';
   const callbackUrl = rawCallback.startsWith('/') ? rawCallback : '/inbox';
@@ -117,6 +119,28 @@ function LoginForm() {
 
   return (
     <div className="min-h-screen bg-[var(--color-surface-0)] flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Top-Right Dual Theme Switcher */}
+      <div className="absolute top-4 right-4 z-20">
+        <button
+          type="button"
+          onClick={toggleTheme}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-1)] hover:bg-[var(--color-surface-2)] text-[var(--color-text-primary)] transition-all text-xs font-semibold cursor-pointer shadow-sm"
+          title={theme === 'light' ? 'Current: Light Mode (Default) — Click to switch to Dark Mode' : 'Current: Dark Mode — Click to switch to Light Mode'}
+          aria-label="Toggle between dark and light mode"
+        >
+          {theme === 'light' ? (
+            <>
+              <Moon size={14} className="text-slate-600" />
+              <span>Dark Mode</span>
+            </>
+          ) : (
+            <>
+              <Sun size={14} className="text-amber-400" />
+              <span>Light Mode</span>
+            </>
+          )}
+        </button>
+      </div>
       {/* Multi-Color Ambient Glows */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
         <div className="absolute -top-40 -left-40 w-[550px] h-[550px] bg-indigo-500/10 rounded-full blur-[140px]" />
