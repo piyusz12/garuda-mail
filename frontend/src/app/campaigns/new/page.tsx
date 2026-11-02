@@ -202,7 +202,7 @@ export default function NewCampaignPage() {
         body: JSON.stringify({
           recipientCount,
           isRetry,
-          failedRecords: isRetry ? failedRecords : [],
+          failedRecords: isRetry ? retryableRecords : [],
           recipients: ['cso@enterprise-cyber.org', 'sec-ops@defense-intel.gov', 'lead-architect@crypto-policy.net'],
         }),
       });
@@ -943,8 +943,16 @@ export default function NewCampaignPage() {
               <button
                 type="button"
                 onClick={() => {
-                  updateField('preflightPassed', true);
-                  announce('Preflight deliverability audit passed successfully.');
+                  const passed =
+                    audit.isRatioCompliant &&
+                    !audit.hasAltTextIssues &&
+                    audit.spamWordsDetected.length === 0;
+                  updateField('preflightPassed', passed);
+                  announce(
+                    passed
+                      ? 'Preflight deliverability audit passed successfully.'
+                      : 'Preflight deliverability audit failed. Please resolve content warnings before dispatch.'
+                  );
                 }}
                 className={`btn text-xs font-bold px-3 py-1.5 shrink-0 ${
                   preflightPassed ? 'btn-secondary text-emerald-600 dark:text-emerald-400' : 'btn-primary'
