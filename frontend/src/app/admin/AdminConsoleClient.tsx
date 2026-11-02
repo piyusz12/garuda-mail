@@ -578,7 +578,12 @@ export default function AdminConsoleClient({ currentUser, initialTab = 'overview
                                   message: `Are you sure you want to change the role of ${u.email} to "${targetRole.toUpperCase()}"?`,
                                 });
                               }}
-                              className="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-[var(--color-surface-2)] hover:bg-[var(--color-surface-3)] text-slate-200 border border-[var(--color-border)] transition-colors"
+                              className={clsx(
+                                'px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all shadow-sm border cursor-pointer',
+                                u.role === 'admin'
+                                  ? 'bg-[var(--color-surface-2)] hover:bg-[var(--color-surface-3)] text-[var(--color-text-secondary)] border-[var(--color-border)]'
+                                  : 'bg-indigo-600 hover:bg-indigo-700 text-white border-indigo-700 shadow-indigo-600/20 active:scale-95'
+                              )}
                             >
                               {u.role === 'admin' ? 'Demote to User' : 'Make Admin'}
                             </button>

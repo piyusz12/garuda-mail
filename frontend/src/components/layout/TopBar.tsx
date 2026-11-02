@@ -239,7 +239,7 @@ export default function TopBar({ title, description, onOpenMobileMenu }: TopBarP
             type="button"
             onClick={handleInstantAdminEscalate}
             disabled={adminSwitchLoading}
-            className="flex items-center gap-1.5 h-8 px-2.5 rounded-lg text-[11px] font-bold text-rose-700 dark:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 hover:border-rose-500/50 shadow-sm transition-all active:scale-95 cursor-pointer disabled:opacity-50"
+            className="flex items-center gap-1.5 h-8 px-3 rounded-lg text-[11px] font-bold text-white bg-rose-600 hover:bg-rose-700 dark:bg-rose-600 dark:hover:bg-rose-500 border border-rose-700 dark:border-rose-500 shadow-sm shadow-rose-600/20 transition-all active:scale-95 cursor-pointer disabled:opacity-50"
             title="Instant Admin Login — Switch to Administrator"
           >
             {adminSwitchLoading ? (
@@ -441,7 +441,7 @@ export default function TopBar({ title, description, onOpenMobileMenu }: TopBarP
                   type="button"
                   onClick={handleInstantAdminEscalate}
                   disabled={adminSwitchLoading}
-                  className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-[11px] font-bold rounded-md bg-slate-900 hover:bg-slate-800 text-white dark:bg-rose-600 dark:hover:bg-rose-500 shadow-sm border border-slate-700 dark:border-rose-500/40 transition-all mt-1.5 cursor-pointer disabled:opacity-50"
+                  className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-[11px] font-bold rounded-md bg-rose-600 hover:bg-rose-700 text-white shadow-sm border border-rose-700 transition-all mt-1.5 cursor-pointer disabled:opacity-50"
                 >
                   {adminSwitchLoading ? (
                     <Loader2 size={12} className="animate-spin text-white" />
